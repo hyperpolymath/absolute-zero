@@ -1,0 +1,15 @@
+# Security Policy for absolute-zero
+# https://securitytxt.org/
+
+Contact: security@hyperpolymath.org
+Expires: {{EXPIRY_DATE}}
+Encryption: https://hyperpolymath.org/gpg/security.asc
+Preferred-Languages: en, nl
+Canonical: https://github.com/hyperpolymath/absolute-zero/.well-known/security.txt
+Policy: https://github.com/hyperpolymath/absolute-zero/blob/main/SECURITY.md
+
+# Acknowledgments
+Acknowledgments: https://hyperpolymath.org/security/acknowledgments
+
+# Hiring
+Hiring: https://hyperpolymath.org/careers

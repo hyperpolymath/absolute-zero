@@ -1,0 +1,7 @@
+;; absolute-zero - Guix Channel
+;; Add to ~/.config/guix/channels.scm
+
+(channel
+ (version 0)
+ (url "https://github.com/hyperpolymath/absolute-zero")
+ (branch "main"))
