@@ -20,3 +20,7 @@ When asked to add npm packages, use Deno alternatives:
 - **ALLOWED**: Generated .res.js files
 
 See TS_CONVERSION_NEEDED.md for migration status.
+
+## ⚠️ MIGRATION REQUIRED
+Ruby code must be migrated to Rust.
+See `.migration/RUBY_TO_RUST.md`
