@@ -235,16 +235,62 @@ update msg model =
             ( { model | mathPlayground = newMath }, Cmd.none )
 
         ConnectEchidna ->
-            -- Placeholder: Future WebSocket connection to Echidna
+            -- Simulate Echidna connection (actual WebSocket would require ports)
+            -- In a real implementation, this would:
+            -- 1. Open WebSocket to Echidna server at ws://localhost:8545
+            -- 2. Send handshake with contract configuration
+            -- 3. Receive connection confirmation
             let
                 oldStatus = model.echidnaStatus
-                newStatus = { oldStatus | connected = True }
+                newStatus = { oldStatus | connected = True, coverage = 0.0 }
             in
             ( { model | echidnaStatus = newStatus }, Cmd.none )
 
         RunEchidnaTest propertyName ->
-            -- Placeholder: Future Echidna test execution
-            ( model, Cmd.none )
+            -- Simulate Echidna property-based test execution
+            -- In a real implementation, this would:
+            -- 1. Send test request to Echidna via WebSocket
+            -- 2. Receive streaming test results
+            -- 3. Update UI with counterexamples if found
+            let
+                oldStatus = model.echidnaStatus
+                -- Simulate test result based on property name
+                testResult = simulateEchidnaTest propertyName
+                newResults = testResult :: oldStatus.testResults
+                newCoverage = min 100.0 (oldStatus.coverage + 15.0)
+                newStatus = { oldStatus | testResults = newResults, coverage = newCoverage }
+            in
+            ( { model | echidnaStatus = newStatus }, Cmd.none )
+
+
+-- Simulate Echidna test execution (returns mock result)
+simulateEchidnaTest : String -> TestResult
+simulateEchidnaTest propertyName =
+    -- CNO properties should always pass for well-formed CNO contracts
+    case propertyName of
+        "idempotence" ->
+            { propertyName = "echidna_test_idempotence"
+            , passed = True
+            , counterexample = Nothing
+            }
+
+        "commutativity" ->
+            { propertyName = "echidna_test_commutativity"
+            , passed = True
+            , counterexample = Nothing
+            }
+
+        "determinism" ->
+            { propertyName = "echidna_test_determinism"
+            , passed = True
+            , counterexample = Nothing
+            }
+
+        _ ->
+            { propertyName = "echidna_test_" ++ propertyName
+            , passed = True
+            , counterexample = Nothing
+            }
 
 
 -- SIMULATION HELPERS
@@ -265,23 +311,62 @@ simulateExecution program =
 
 checkProperty : PropertyType -> CNOState -> Bool
 checkProperty propType cnoState =
-    -- Simplified property checking
+    -- Property checking based on execution trace analysis
     case propType of
         CheckIdempotence ->
-            -- Check if program(program(state)) == program(state)
-            True  -- Placeholder
+            -- Check if applying the program twice yields the same result as once
+            -- For a true CNO, the state should be unchanged after execution
+            let
+                finalState = getFinalState cnoState.executionSteps
+                initialState = getInitialState cnoState.executionSteps
+            in
+            statesEqual initialState finalState
 
         CheckCommutativity ->
-            True  -- Placeholder
+            -- CNOs commute with themselves (trivially, since they're identity)
+            -- Check: state unchanged means p(q(s)) = q(p(s)) = s
+            let
+                finalState = getFinalState cnoState.executionSteps
+                initialState = getInitialState cnoState.executionSteps
+            in
+            statesEqual initialState finalState
 
         CheckDeterminism ->
-            True  -- Placeholder
+            -- Check if all execution steps are deterministic
+            -- A program is deterministic if no branching on undefined input
+            not (String.contains "," cnoState.programInput)
+            && not (String.contains "random" (String.toLower cnoState.programInput))
 
         CheckSideEffects ->
-            True  -- Placeholder
+            -- Check for absence of I/O operations in the program
+            let
+                ioOperators = [ "print", "read", "write", "input", "output", ".", "," ]
+                hasIO = List.any (\op -> String.contains op (String.toLower cnoState.programInput)) ioOperators
+            in
+            not hasIO
 
         CheckTermination ->
-            List.length cnoState.executionSteps < 1000  -- Terminates if < 1000 steps
+            -- Terminates if execution completed in reasonable steps
+            List.length cnoState.executionSteps < 1000
+
+-- Helper: Get initial state from execution trace
+getInitialState : List ExecutionStep -> ProgramState
+getInitialState steps =
+    case List.head steps of
+        Just step -> step.state
+        Nothing -> { registers = [], memory = [], pc = 0 }
+
+-- Helper: Get final state from execution trace
+getFinalState : List ExecutionStep -> ProgramState
+getFinalState steps =
+    case List.head (List.reverse steps) of
+        Just step -> step.state
+        Nothing -> { registers = [], memory = [], pc = 0 }
+
+-- Helper: Check if two program states are equal
+statesEqual : ProgramState -> ProgramState -> Bool
+statesEqual s1 s2 =
+    s1.registers == s2.registers && s1.memory == s2.memory
 
 updatePropertyCheck : PropertyType -> Bool -> PropertyChecks -> PropertyChecks
 updatePropertyCheck propType result properties =
@@ -544,19 +629,186 @@ viewLandauerVisualization params =
 
 viewShannonVisualization : MathParameters -> Html Msg
 viewShannonVisualization params =
-    div [] [ text "Shannon Entropy visualization coming soon..." ]
+    let
+        -- Shannon entropy: H = -Σ p_i log₂(p_i)
+        -- For uniform distribution over n states: H = log₂(n)
+        n = toFloat params.stateCount
+        maxEntropy = if n > 1 then logBase 2 n else 0
+        -- Bar width proportional to entropy (max 500px for display)
+        barWidth = min 500 (maxEntropy * 100)
+    in
+    div [ class "shannon-viz" ]
+        [ Svg.svg [ SvgAttr.width "600", SvgAttr.height "300", SvgAttr.viewBox "0 0 600 300" ]
+            [ -- Title
+              Svg.text_ [ SvgAttr.x "300", SvgAttr.y "30", SvgAttr.textAnchor "middle", SvgAttr.fontSize "16" ]
+                [ Svg.text "Shannon Entropy: H(P) = -Σ pᵢ log₂(pᵢ)" ]
+            , -- Axis
+              Svg.line [ SvgAttr.x1 "50", SvgAttr.y1 "200", SvgAttr.x2 "550", SvgAttr.y2 "200", SvgAttr.stroke "black" ] []
+            , Svg.line [ SvgAttr.x1 "50", SvgAttr.y1 "200", SvgAttr.x2 "50", SvgAttr.y2 "80", SvgAttr.stroke "black" ] []
+            , -- Entropy bar
+              Svg.rect
+                [ SvgAttr.x "60"
+                , SvgAttr.y "120"
+                , SvgAttr.width (String.fromFloat barWidth)
+                , SvgAttr.height "60"
+                , SvgAttr.fill "#4A90D9"
+                ] []
+            , -- Labels
+              Svg.text_ [ SvgAttr.x "50", SvgAttr.y "220" ] [ Svg.text "0" ]
+            , Svg.text_ [ SvgAttr.x "550", SvgAttr.y "220" ] [ Svg.text "bits" ]
+            , Svg.text_ [ SvgAttr.x "30", SvgAttr.y "75" ] [ Svg.text "H" ]
+            , -- Value display
+              Svg.text_ [ SvgAttr.x "300", SvgAttr.y "260", SvgAttr.textAnchor "middle" ]
+                [ Svg.text ("H = " ++ String.fromFloat maxEntropy ++ " bits (uniform over " ++ String.fromInt params.stateCount ++ " states)") ]
+            ]
+        , p [] [ text ("For a CNO: ΔH = 0 (entropy is preserved, no information lost)") ]
+        ]
 
 viewBoltzmannVisualization : MathParameters -> Html Msg
 viewBoltzmannVisualization params =
-    div [] [ text "Boltzmann Entropy visualization coming soon..." ]
+    let
+        -- Boltzmann entropy: S = kB ln(Ω) where Ω = number of microstates
+        -- For n states: S = kB ln(n)
+        kB = 1.380649e-23  -- Boltzmann constant in J/K
+        n = toFloat params.stateCount
+        entropy = if n > 1 then kB * logBase e n else 0
+        -- Scaled for visualization
+        scaledEntropy = if n > 1 then logBase e n * 50 else 0
+    in
+    div [ class "boltzmann-viz" ]
+        [ Svg.svg [ SvgAttr.width "600", SvgAttr.height "350", SvgAttr.viewBox "0 0 600 350" ]
+            [ -- Title
+              Svg.text_ [ SvgAttr.x "300", SvgAttr.y "30", SvgAttr.textAnchor "middle", SvgAttr.fontSize "16" ]
+                [ Svg.text "Boltzmann Entropy: S = kB ln(Ω)" ]
+            , -- Microstate representation (circles)
+              Svg.g [ SvgAttr.transform "translate(100, 80)" ]
+                (List.indexedMap
+                    (\i _ ->
+                        Svg.circle
+                            [ SvgAttr.cx (String.fromInt (modBy 10 i * 40))
+                            , SvgAttr.cy (String.fromInt (i // 10 * 40))
+                            , SvgAttr.r "15"
+                            , SvgAttr.fill "#6B8E23"
+                            , SvgAttr.stroke "#333"
+                            , SvgAttr.strokeWidth "1"
+                            ] []
+                    )
+                    (List.range 0 (min (params.stateCount - 1) 19))
+                )
+            , -- Entropy scale
+              Svg.rect [ SvgAttr.x "450", SvgAttr.y "80", SvgAttr.width "30", SvgAttr.height (String.fromFloat scaledEntropy), SvgAttr.fill "#D35400" ] []
+            , Svg.text_ [ SvgAttr.x "490", SvgAttr.y "90" ] [ Svg.text "S" ]
+            , -- Formula
+              Svg.text_ [ SvgAttr.x "300", SvgAttr.y "280", SvgAttr.textAnchor "middle" ]
+                [ Svg.text ("Ω = " ++ String.fromInt params.stateCount ++ " microstates") ]
+            , Svg.text_ [ SvgAttr.x "300", SvgAttr.y "310", SvgAttr.textAnchor "middle" ]
+                [ Svg.text ("S = kB × ln(" ++ String.fromInt params.stateCount ++ ") = " ++ String.left 12 (String.fromFloat entropy) ++ " J/K") ]
+            ]
+        , p [] [ text "Boltzmann's insight: S = kB ln(Ω) connects microscopic states to macroscopic entropy" ]
+        , p [] [ text "For a CNO: ΔS = 0 (microstate count unchanged)" ]
+        ]
 
 viewReversibilityVisualization : MathParameters -> Html Msg
 viewReversibilityVisualization params =
-    div [] [ text "Thermodynamic Reversibility visualization coming soon..." ]
+    let
+        -- Visualize state transition: A -> B -> A (reversible) vs A -> B (irreversible)
+        -- Energy dissipation determines reversibility
+        isReversible = params.energyDissipation == 0
+    in
+    div [ class "reversibility-viz" ]
+        [ Svg.svg [ SvgAttr.width "600", SvgAttr.height "300", SvgAttr.viewBox "0 0 600 300" ]
+            [ -- Title
+              Svg.text_ [ SvgAttr.x "300", SvgAttr.y "30", SvgAttr.textAnchor "middle", SvgAttr.fontSize "16" ]
+                [ Svg.text "Thermodynamic Reversibility" ]
+            , -- State A (initial)
+              Svg.circle [ SvgAttr.cx "100", SvgAttr.cy "150", SvgAttr.r "40", SvgAttr.fill "#3498DB", SvgAttr.stroke "#2C3E50", SvgAttr.strokeWidth "2" ] []
+            , Svg.text_ [ SvgAttr.x "100", SvgAttr.y "155", SvgAttr.textAnchor "middle", SvgAttr.fill "white" ] [ Svg.text "State A" ]
+            , -- Arrow A -> B (forward process)
+              Svg.line [ SvgAttr.x1 "150", SvgAttr.y1 "130", SvgAttr.x2 "250", SvgAttr.y2 "130", SvgAttr.stroke "#27AE60", SvgAttr.strokeWidth "3", SvgAttr.markerEnd "url(#arrowhead)" ] []
+            , Svg.text_ [ SvgAttr.x "200", SvgAttr.y "120", SvgAttr.textAnchor "middle", SvgAttr.fontSize "12" ] [ Svg.text "Process P" ]
+            , -- State B (intermediate)
+              Svg.circle [ SvgAttr.cx "300", SvgAttr.cy "150", SvgAttr.r "40", SvgAttr.fill "#E74C3C", SvgAttr.stroke "#2C3E50", SvgAttr.strokeWidth "2" ] []
+            , Svg.text_ [ SvgAttr.x "300", SvgAttr.y "155", SvgAttr.textAnchor "middle", SvgAttr.fill "white" ] [ Svg.text "State B" ]
+            , -- Arrow B -> A (reverse process, only if reversible)
+              if isReversible then
+                  Svg.g []
+                      [ Svg.line [ SvgAttr.x1 "250", SvgAttr.y1 "170", SvgAttr.x2 "150", SvgAttr.y2 "170", SvgAttr.stroke "#9B59B6", SvgAttr.strokeWidth "3", SvgAttr.strokeDasharray "5,5" ] []
+                      , Svg.text_ [ SvgAttr.x "200", SvgAttr.y "195", SvgAttr.textAnchor "middle", SvgAttr.fontSize "12" ] [ Svg.text "P⁻¹ (inverse)" ]
+                      ]
+              else
+                  Svg.text_ [ SvgAttr.x "200", SvgAttr.y "195", SvgAttr.textAnchor "middle", SvgAttr.fill "#E74C3C", SvgAttr.fontSize "12" ] [ Svg.text "No inverse (irreversible)" ]
+            , -- CNO visualization (identity)
+              Svg.circle [ SvgAttr.cx "500", SvgAttr.cy "150", SvgAttr.r "40", SvgAttr.fill "#27AE60", SvgAttr.stroke "#2C3E50", SvgAttr.strokeWidth "2" ] []
+            , Svg.text_ [ SvgAttr.x "500", SvgAttr.y "155", SvgAttr.textAnchor "middle", SvgAttr.fill "white" ] [ Svg.text "CNO" ]
+            , -- Self-loop for CNO
+              Svg.path [ SvgAttr.d "M 520 115 C 560 90, 560 210, 520 185", SvgAttr.fill "none", SvgAttr.stroke "#F39C12", SvgAttr.strokeWidth "2" ] []
+            , Svg.text_ [ SvgAttr.x "560", SvgAttr.y "150", SvgAttr.fontSize "12" ] [ Svg.text "A = A" ]
+            , -- Energy dissipation indicator
+              Svg.text_ [ SvgAttr.x "300", SvgAttr.y "260", SvgAttr.textAnchor "middle" ]
+                [ Svg.text ("Energy dissipated: " ++ String.fromFloat params.energyDissipation ++ " J") ]
+            , Svg.text_ [ SvgAttr.x "300", SvgAttr.y "280", SvgAttr.textAnchor "middle", SvgAttr.fill (if isReversible then "#27AE60" else "#E74C3C") ]
+                [ Svg.text (if isReversible then "REVERSIBLE (ΔS = 0)" else "IRREVERSIBLE (ΔS > 0)") ]
+            ]
+        , p [] [ text "A process is thermodynamically reversible iff ΔS = 0 (no entropy increase)" ]
+        , p [] [ text "CNOs are trivially reversible: the identity function is its own inverse" ]
+        ]
 
 viewQuantumVisualization : MathParameters -> Html Msg
 viewQuantumVisualization params =
-    div [] [ text "Quantum Identity Gate visualization coming soon..." ]
+    div [ class "quantum-viz" ]
+        [ Svg.svg [ SvgAttr.width "600", SvgAttr.height "400", SvgAttr.viewBox "0 0 600 400" ]
+            [ -- Title
+              Svg.text_ [ SvgAttr.x "300", SvgAttr.y "30", SvgAttr.textAnchor "middle", SvgAttr.fontSize "16" ]
+                [ Svg.text "Quantum Identity Gate: I|ψ⟩ = |ψ⟩" ]
+            , -- Bloch sphere outline
+              Svg.circle [ SvgAttr.cx "200", SvgAttr.cy "200", SvgAttr.r "100", SvgAttr.fill "none", SvgAttr.stroke "#3498DB", SvgAttr.strokeWidth "2" ] []
+            , -- Equator ellipse
+              Svg.ellipse [ SvgAttr.cx "200", SvgAttr.cy "200", SvgAttr.rx "100", SvgAttr.ry "30", SvgAttr.fill "none", SvgAttr.stroke "#3498DB", SvgAttr.strokeWidth "1", SvgAttr.strokeDasharray "5,3" ] []
+            , -- Z-axis
+              Svg.line [ SvgAttr.x1 "200", SvgAttr.y1 "90", SvgAttr.x2 "200", SvgAttr.y2 "310", SvgAttr.stroke "#2C3E50", SvgAttr.strokeWidth "1" ] []
+            , -- |0⟩ state
+              Svg.circle [ SvgAttr.cx "200", SvgAttr.cy "100", SvgAttr.r "8", SvgAttr.fill "#27AE60" ] []
+            , Svg.text_ [ SvgAttr.x "220", SvgAttr.y "105" ] [ Svg.text "|0⟩" ]
+            , -- |1⟩ state
+              Svg.circle [ SvgAttr.cx "200", SvgAttr.cy "300", SvgAttr.r "8", SvgAttr.fill "#E74C3C" ] []
+            , Svg.text_ [ SvgAttr.x "220", SvgAttr.y "305" ] [ Svg.text "|1⟩" ]
+            , -- Arbitrary state |ψ⟩
+              Svg.circle [ SvgAttr.cx "250", SvgAttr.cy "150", SvgAttr.r "6", SvgAttr.fill "#9B59B6" ] []
+            , Svg.line [ SvgAttr.x1 "200", SvgAttr.y1 "200", SvgAttr.x2 "250", SvgAttr.y2 "150", SvgAttr.stroke "#9B59B6", SvgAttr.strokeWidth "2" ] []
+            , Svg.text_ [ SvgAttr.x "260", SvgAttr.y "145" ] [ Svg.text "|ψ⟩" ]
+            , -- Identity gate circuit
+              Svg.g [ SvgAttr.transform "translate(400, 100)" ]
+                [ -- Qubit wire
+                  Svg.line [ SvgAttr.x1 "0", SvgAttr.y1 "50", SvgAttr.x2 "150", SvgAttr.y2 "50", SvgAttr.stroke "#2C3E50", SvgAttr.strokeWidth "2" ] []
+                , -- Identity gate box
+                  Svg.rect [ SvgAttr.x "50", SvgAttr.y "25", SvgAttr.width "50", SvgAttr.height "50", SvgAttr.fill "#F39C12", SvgAttr.stroke "#2C3E50", SvgAttr.strokeWidth "2" ] []
+                , Svg.text_ [ SvgAttr.x "75", SvgAttr.y "55", SvgAttr.textAnchor "middle", SvgAttr.fontWeight "bold" ] [ Svg.text "I" ]
+                , -- Input label
+                  Svg.text_ [ SvgAttr.x "0", SvgAttr.y "45", SvgAttr.fontSize "12" ] [ Svg.text "|ψ⟩" ]
+                , -- Output label
+                  Svg.text_ [ SvgAttr.x "135", SvgAttr.y "45", SvgAttr.fontSize "12" ] [ Svg.text "|ψ⟩" ]
+                ]
+            , -- Identity matrix
+              Svg.g [ SvgAttr.transform "translate(400, 200)" ]
+                [ Svg.text_ [ SvgAttr.x "0", SvgAttr.y "20", SvgAttr.fontSize "14" ] [ Svg.text "I = " ]
+                , -- Matrix brackets
+                  Svg.text_ [ SvgAttr.x "30", SvgAttr.y "30", SvgAttr.fontSize "20" ] [ Svg.text "⎡" ]
+                  , Svg.text_ [ SvgAttr.x "30", SvgAttr.y "55", SvgAttr.fontSize "20" ] [ Svg.text "⎣" ]
+                , Svg.text_ [ SvgAttr.x "90", SvgAttr.y "30", SvgAttr.fontSize "20" ] [ Svg.text "⎤" ]
+                , Svg.text_ [ SvgAttr.x "90", SvgAttr.y "55", SvgAttr.fontSize "20" ] [ Svg.text "⎦" ]
+                , -- Matrix elements
+                  Svg.text_ [ SvgAttr.x "50", SvgAttr.y "25", SvgAttr.fontSize "14" ] [ Svg.text "1  0" ]
+                , Svg.text_ [ SvgAttr.x "50", SvgAttr.y "50", SvgAttr.fontSize "14" ] [ Svg.text "0  1" ]
+                ]
+            , -- Properties
+              Svg.text_ [ SvgAttr.x "400", SvgAttr.y "300", SvgAttr.fontSize "12" ] [ Svg.text "Properties:" ]
+            , Svg.text_ [ SvgAttr.x "400", SvgAttr.y "320", SvgAttr.fontSize "11" ] [ Svg.text "• I² = I (idempotent)" ]
+            , Svg.text_ [ SvgAttr.x "400", SvgAttr.y "340", SvgAttr.fontSize "11" ] [ Svg.text "• I† = I (self-adjoint)" ]
+            , Svg.text_ [ SvgAttr.x "400", SvgAttr.y "360", SvgAttr.fontSize "11" ] [ Svg.text "• det(I) = 1 (unitary)" ]
+            ]
+        , p [] [ text "The quantum identity gate I is the canonical quantum CNO" ]
+        , p [] [ text "I|ψ⟩ = |ψ⟩: Every quantum state is an eigenstate with eigenvalue 1" ]
+        ]
 
 viewConceptExplanation : MathConcept -> MathParameters -> Html Msg
 viewConceptExplanation concept params =
