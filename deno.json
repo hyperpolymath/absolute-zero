@@ -1,6 +1,6 @@
 {
   "name": "@absolute-zero/cno",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "exports": "./mod.ts",
   "tasks": {
     "build": "deno run --allow-read --allow-write build.ts",
