@@ -2,8 +2,14 @@
 
 **Formal Verification of Certified Null Operations: When Doing Nothing Is Everything**
 
-[![License: PMPL-1.0](https://img.shields.io/badge/License-AGPL%203.0-blue.svg)](LICENSE-AGPL3.md)
-[![License: Palimpsest 0.5](https://img.shields.io/badge/License-Palimpsest%200.5-green.svg)](LICENSE-PALIMPSEST.md)
+image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[MPL-2.0-or-later,link="https://opensource.org/licenses/MPL-2.0"]
+image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[MPL-2.0-or-later,link="https://opensource.org/licenses/MPL-2.0"]
+
+== License & Philosophy
+
+This project must declare **MPL-2.0-or-later** for platform/tooling compatibility.
+
+Philosophy: **Palimpsest**. The Palimpsest-MPL (PMPL) text is provided in `license/PMPL-1.0.txt`, and the canonical source is the palimpsest-license repository.
 
 > *"The universe tends toward maximum entropy. A Certified Null Operation is a pocket of perfect computational order—a program that resists the Second Law. It does nothing, but in doing nothing, it says everything about the structure of computation itself."*
 
