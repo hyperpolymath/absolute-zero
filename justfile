@@ -374,3 +374,39 @@ clean-elm:
     @echo "Cleaning Elm artifacts..."
     rm -rf elm/dist elm/elm-stuff
 
+
+# ============================================================================
+# ECHIDNA Integration (Neurosymbolic Proof Assistant)
+# ============================================================================
+
+# List all Admitted proofs needing completion
+echidna-list:
+    @./scripts/use-echidna.sh list-admitted
+
+# Get tactic suggestions for a proof file
+echidna-suggest FILE:
+    @./scripts/use-echidna.sh suggest {{FILE}}
+
+# Attempt to auto-complete proofs in a file
+echidna-complete FILE:
+    @./scripts/use-echidna.sh complete {{FILE}}
+
+# Verify all proofs with multi-prover consensus
+echidna-verify:
+    @./scripts/use-echidna.sh verify-all
+
+# Start ECHIDNA interactive REPL
+echidna-repl:
+    @./scripts/use-echidna.sh repl
+
+# Check ECHIDNA installation
+echidna-check:
+    @echo "Checking ECHIDNA installation..."
+    @if [ -x ~/Documents/hyperpolymath-repos/echidna/target/release/echidna ]; then \
+        echo "✓ ECHIDNA binary found"; \
+        ~/Documents/hyperpolymath-repos/echidna/target/release/echidna --version; \
+    else \
+        echo "❌ ECHIDNA not built. Run:"; \
+        echo "   cd ~/Documents/hyperpolymath-repos/echidna && cargo build --release"; \
+    fi
+
