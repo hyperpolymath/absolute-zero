@@ -321,24 +321,15 @@ GitLab CI automatically:
 
 ## License
 
-Dual-licensed to support both open-source and academic use:
+**SPDX-License-Identifier: PMPL-1.0-or-later**
 
-### AGPL 3.0 (Primary License)
+This project is licensed under the **Palimpsest-MPL License 1.0 or later** (PMPL-1.0-or-later).
 
-For general use. Ensures derivatives remain open-source.
+The Palimpsest-MPL extends Mozilla Public License 2.0 with provisions for ethical use, post-quantum cryptographic provenance, and emotional lineage protection.
 
-See [LICENSE-AGPL3.md](LICENSE-AGPL3.md)
+See [LICENSE](LICENSE) for full license text.
 
-### Palimpsest 0.5 (Academic License)
-
-For academic research, papers, theses.
-
-See [LICENSE-PALIMPSEST.md](LICENSE-PALIMPSEST.md)
-
-**Choosing a License**:
-- Open-source projects → AGPL 3.0
-- Academic papers → Palimpsest 0.5
-- Commercial use → Contact author
+**Fallback**: Where platform requirements mandate OSI-approved licenses, MPL-2.0 may be used with appropriate documentation.
 
 ## Citation
 
