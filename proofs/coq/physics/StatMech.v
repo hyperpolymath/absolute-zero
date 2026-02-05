@@ -266,11 +266,23 @@ Proof.
   unfold logically_reversible.
   exists p.  (* CNO is its own inverse *)
   intros s s' H_eval.
-  (* Since p is a CNO, s' = s *)
-  destruct H_cno as [_ [H_id _]].
-  apply H_id in H_eval.
-  (* Now eval p s s', but s' = s, so eval p s s *)
-  admit.
+  (* Since p is a CNO, s' = s (up to state equality) *)
+  assert (s =st= s') as H_eq.
+  { destruct H_cno as [_ [H_id _]].
+    apply H_id in H_eval.
+    assumption. }
+  (* For CNOs, since s' = s, we have eval p s' s' *)
+  (* But eval p s' s' means p is a CNO on s' as well *)
+  destruct H_cno as [H_term [H_id [H_pure H_thermo]]].
+  (* By H_term, p terminates on s', so ∃s'', eval p s' s'' *)
+  destruct (H_term s') as [s'' H_eval'].
+  (* By H_id, s'' = s' *)
+  apply H_id in H_eval'.
+  (* Now we have eval p s' s'' and s'' = s' *)
+  (* But we need eval p s' s *)
+  (* Since s = s' (from H_eq), we have s'' = s *)
+  (* Therefore eval p s' s *)
+  (* This requires using state equality properly with eval *)
 Admitted.
 
 (** ** Physical Implications *)
