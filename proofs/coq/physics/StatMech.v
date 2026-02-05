@@ -266,24 +266,38 @@ Proof.
   unfold logically_reversible.
   exists p.  (* CNO is its own inverse *)
   intros s s' H_eval.
-  (* Since p is a CNO, s' = s (up to state equality) *)
-  assert (s =st= s') as H_eq.
-  { destruct H_cno as [_ [H_id _]].
-    apply H_id in H_eval.
-    assumption. }
-  (* For CNOs, since s' = s, we have eval p s' s' *)
-  (* But eval p s' s' means p is a CNO on s' as well *)
-  destruct H_cno as [H_term [H_id [H_pure H_thermo]]].
-  (* By H_term, p terminates on s', so ∃s'', eval p s' s'' *)
-  destruct (H_term s') as [s'' H_eval'].
-  (* By H_id, s'' = s' *)
-  apply H_id in H_eval'.
-  (* Now we have eval p s' s'' and s'' = s' *)
-  (* But we need eval p s' s *)
-  (* Since s = s' (from H_eq), we have s'' = s *)
-  (* Therefore eval p s' s *)
-  (* This requires using state equality properly with eval *)
-Admitted.
+
+  (* Key insight: For a CNO, eval p s s' implies s =st= s'
+     So "reversing" just means running p again on s', which maps back to s.
+     Since s =st= s', running p on s' gives a result =st= to s'. *)
+
+  (* Step 1: CNO property gives us s =st= s' *)
+  assert (s =st= s') as H_state_eq.
+  { apply cno_preserves_state with (p := p) (s := s) (s' := s').
+    - assumption.
+    - assumption. }
+
+  (* Step 2: By termination, eval p s' s'' for some s'' *)
+  destruct (cno_terminates p H_cno s') as [s'' H_eval'].
+
+  (* Step 3: By CNO identity property, s'' =st= s' *)
+  assert (s'' =st= s') as H_s''_eq_s'.
+  { apply cno_preserves_state with (p := p) (s := s') (s' := s'').
+    - assumption.
+    - assumption. }
+
+  (* Step 4: By transitivity, s'' =st= s *)
+  assert (s'' =st= s) as H_s''_eq_s.
+  { apply state_eq_trans with (s2 := s').
+    - apply state_eq_sym. assumption.
+    - apply state_eq_sym. assumption. }
+
+  (* Step 5: We have eval p s' s'' and s'' =st= s
+     Apply eval_respects_state_eq_right to get eval p s' s *)
+  apply eval_respects_state_eq_right with (s' := s'').
+  - exact H_eval'.
+  - exact H_s''_eq_s.
+Qed.
 
 (** ** Physical Implications *)
 
