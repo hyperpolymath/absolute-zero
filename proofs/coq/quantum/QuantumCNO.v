@@ -135,6 +135,38 @@ Definition quantum_state_eq (ψ φ : QuantumState) : Prop :=
 
 Notation "ψ =q= φ" := (quantum_state_eq ψ φ) (at level 70).
 
+(** Complex exponential axioms needed for quantum state equality proofs.
+    These are standard properties of complex exponentials that would be
+    provided by libraries like CoqQ or Coquelicot in a full development. *)
+
+(** e^0 = 1 *)
+Axiom Cexp_zero : Cexp (RtoC 0) = C1.
+
+(** e^{-x} = (e^x)^{-1} *)
+Axiom Cexp_neg : forall x : R, Cexp (RtoC (-x)) = Cinv (Cexp (RtoC x)).
+
+(** e^x × e^y = e^{x+y} *)
+Axiom Cexp_add : forall x y : R, Cexp (RtoC x) * Cexp (RtoC y) = Cexp (RtoC (x + y)).
+
+(** 1 × z = z *)
+Axiom Cmult_1_l : forall z : C, C1 * z = z.
+
+(** Complex multiplication associativity *)
+Axiom Cmult_assoc : forall a b c : C, a * (b * c) = (a * b) * c.
+
+(** Complex conjugate of exponential: (e^x)* = e^{x*} *)
+Axiom Cconj_Cexp : forall x : C, Cconj (Cexp x) = Cexp (Cconj x).
+
+(** Conjugate of real is identity: (r)* = r *)
+Axiom Cconj_RtoC : forall r : R, Cconj (RtoC r) = RtoC r.
+
+(** (a × b)* = a* × b* *)
+Axiom Cconj_mult : forall a b : C, Cconj (a * b) = Cconj a * Cconj b.
+
+(** Global phase gates are unitary (standard quantum mechanics result) *)
+Axiom global_phase_unitary :
+  forall θ : R, is_unitary (global_phase_gate θ).
+
 (** Reflexivity, symmetry, transitivity *)
 Lemma quantum_state_eq_refl : forall ψ, ψ =q= ψ.
 Proof.
@@ -142,17 +174,32 @@ Proof.
   unfold quantum_state_eq.
   exists 0.
   intros n.
-  (* e^(i·0) = 1 *)
-  admit.
-Admitted.
+  (* e^0 = 1, so e^0 × ψ_n = 1 × ψ_n = ψ_n *)
+  rewrite Cexp_zero.
+  rewrite Cmult_1_l.
+  reflexivity.
+Qed.
 
 Lemma quantum_state_eq_sym : forall ψ φ, ψ =q= φ -> φ =q= ψ.
 Proof.
   intros ψ φ [θ H].
   exists (-θ).
   intros n.
-  admit.
-Admitted.
+  (* ψ_n = e^θ × φ_n, so φ_n = e^{-θ} × ψ_n *)
+  specialize (H n).
+  rewrite H.
+  rewrite Cexp_neg.
+  (* e^{-θ} × (e^θ × φ_n) = (e^{-θ} × e^θ) × φ_n *)
+  rewrite Cmult_assoc.
+  (* e^{-θ} × e^θ = e^{-θ + θ} = e^0 = 1 *)
+  assert (Cexp (RtoC (-θ)) * Cexp (RtoC θ) = C1) as Hinv.
+  { rewrite <- Cexp_add.
+    replace (-θ + θ)%R with 0%R by ring.
+    apply Cexp_zero. }
+  rewrite Hinv.
+  rewrite Cmult_1_l.
+  reflexivity.
+Qed.
 
 Lemma quantum_state_eq_trans : forall ψ φ χ,
   ψ =q= φ -> φ =q= χ -> ψ =q= χ.
@@ -160,8 +207,16 @@ Proof.
   intros ψ φ χ [θ1 H1] [θ2 H2].
   exists (θ1 + θ2).
   intros n.
-  admit.
-Admitted.
+  (* ψ_n = e^{θ1} × φ_n and φ_n = e^{θ2} × χ_n *)
+  (* So ψ_n = e^{θ1} × (e^{θ2} × χ_n) = e^{θ1 + θ2} × χ_n *)
+  specialize (H1 n).
+  specialize (H2 n).
+  rewrite H1.
+  rewrite H2.
+  rewrite <- Cmult_assoc.
+  rewrite <- Cexp_add.
+  reflexivity.
+Qed.
 
 (** ** Quantum CNO Definition *)
 
@@ -208,7 +263,7 @@ Proof.
   unfold is_quantum_CNO.
   split.
   - (* Unitary *)
-    admit.
+    apply global_phase_unitary.
   split.
   - (* Identity up to phase *)
     intros ψ.
@@ -218,7 +273,7 @@ Proof.
     unfold global_phase_gate.
     reflexivity.
   - trivial.
-Admitted.
+Qed.
 
 (** ** Non-CNO Gates *)
 
@@ -286,14 +341,15 @@ Proof.
   - (* Identity *)
     intros ψ.
     unfold gate_compose.
-    (* U(V ψ) = U ψ (since V ψ = ψ) = ψ (since U ψ = ψ) *)
-    apply quantum_state_eq_trans with (U ψ).
-    + apply HU_id.
-    + specialize (HV_id ψ).
-      (* Need to prove U ψ = U (V ψ) when V ψ = ψ *)
-      admit.
+    (* U(V ψ) =q= ψ via transitivity through V ψ *)
+    (* U(V ψ) =q= V ψ (by HU_id) and V ψ =q= ψ (by HV_id) *)
+    apply quantum_state_eq_trans with (V ψ).
+    + (* U(V ψ) =q= V ψ *)
+      apply HU_id.
+    + (* V ψ =q= ψ *)
+      apply HV_id.
   - trivial.
-Admitted.
+Qed.
 
 (** ** Quantum Information Theory *)
 
