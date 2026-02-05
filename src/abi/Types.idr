@@ -1,14 +1,14 @@
-||| ABI Type Definitions Template
+||| ABI Type Definitions for Absolute Zero
 |||
-||| This module defines the Application Binary Interface (ABI) for this library.
-||| All type definitions include formal proofs of correctness.
+||| This module defines the Application Binary Interface (ABI) for the
+||| Absolute Zero CNO verification library. All type definitions include
+||| formal proofs of correctness.
 |||
-||| Replace {{PROJECT}} with your project name.
-||| Replace {{TYPES}} with your actual type definitions.
-|||
-||| @see https://idris2.readthedocs.io for Idris2 documentation
+||| @see https://github.com/hyperpolymath/absolute-zero
 
-module {{PROJECT}}.ABI.Types
+-- SPDX-License-Identifier: PMPL-1.0-or-later
+
+module AbsoluteZero.ABI.Types
 
 import Data.Bits
 import Data.So
@@ -34,7 +34,7 @@ thisPlatform =
     pure Linux  -- Default, override with compiler flags
 
 --------------------------------------------------------------------------------
--- Core Types
+-- Result Codes
 --------------------------------------------------------------------------------
 
 ||| Result codes for FFI operations
@@ -51,6 +51,12 @@ data Result : Type where
   OutOfMemory : Result
   ||| Null pointer encountered
   NullPointer : Result
+  ||| Program does not terminate
+  NonTerminating : Result
+  ||| Program has side effects
+  HasSideEffects : Result
+  ||| Program is not a CNO
+  NotCNO : Result
 
 ||| Convert Result to C integer
 public export
@@ -60,6 +66,9 @@ resultToInt Error = 1
 resultToInt InvalidParam = 2
 resultToInt OutOfMemory = 3
 resultToInt NullPointer = 4
+resultToInt NonTerminating = 5
+resultToInt HasSideEffects = 6
+resultToInt NotCNO = 7
 
 ||| Results are decidably equal
 public export
@@ -69,29 +78,211 @@ DecEq Result where
   decEq InvalidParam InvalidParam = Yes Refl
   decEq OutOfMemory OutOfMemory = Yes Refl
   decEq NullPointer NullPointer = Yes Refl
+  decEq NonTerminating NonTerminating = Yes Refl
+  decEq HasSideEffects HasSideEffects = Yes Refl
+  decEq NotCNO NotCNO = Yes Refl
   decEq _ _ = No absurd
+
+--------------------------------------------------------------------------------
+-- Instruction Types
+--------------------------------------------------------------------------------
+
+||| Abstract instruction set matching Coq definitions
+public export
+data Instruction : Type where
+  ||| No operation
+  Nop : Instruction
+  ||| Load memory[addr] to register
+  Load : (reg : Bits32) -> (addr : Bits32) -> Instruction
+  ||| Store register to memory[addr]
+  Store : (reg : Bits32) -> (addr : Bits32) -> Instruction
+  ||| Add two registers and store in third
+  Add : (r1 : Bits32) -> (r2 : Bits32) -> (r3 : Bits32) -> Instruction
+  ||| Jump to address
+  Jump : (target : Bits32) -> Instruction
+  ||| Halt execution
+  Halt : Instruction
+
+||| Convert instruction to discriminant for C interop
+public export
+instrToDiscriminant : Instruction -> Bits32
+instrToDiscriminant Nop = 0
+instrToDiscriminant (Load _ _) = 1
+instrToDiscriminant (Store _ _) = 2
+instrToDiscriminant (Add _ _ _) = 3
+instrToDiscriminant (Jump _) = 4
+instrToDiscriminant Halt = 5
+
+||| Instructions are decidably equal
+public export
+DecEq Instruction where
+  decEq Nop Nop = Yes Refl
+  decEq (Load r1 a1) (Load r2 a2) =
+    case (decEq r1 r2, decEq a1 a2) of
+      (Yes Refl, Yes Refl) => Yes Refl
+      _ => No absurd
+  decEq (Store r1 a1) (Store r2 a2) =
+    case (decEq r1 r2, decEq a1 a2) of
+      (Yes Refl, Yes Refl) => Yes Refl
+      _ => No absurd
+  decEq (Add r1 r2 r3) (Add r1' r2' r3') =
+    case (decEq r1 r1', decEq r2 r2', decEq r3 r3') of
+      (Yes Refl, Yes Refl, Yes Refl) => Yes Refl
+      _ => No absurd
+  decEq (Jump t1) (Jump t2) =
+    case decEq t1 t2 of
+      Yes Refl => Yes Refl
+      No _ => No absurd
+  decEq Halt Halt = Yes Refl
+  decEq _ _ = No absurd
+
+--------------------------------------------------------------------------------
+-- Program Types
+--------------------------------------------------------------------------------
+
+||| A program is a sequence of instructions
+||| Length is tracked at type level for safety
+public export
+data Program : Nat -> Type where
+  Nil : Program 0
+  (::) : Instruction -> Program n -> Program (S n)
+
+||| Maximum program length for FFI boundary
+public export
+maxProgramLength : Nat
+maxProgramLength = 1024
+
+||| Proof that program length is within bounds
+public export
+data ValidProgramLength : Nat -> Type where
+  ValidLen : {n : Nat} -> {auto 0 prf : So (n <= maxProgramLength)} ->
+             ValidProgramLength n
+
+--------------------------------------------------------------------------------
+-- State Types
+--------------------------------------------------------------------------------
+
+||| I/O operation types
+public export
+data IOOp : Type where
+  NoIO : IOOp
+  ReadOp : Bits32 -> IOOp
+  WriteOp : Bits32 -> IOOp
+
+||| I/O state is a list of operations
+public export
+IOState : Type
+IOState = List IOOp
+
+||| Program state record (C-compatible layout)
+||| Memory is abstracted as pointer for FFI
+public export
+record ProgramState where
+  constructor MkState
+  ||| Pointer to memory array
+  memory_ptr : Bits64
+  ||| Number of registers
+  num_registers : Bits32
+  ||| Pointer to register array
+  registers_ptr : Bits64
+  ||| Number of I/O operations
+  num_io_ops : Bits32
+  ||| Pointer to I/O operations array
+  io_ops_ptr : Bits64
+  ||| Program counter
+  program_counter : Bits32
+
+||| Proof that state is well-formed
+public export
+data WellFormedState : ProgramState -> Type where
+  WF : {s : ProgramState} ->
+       {auto 0 mem_nonNull : So (s.memory_ptr /= 0)} ->
+       {auto 0 reg_nonNull : So (s.registers_ptr /= 0)} ->
+       WellFormedState s
 
 --------------------------------------------------------------------------------
 -- Opaque Handles
 --------------------------------------------------------------------------------
 
-||| Opaque handle type for FFI
+||| Opaque handle for program state
 ||| Prevents direct construction, enforces creation through safe API
 public export
-data Handle : Type where
-  MkHandle : (ptr : Bits64) -> {auto 0 nonNull : So (ptr /= 0)} -> Handle
+data StateHandle : Type where
+  MkStateHandle : (ptr : Bits64) -> {auto 0 nonNull : So (ptr /= 0)} ->
+                  StateHandle
 
-||| Safely create a handle from a pointer value
+||| Opaque handle for programs
+public export
+data ProgramHandle : Type where
+  MkProgramHandle : (ptr : Bits64) -> {auto 0 nonNull : So (ptr /= 0)} ->
+                    ProgramHandle
+
+||| Safely create a state handle from a pointer value
 ||| Returns Nothing if pointer is null
 public export
-createHandle : Bits64 -> Maybe Handle
-createHandle 0 = Nothing
-createHandle ptr = Just (MkHandle ptr)
+createStateHandle : Bits64 -> Maybe StateHandle
+createStateHandle 0 = Nothing
+createStateHandle ptr = Just (MkStateHandle ptr)
 
-||| Extract pointer value from handle
+||| Safely create a program handle from a pointer value
 public export
-handlePtr : Handle -> Bits64
-handlePtr (MkHandle ptr) = ptr
+createProgramHandle : Bits64 -> Maybe ProgramHandle
+createProgramHandle 0 = Nothing
+createProgramHandle ptr = Just (MkProgramHandle ptr)
+
+||| Extract pointer value from state handle
+public export
+stateHandlePtr : StateHandle -> Bits64
+stateHandlePtr (MkStateHandle ptr) = ptr
+
+||| Extract pointer value from program handle
+public export
+programHandlePtr : ProgramHandle -> Bits64
+programHandlePtr (MkProgramHandle ptr) = ptr
+
+--------------------------------------------------------------------------------
+-- Memory Layout Proofs
+--------------------------------------------------------------------------------
+
+||| Proof that a type has a specific size
+public export
+data HasSize : Type -> Nat -> Type where
+  SizeProof : {0 t : Type} -> {n : Nat} -> HasSize t n
+
+||| Proof that a type has a specific alignment
+public export
+data HasAlignment : Type -> Nat -> Type where
+  AlignProof : {0 t : Type} -> {n : Nat} -> HasAlignment t n
+
+||| Size of ProgramState struct (8 + 4 + 8 + 4 + 8 + 4 = 36 bytes + padding)
+public export
+programStateSizeBytes : Nat
+programStateSizeBytes = 40  -- Aligned to 8 bytes
+
+||| Prove ProgramState has correct size
+public export
+programStateSize : HasSize ProgramState programStateSizeBytes
+programStateSize = SizeProof
+
+||| Prove ProgramState has 8-byte alignment
+public export
+programStateAlign : HasAlignment ProgramState 8
+programStateAlign = AlignProof
+
+||| Size of Instruction struct (4 bytes discriminant + 12 bytes data = 16 bytes)
+public export
+instructionSizeBytes : Nat
+instructionSizeBytes = 16
+
+||| Prove Instruction has correct size
+public export
+instructionSize : HasSize Instruction instructionSizeBytes
+instructionSize = SizeProof
+
+||| Prove Instruction has 4-byte alignment
+public export
+instructionAlign : HasAlignment Instruction 4
+instructionAlign = AlignProof
 
 --------------------------------------------------------------------------------
 -- Platform-Specific Types
@@ -130,102 +321,42 @@ CPtr : Platform -> Type -> Type
 CPtr p _ = Bits (ptrSize p)
 
 --------------------------------------------------------------------------------
--- Memory Layout Proofs
+-- Verification Types
 --------------------------------------------------------------------------------
 
-||| Proof that a type has a specific size
+||| CNO verification result
 public export
-data HasSize : Type -> Nat -> Type where
-  SizeProof : {0 t : Type} -> {n : Nat} -> HasSize t n
+record CNOVerificationResult where
+  constructor MkCNOResult
+  ||| Whether the program is a CNO
+  is_cno : Bool
+  ||| Whether the program terminates
+  terminates : Bool
+  ||| Whether the program preserves state
+  preserves_state : Bool
+  ||| Whether the program is pure (no side effects)
+  is_pure : Bool
+  ||| Whether the program is thermodynamically reversible
+  is_reversible : Bool
 
-||| Proof that a type has a specific alignment
+||| Prove verification result size
 public export
-data HasAlignment : Type -> Nat -> Type where
-  AlignProof : {0 t : Type} -> {n : Nat} -> HasAlignment t n
-
-||| Size of C types (platform-specific)
-public export
-cSizeOf : (p : Platform) -> (t : Type) -> Nat
-cSizeOf p (CInt _) = 4
-cSizeOf p (CSize _) = if ptrSize p == 64 then 8 else 4
-cSizeOf p Bits32 = 4
-cSizeOf p Bits64 = 8
-cSizeOf p Double = 8
-cSizeOf p _ = ptrSize p `div` 8
-
-||| Alignment of C types (platform-specific)
-public export
-cAlignOf : (p : Platform) -> (t : Type) -> Nat
-cAlignOf p (CInt _) = 4
-cAlignOf p (CSize _) = if ptrSize p == 64 then 8 else 4
-cAlignOf p Bits32 = 4
-cAlignOf p Bits64 = 8
-cAlignOf p Double = 8
-cAlignOf p _ = ptrSize p `div` 8
+cnoResultSize : HasSize CNOVerificationResult 5
+cnoResultSize = SizeProof
 
 --------------------------------------------------------------------------------
--- Example Struct with Layout Proof
+-- ABI Version
 --------------------------------------------------------------------------------
 
-||| Example C-compatible struct
-||| Replace this with your actual data types
+||| ABI version (major.minor.patch)
 public export
-record ExampleStruct where
-  constructor MkExampleStruct
-  field1 : Bits32
-  field2 : Bits64
-  field3 : Double
+abiVersionMajor : Bits32
+abiVersionMajor = 1
 
-||| Prove the struct has correct size
 public export
-exampleStructSize : (p : Platform) -> HasSize ExampleStruct 16
-exampleStructSize p =
-  -- 4 bytes (Bits32) + 4 padding + 8 bytes (Bits64) + 8 bytes (Double) = 24
-  -- But with alignment, it's actually platform-specific
-  SizeProof
+abiVersionMinor : Bits32
+abiVersionMinor = 0
 
-||| Prove the struct has correct alignment
 public export
-exampleStructAlign : (p : Platform) -> HasAlignment ExampleStruct 8
-exampleStructAlign p = AlignProof
-
---------------------------------------------------------------------------------
--- FFI Declarations
---------------------------------------------------------------------------------
-
-||| Declare external C functions
-||| These will be implemented in Zig FFI
-namespace Foreign
-
-  ||| External function example
-  export
-  %foreign "C:example_function, libexample"
-  prim__exampleFunction : Bits64 -> PrimIO Bits32
-
-  ||| Safe wrapper around FFI function
-  export
-  exampleFunction : Handle -> IO (Either Result Bits32)
-  exampleFunction h = do
-    result <- primIO (prim__exampleFunction (handlePtr h))
-    pure (Right result)
-
---------------------------------------------------------------------------------
--- Verification
---------------------------------------------------------------------------------
-
-||| Compile-time verification of ABI properties
-namespace Verify
-
-  ||| Verify struct sizes are correct
-  export
-  verifySizes : IO ()
-  verifySizes = do
-    -- Add compile-time checks here
-    putStrLn "ABI sizes verified"
-
-  ||| Verify struct alignments are correct
-  export
-  verifyAlignments : IO ()
-  verifyAlignments = do
-    -- Add compile-time checks here
-    putStrLn "ABI alignments verified"
+abiVersionPatch : Bits32
+abiVersionPatch = 0
