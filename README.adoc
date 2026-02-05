@@ -2,14 +2,13 @@
 
 **Formal Verification of Certified Null Operations: When Doing Nothing Is Everything**
 
-image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[MPL-2.0-or-later,link="https://opensource.org/licenses/MPL-2.0"]
-image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[MPL-2.0-or-later,link="https://opensource.org/licenses/MPL-2.0"]
+image:https://img.shields.io/badge/License-PMPL_1.0-blue.svg[PMPL-1.0-or-later]
 
-== License & Philosophy
+== License
 
-This project must declare **MPL-2.0-or-later** for platform/tooling compatibility.
+**SPDX-License-Identifier: PMPL-1.0-or-later**
 
-Philosophy: **Palimpsest**. The Palimpsest-MPL (PMPL) text is provided in `license/PMPL-1.0.txt`, and the canonical source is the palimpsest-license repository.
+Licensed under the Palimpsest-MPL License 1.0 or later. See `LICENSE` for full text. MPL-2.0 fallback where platform requires OSI-approved license.
 
 > *"The universe tends toward maximum entropy. A Certified Null Operation is a pocket of perfect computational order—a program that resists the Second Law. It does nothing, but in doing nothing, it says everything about the structure of computation itself."*
 
@@ -182,7 +181,7 @@ For maximum confidence, we verify CNO properties in **six independent proof syst
 
 | Proof System | Foundation | Lines of Proof | Status |
 |-------------|------------|----------------|--------|
-| **Coq 8.19** | Constructive type theory | ~4000+ | ✅ Phases 1-4 complete |
+| **Coq 8.19** | Constructive type theory | ~4000+ | ✅ 81 Qed, 19 Admitted (81% complete) |
 | **Z3 4.13** | SMT solving | ~400 | ✅ Complete (10 theorems encoded, awaiting `z3`) |
 | **Lean 4** | Dependent type theory | ~2500+ | ✅ Phases 1-4 complete |
 | **Agda 2.6** | Dependent types | ~400 | ✅ Phase 1 complete (awaiting `agda`) |
@@ -197,15 +196,17 @@ For maximum confidence, we verify CNO properties in **six independent proof syst
 
 | Module | Description | Coq | Lean 4 |
 |--------|-------------|-----|--------|
-| **Statistical Mechanics** | Landauer's Principle, thermodynamic reversibility | ✅ | ✅ |
-| **Category Theory** | Universal CNO definition, model independence | ✅ | ✅ |
-| **Lambda Calculus** | Functional programming CNOs | ✅ | ✅ |
-| **Quantum Computing** | Quantum gates, unitary operations | ✅ | ✅ |
-| **Filesystem Operations** | Valence Shell integration, practical CNOs | ✅ | ✅ |
+| **Statistical Mechanics** | Landauer's Principle, thermodynamic reversibility | ✅ 9 Qed | ✅ |
+| **Category Theory** | Universal CNO definition, model independence | ✅ 8 Qed | ✅ |
+| **Lambda Calculus** | Functional programming CNOs | ✅ 9 Qed, 1 Admitted | ✅ |
+| **Quantum Computing** | Quantum gates, unitary operations | 🟡 12 Qed, 5 Admitted | ✅ |
+| **Filesystem Operations** | Valence Shell integration, practical CNOs | 🟡 8 Qed, 6 Admitted | ✅ |
 
-See [VERIFICATION.md](VERIFICATION.md) for detailed status and theorem documentation.
+See [VERIFICATION.md](VERIFICATION.md) for detailed status and [PROOF-INSIGHTS.md](PROOF-INSIGHTS.md) for proof engineering knowledge.
 
-**Next Step**: Build container and run `./verify-proofs.sh` for machine verification.
+**Coq Proof Status** (2026-02-05): 81 Qed / 19 Admitted / 6 Defined / 63 Axioms across 10 files. 4 files fully complete (CNO.v, CNOCategory.v, StatMech.v, StatMech_helpers.v).
+
+**Next Step**: Complete remaining 19 Admitted proofs, then build container for machine verification.
 
 ## Research Contributions
 
