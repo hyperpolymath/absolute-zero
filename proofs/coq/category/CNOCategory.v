@@ -13,11 +13,14 @@
 
     Author: Jonathan D. A. Jewell
     Project: Absolute Zero
-    License: AGPL-3.0 / Palimpsest 0.5
+    License: PMPL-1.0-or-later
 *)
 
 Require Import Coq.Logic.FunctionalExtensionality.
+Require Import Coq.Logic.ProofIrrelevance.
 Require Import Coq.Program.Equality.
+Require Import Coq.Lists.List.
+Import ListNotations.
 Require Import CNO.
 
 (** ** Category Definition *)
@@ -84,6 +87,17 @@ Proof.
   constructor.
 Defined.
 
+(** Morphism extensional equality: morphisms with the same program are equal.
+    This uses proof irrelevance for the eval witness. *)
+Lemma morph_eq_ext :
+  forall s1 s2 (m1 m2 : ProgramMorphism s1 s2),
+    morph_program m1 = morph_program m2 -> m1 = m2.
+Proof.
+  intros s1 s2 [p1 H1] [p2 H2]. simpl.
+  intros Heq. subst.
+  f_equal. apply proof_irrelevance.
+Qed.
+
 (** Programs form a category *)
 Instance ProgramCategory : Category := {
   Obj := ProgramState;
@@ -92,25 +106,22 @@ Instance ProgramCategory : Category := {
   id := id_morphism;
 }.
 Proof.
-  - (* compose_assoc *)
+  - (* compose_assoc: (f ++ g) ++ h = f ++ (g ++ h) *)
     intros A B C D h g f.
-    destruct f as [pf Hf].
-    destruct g as [pg Hg].
-    destruct h as [ph Hh].
-    unfold compose_morphisms.
-    (* Prove morphism equality *)
-    admit.
-  - (* compose_id_left *)
+    apply morph_eq_ext.
+    destruct f as [pf Hf], g as [pg Hg], h as [ph Hh].
+    simpl. apply app_assoc.
+  - (* compose_id_left: p ++ [] = p *)
     intros A B f.
-    destruct f as [p Hp].
-    unfold compose_morphisms, id_morphism.
-    admit.
-  - (* compose_id_right *)
+    apply morph_eq_ext.
+    destruct f as [p Hp]. simpl.
+    apply app_nil_r.
+  - (* compose_id_right: [] ++ p = p *)
     intros A B f.
-    destruct f as [p Hp].
-    unfold compose_morphisms, id_morphism.
-    admit.
-Admitted.
+    apply morph_eq_ext.
+    destruct f as [p Hp]. simpl.
+    reflexivity.
+Qed.
 
 (** ** Categorical CNO Definition *)
 
@@ -126,23 +137,41 @@ Definition program_is_CNO_categorical (p : Program) (s : ProgramState) : Prop :=
 
 (** ** Equivalence of Definitions *)
 
-(** Theorem: Categorical CNO definition is equivalent to our original *)
+(** Categorical CNO characterization: CNO = termination + identity.
+    Purity and thermodynamic reversibility follow from identity
+    in our model:
+    - Purity: state equality implies memory and I/O equality
+    - Thermo reversibility: energy_dissipated is defined as 0 for all programs
+*)
 Theorem cno_categorical_equiv :
   forall (p : Program),
     is_CNO p <->
+    (forall s, terminates p s) /\
     (forall s s', eval p s s' -> s =st= s').
 Proof.
   intros p.
   split; intros H.
-  - (* -> direction: Original definition implies identity *)
-    destruct H as [_ [H_id _]].
-    intros s s' H_eval.
-    apply H_id.
-    assumption.
-  - (* <- direction: Identity implies original definition *)
-    (* Need to construct full CNO proof *)
-    admit.
-Admitted.
+  - (* -> direction: Extract termination and identity from CNO *)
+    destruct H as [H_term [H_id _]].
+    split; assumption.
+  - (* <- direction: Construct full CNO from termination + identity *)
+    destruct H as [H_term H_id].
+    unfold is_CNO.
+    repeat split.
+    + (* Termination *)
+      exact H_term.
+    + (* Identity *)
+      exact H_id.
+    + (* Purity: follows from state equality *)
+      intros s s' H_eval.
+      assert (H_eq : s =st= s') by (apply H_id; assumption).
+      destruct H_eq as [H_mem [H_reg [H_io H_pc]]].
+      unfold pure, no_io, no_memory_alloc.
+      split; assumption.
+    + (* Thermodynamic reversibility: trivially true *)
+      unfold thermodynamically_reversible, energy_dissipated.
+      intros. reflexivity.
+Qed.
 
 (** ** Universal Property *)
 
@@ -270,10 +299,21 @@ Qed.
 
 (** The Yoneda lemma relates objects to their morphism sets *)
 
-(** Representable functor *)
-Definition hom_functor (C : Category) (A : @Obj C) :
-  Functor C C.
-Admitted.
+(** Representable functor Hom(A, -)
+
+    NOTE: The standard Hom functor maps C → Set (category of types),
+    not C → C. The target category should be Type/Set, not C itself.
+    A proper definition would require a SetCategory instance:
+
+      Definition hom_functor (C : Category) (A : @Obj C) :
+        Functor C SetCategory.
+
+    For now we leave this as an axiom since:
+    1. The Yoneda theorem (yoneda_cno) is already proven without it
+    2. Defining SetCategory requires universe polymorphism
+    3. The conceptual result (CNOs = identity under Yoneda) stands
+*)
+Axiom hom_functor : forall (C : Category) (A : @Obj C), Functor C C.
 
 (** CNOs are precisely those elements that correspond to identity
     under the Yoneda embedding *)
