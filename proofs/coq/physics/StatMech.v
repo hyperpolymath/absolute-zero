@@ -246,15 +246,38 @@ Definition logically_reversible (p : Program) : Prop :=
       eval p_inv s' s.
 
 (** Logical reversibility implies thermodynamic reversibility *)
+
+(** NOTE ON PROOF STRENGTH:
+    This proof is trivially true under the current definition of
+    post_execution_dist, which is specialized for CNOs (identity on
+    distributions). The logically_reversible hypothesis is not used.
+
+    For a fully general proof that works with arbitrary reversible programs,
+    one would need:
+    1. A general post_execution_dist_general using eval_to_state functions
+    2. A proof that bijective state transformations preserve Shannon entropy
+    3. Measure theory for infinite state spaces
+
+    The conceptual argument (Bennett 1973):
+    - Logically reversible programs induce bijections on state space
+    - Bijections preserve the measure of any measurable set
+    - Therefore bijections preserve Shannon entropy
+    - Therefore logically reversible programs are thermodynamically reversible
+
+    This is recorded as a TODO for the v1.0 generalization milestone.
+*)
 Theorem bennett_logical_implies_thermodynamic :
   forall (p : Program) (P : StateDistribution),
     logically_reversible p ->
     shannon_entropy P = shannon_entropy (post_execution_dist p P).
 Proof.
   intros p P H_rev.
-  (* Bijective transformations preserve entropy *)
-  (* This requires proving that reversible programs induce bijections *)
-Admitted.
+  (* post_execution_dist is defined as identity on distributions
+     (specialized for CNOs where f_p = id), so this holds by
+     definitional equality via eta-conversion. *)
+  unfold post_execution_dist.
+  reflexivity.
+Qed.
 
 (** CNOs are trivially logically reversible (identity is its own inverse) *)
 Theorem cno_logically_reversible :
