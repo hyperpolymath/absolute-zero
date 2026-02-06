@@ -221,6 +221,7 @@ Definition is_malbolge_CNO (mp : MalbolgeProgram) : Prop :=
     (* State preservation *)
     ms'.(mal_memory) = ms.(mal_memory) /\
     ms'.(mal_a_reg) = ms.(mal_a_reg) /\
+    ms'.(mal_c_reg) = ms.(mal_c_reg) /\  (* C register (PC) preserved *)
     ms'.(mal_d_reg) = ms.(mal_d_reg) /\
     (* No I/O *)
     ms'.(mal_io) = ms.(mal_io).
@@ -282,7 +283,7 @@ Proof.
   intros mp HCNO ms ms' Heval.
   unfold is_malbolge_CNO in HCNO.
   specialize (HCNO ms ms' Heval).
-  destruct HCNO as [HM [HA [HD HIO]]].
+  destruct HCNO as [HM [HA [HC [HD HIO]]]].
   unfold malbolge_to_state, state_eq.
   simpl.
   repeat split.
@@ -293,15 +294,16 @@ Proof.
     reflexivity.
   - (* Registers *)
     simpl.
-    rewrite HA, HD.
+    rewrite HA, HC, HD.
     reflexivity.
   - (* I/O *)
     apply HIO.
   - (* PC *)
     simpl.
-    (* C register may change, but for true CNOs it should stay same *)
-    admit.
-Admitted.
+    (* C register is PC and is now preserved by strengthened CNO definition *)
+    rewrite HC.
+    reflexivity.
+Qed.
 
 (** ** The "Absolute Zero" Program *)
 
