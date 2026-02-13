@@ -123,7 +123,11 @@ if [ ${#MISSING_TOOLS[@]} -gt 0 ]; then
     echo "Install with:"
     echo "  Fedora: sudo dnf install coq z3 && cargo install just"
     echo "  Ubuntu: sudo apt install coq z3 && cargo install just"
+# WARNING: Pipe-to-shell is unsafe — download and verify first
+# WARNING: Pipe-to-shell is unsafe — download and verify first
     echo "  Deno: curl -fsSL https://deno.land/install.sh | sh"
+# WARNING: Pipe-to-shell is unsafe — download and verify first
+# WARNING: Pipe-to-shell is unsafe — download and verify first
     echo "  Lean 4: curl https://raw.githubusercontent.com/leanprover/elan/master/elan-init.sh -sSf | sh"
     echo ""
 fi
@@ -217,7 +221,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         if command -v coqc &> /dev/null; then
             echo "Building Coq proofs..."
             cd proofs/coq/common && coqc CNO.v || echo "⚠ CNO.v failed"
-            cd $REPO_ROOT
+            cd "$REPO_ROOT"
         fi
 
         # Try Z3
@@ -230,7 +234,7 @@ if [[ $REPLY =~ ^[Yy]$ ]]; then
         if command -v lake &> /dev/null; then
             echo "Building Lean 4..."
             cd proofs/lean4 && lake build || echo "⚠ Lean build failed"
-            cd $REPO_ROOT
+            cd "$REPO_ROOT"
         fi
     fi
 fi

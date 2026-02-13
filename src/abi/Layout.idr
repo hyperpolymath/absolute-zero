@@ -242,10 +242,15 @@ instructionCrossPlatform = InvariantProof
 public export
 verifyAlignment : (p : Platform) -> (t : Type) ->
                   HasAlignment t n -> So (n `mod` (ptrSize p `div` 8) == 0)
+-- PROOF_TODO: Replace believe_me with actual proof
 verifyAlignment Linux t (AlignProof {n}) = believe_me Oh
+-- PROOF_TODO: Replace believe_me with actual proof
 verifyAlignment Windows t (AlignProof {n}) = believe_me Oh
+-- PROOF_TODO: Replace believe_me with actual proof
 verifyAlignment MacOS t (AlignProof {n}) = believe_me Oh
+-- PROOF_TODO: Replace believe_me with actual proof
 verifyAlignment BSD t (AlignProof {n}) = believe_me Oh
+-- PROOF_TODO: Replace believe_me with actual proof
 verifyAlignment WASM t (AlignProof {n}) = believe_me Oh
 
 ||| ProgramState alignment is valid on all platforms
@@ -277,6 +282,7 @@ alignedSize size align =
 public export
 alignedSizeCorrect : (size : Nat) -> (align : Nat) -> {auto 0 nonZero : So (align /= 0)} ->
   So (alignedSize size align `mod` align == 0)
+-- PROOF_TODO: Replace believe_me with actual proof
 alignedSizeCorrect size align = believe_me Oh
 
 --------------------------------------------------------------------------------
