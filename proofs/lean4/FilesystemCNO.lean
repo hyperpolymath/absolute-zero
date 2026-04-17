@@ -8,7 +8,8 @@
    License: AGPL-3.0 / Palimpsest 0.5
 -/
 
-import Std.Data.List.Basic
+-- Std.Data.List.Basic was vestigial in pre-Batteries layouts. The List
+-- type used here comes from core Lean 4's Init; no external imports required.
 
 namespace FilesystemCNO
 
@@ -287,15 +288,18 @@ def isIdempotent (op : FsOp) : Prop :=
 axiom mkdir_idempotent (p : Path) :
   isIdempotent (fun fs => mkdir p fs)
 
-/-- Idempotent does NOT imply CNO -/
+/-- Idempotent does NOT imply CNO.
+    Proof: destructure mkdir_not_identity to get a specific (p, fs) where
+    mkdir p fs ≠ fs, then exhibit `fun fs => mkdir p fs` as the witness.
+    It is idempotent (mkdir_idempotent), but it cannot be a CNO: if it were,
+    applying it to fs would leave fs unchanged, contradicting h_neq. -/
 example : ∃ op : FsOp, isIdempotent op ∧ ¬ isFsCNO op := by
-  exists (fun fs => mkdir "test" fs)
+  obtain ⟨p, fs, h_neq⟩ := mkdir_not_identity
+  exists (fun fs' => mkdir p fs')
   constructor
-  · exact mkdir_idempotent "test"
+  · exact mkdir_idempotent p
   · intro h
     unfold isFsCNO at h
-    obtain ⟨p, fs, h_neq⟩ := mkdir_not_identity
-    have := h fs
-    sorry  -- mkdir changes filesystem
+    exact h_neq (h fs)
 
 end FilesystemCNO
