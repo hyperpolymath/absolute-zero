@@ -15,8 +15,8 @@ namespace FilesystemCNO
 
 /-! ## Filesystem Model -/
 
-/-- File paths -/
-def Path : Type := String
+/-- File paths. `abbrev` so String's Repr/BEq propagate. -/
+abbrev Path : Type := String
 
 /-- File permissions (simplified) -/
 inductive Permission where
@@ -25,10 +25,11 @@ inductive Permission where
   | Execute : Permission
   deriving Repr, BEq
 
-def PermSet : Type := List Permission
+/-- Set of permissions on a file. `abbrev` so List instances propagate. -/
+abbrev PermSet : Type := List Permission
 
-/-- File content -/
-def FileContent : Type := List Nat  -- Byte array
+/-- File content (byte array). `abbrev` so List instances propagate. -/
+abbrev FileContent : Type := List Nat
 
 /-- Filesystem metadata -/
 structure FileMetadata where
@@ -45,8 +46,8 @@ inductive FileEntry where
   | Symlink : Path → Path → FileMetadata → FileEntry
   deriving Repr
 
-/-- Filesystem state -/
-def Filesystem : Type := List FileEntry
+/-- Filesystem state. `abbrev` so List instances propagate. -/
+abbrev Filesystem : Type := List FileEntry
 
 /-! ## Filesystem Operations -/
 
@@ -112,8 +113,8 @@ axiom rename_inverse (p1 p2 : Path) (fs : Filesystem) :
 
 /-! ## Filesystem CNO Definition -/
 
-/-- A filesystem operation -/
-def FsOp : Type := Filesystem → Filesystem
+/-- A filesystem operation. `abbrev` so HAppend / fn instances propagate. -/
+abbrev FsOp : Type := Filesystem → Filesystem
 
 /-- A filesystem operation is a CNO if it leaves filesystem unchanged -/
 def isFsCNO (op : FsOp) : Prop :=
@@ -129,8 +130,8 @@ theorem fs_nop_is_cno : isFsCNO fs_nop := by
   intro fs
   rfl
 
-/-- mkdir followed by rmdir -/
-def mkdirRmdirOp (p : Path) : FsOp :=
+/-- mkdir followed by rmdir. `noncomputable` — calls axioms `mkdir`/`rmdir`. -/
+noncomputable def mkdirRmdirOp (p : Path) : FsOp :=
   fun fs => rmdir p (mkdir p fs)
 
 theorem mkdir_rmdir_is_cno (p : Path) :
@@ -139,8 +140,8 @@ theorem mkdir_rmdir_is_cno (p : Path) :
   intro fs
   exact mkdir_rmdir_inverse p fs
 
-/-- create followed by unlink -/
-def createUnlinkOp (p : Path) : FsOp :=
+/-- create followed by unlink. `noncomputable` — wraps axioms. -/
+noncomputable def createUnlinkOp (p : Path) : FsOp :=
   fun fs => unlink p (create p fs)
 
 theorem create_unlink_is_cno (p : Path) :
@@ -149,8 +150,8 @@ theorem create_unlink_is_cno (p : Path) :
   intro fs
   exact create_unlink_inverse p fs
 
-/-- read followed by write -/
-def readWriteOp (p : Path) : FsOp :=
+/-- read followed by write. `noncomputable` — wraps axioms. -/
+noncomputable def readWriteOp (p : Path) : FsOp :=
   fun fs =>
     match readFile p fs with
     | some content => writeFile p content fs
@@ -165,8 +166,8 @@ theorem read_write_is_cno (p : Path) :
   | some content =>
       exact read_write_identity p fs content h
 
-/-- chmod to current permissions -/
-def chmodNopOp (p : Path) : FsOp :=
+/-- chmod to current permissions. `noncomputable` — wraps axioms. -/
+noncomputable def chmodNopOp (p : Path) : FsOp :=
   fun fs =>
     match stat p fs with
     | some meta => chmod p meta.permissions fs
@@ -181,8 +182,8 @@ theorem chmod_nop_is_cno (p : Path) :
   | some meta =>
       exact chmod_identity p fs meta h
 
-/-- rename to same path -/
-def renameNopOp (p : Path) : FsOp :=
+/-- rename to same path. `noncomputable` — wraps axiom. -/
+noncomputable def renameNopOp (p : Path) : FsOp :=
   fun fs => rename p p fs
 
 theorem rename_nop_is_cno (p : Path) :
@@ -269,7 +270,9 @@ axiom restore : Filesystem → Filesystem → Filesystem
 axiom snapshot_restore_identity (fs : Filesystem) :
   restore (snapshot fs) fs = fs
 
-def snapshotRestoreOp : FsOp :=
+-- `noncomputable` because `restore` and `snapshot` are axioms with no
+-- executable body; without this Lean 4.16 refuses to emit code for `def`.
+noncomputable def snapshotRestoreOp : FsOp :=
   fun fs => restore (snapshot fs) fs
 
 theorem snapshot_restore_is_cno :

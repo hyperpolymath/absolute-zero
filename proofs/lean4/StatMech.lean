@@ -58,14 +58,17 @@ axiom shannon_entropy_nonneg (P : StateDistribution) :
 axiom shannon_entropy_point_zero (s : CNO.ProgramState) :
   shannonEntropy (pointDist s) = 0
 
-/-- Change in entropy -/
-def entropyChange (P_initial P_final : StateDistribution) : ℝ :=
+/-- Change in entropy.
+    `noncomputable` because `shannonEntropy` is an axiom of type ℝ; Lean
+    cannot extract executable code for any definition that touches it. -/
+noncomputable def entropyChange (P_initial P_final : StateDistribution) : ℝ :=
   shannonEntropy P_final - shannonEntropy P_initial
 
 /-! ## Thermodynamic Entropy -/
 
-/-- Boltzmann entropy: S = kB ln(2) H -/
-def boltzmannEntropy (P : StateDistribution) : ℝ :=
+/-- Boltzmann entropy: S = kB ln(2) H.
+    `noncomputable` — uses `Real.log` (no executable code). -/
+noncomputable def boltzmannEntropy (P : StateDistribution) : ℝ :=
   kB * log 2 * shannonEntropy P
 
 /-- Boltzmann entropy is non-negative -/
@@ -86,8 +89,9 @@ axiom landauer_principle (P_initial P_final : StateDistribution) :
   ΔS < 0 →
   energyDissipatedPhys P_initial P_final ≥ kB * temperature * log 2 * (-ΔS)
 
-/-- Landauer limit (energy per bit erased) -/
-def landauer_limit : ℝ := kB * temperature * log 2
+/-- Landauer limit (energy per bit erased).
+    `noncomputable` — `kB` and `temperature` are real-valued axioms. -/
+noncomputable def landauer_limit : ℝ := kB * temperature * log 2
 
 /-! ## CNO Thermodynamics -/
 
@@ -115,13 +119,16 @@ axiom reversible_zero_dissipation (P_initial P_final : StateDistribution) :
   shannonEntropy P_initial = shannonEntropy P_final →
   energyDissipatedPhys P_initial P_final = 0
 
-/-- Main Theorem: CNOs dissipate zero energy -/
+/-- Main Theorem: CNOs dissipate zero energy.
+    `reversible_zero_dissipation` wants `H P_initial = H P_final`;
+    `cno_preserves_shannon_entropy` gives the symmetric direction
+    `H (postExecutionDist p P) = H P`, so `.symm` flips it. -/
 theorem cno_zero_energy_dissipation (p : CNO.Program) (P : StateDistribution) :
     CNO.isCNO p →
     energyDissipatedPhys P (postExecutionDist p P) = 0 := by
   intro h_cno
   apply reversible_zero_dissipation
-  exact cno_preserves_shannon_entropy p P h_cno
+  exact (cno_preserves_shannon_entropy p P h_cno).symm
 
 /-! ## Bennett's Reversible Computing -/
 
