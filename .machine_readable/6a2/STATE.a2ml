@@ -1,0 +1,109 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+#
+# STATE.a2ml — Absolute Zero project state
+# Migrated from STATE.scm on 2026-04-17
+# Schema version: 1.0
+
+[metadata]
+project = "absolute-zero"
+repo = "github.com/hyperpolymath/absolute-zero"
+version = "1.0.0-alpha"
+schema-version = "1.0"
+created = "2026-01-03"
+last-updated = "2026-02-05"
+status = "active"
+
+[project-context]
+name = "Absolute Zero"
+tagline = "Formal Verification of Certified Null Operations"
+tech-stack = ["Coq", "Lean 4", "Z3", "Agda", "Isabelle", "ReScript", "Rust"]
+
+[position]
+phase = "proof-completion"
+completion-percentage = 65
+maturity = "experimental"
+
+[components]
+# Format: name = [percentage, "notes"]
+coq-proofs = [81, "81 Qed, 19 Admitted, 6 Defined, 63 Axioms"]
+lean4-proofs = [70, "syntax-complete, needs verification"]
+z3-proofs = [90, "10 theorems encoded, needs z3 runtime"]
+agda-proofs = [40, "phase 1 complete"]
+isabelle-proofs = [40, "phase 1 complete"]
+mizar-proofs = [10, "stub, needs installation"]
+
+[working-features]
+features = [
+  "Core CNO theory fully proven",
+  "Category theory fully proven",
+  "Statistical mechanics fully proven",
+  "Lambda calculus 90% proven",
+  "Quantum computing 70% proven",
+  "Filesystem 57% proven",
+]
+
+[route-to-mvp]
+milestones = [
+  { id = "v0.8", label = "Compliance sprint",     status = "in-progress",  completion = 40 },
+  { id = "v0.9", label = "Container verification", status = "not-started",  completion = 0 },
+  { id = "v1.0", label = "Publication release",    status = "not-started",  completion = 0 },
+]
+
+[blockers-and-issues]
+critical = []
+high = [
+  "19 Admitted proofs in Coq",
+  "Python interpreters violate RSR",
+  "No local coqc for compilation",
+]
+medium = [
+  "QuantumCNO.v Cexp real-vs-phase bug",
+  "LandauerDerivation.v needs measure theory",
+]
+low = [
+  "y_not_cno non-termination proof",
+]
+
+[critical-next-actions]
+immediate = [
+  "Complete QuantumCNO.v proofs",
+  "Classify FilesystemCNO.v proofs",
+  "Classify MalbolgeCore.v proof",
+]
+this-week = [
+  "Target 12-15 of 19 Admitted proofs",
+  "Migrate Python to Rust",
+]
+this-month = [
+  "Container pipeline",
+  "Paper draft",
+]
+
+[session-history]
+sessions = [
+  { date = "2026-02-05", agent = "opus", summary = "Completed 8 proofs, created PROOF-INSIGHTS.md" },
+  { date = "2026-02-04", agent = "opus", summary = "Completed cno_logically_reversible, added axioms" },
+]
+
+[maintenance-status]
+last-run-utc = "2026-02-05T00:00:00Z"
+last-result = "unknown"  # unknown | pass | warn | fail
+
+[migration-notes]
+# Fields from STATE.scm that map cleanly:
+#   metadata.version, created, updated, project, repo → all mapped above
+#   project-context.name, tagline, tech-stack → all mapped
+#   current-position.phase, overall-completion → phase + completion-percentage
+#   current-position.components → [components] table
+#   working-features → [working-features].features list
+#   route-to-mvp.milestones → [route-to-mvp].milestones array of objects
+#   blockers-and-issues.{critical,high,medium,low} → mapped verbatim
+#   critical-next-actions.{immediate,this-week,this-month} → all mapped
+#   session-history entries → [session-history].sessions array of objects
+#
+# Fields that required schema extension / note:
+#   - `schema-version` added as top-level field (not in SCM template but kept for traceability)
+#   - session-history: SCM used positional tuples (date agent summary); A2ML uses named fields
+#   - `overall-completion` in SCM root renamed to `completion-percentage` to match estate standard
+#   - `phase` nested under `current-position` in SCM; promoted to top-level `[position]` here

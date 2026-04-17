@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: PMPL-1.0-or-later
+# Copyright (c) 2026 Jonathan D.A. Jewell (hyperpolymath) <j.d.a.jewell@open.ac.uk>
+#
+# META.a2ml — Absolute Zero meta-level information
+# Migrated from META.scm on 2026-04-17
+
+[metadata]
+version = "1.0.0"
+last-updated = "2026-02-05"
+
+[project-info]
+license = "PMPL-1.0-or-later"
+author = "Jonathan D.A. Jewell (hyperpolymath)"
+
+[architecture-decisions]
+decisions = [
+  { id = "ADR-001", status = "accepted", title = "ProofIrrelevance for morphism equality in category theory" },
+  { id = "ADR-002", status = "accepted", title = "Dual Landauer formalization: axiom (StatMech.v) + derivation (LandauerDerivation.v)" },
+  { id = "ADR-003", status = "accepted", title = "Lambda CNO = identity property only, not termination" },
+  { id = "ADR-004", status = "accepted", title = "post_execution_dist specialized for CNOs (identity on distributions)" },
+  { id = "ADR-005", status = "proposed", title = "Fix QuantumCNO.v Cexp: real exp -> complex phase factor" },
+]
+
+[development-practices]
+code-style = "Coq proof engineering"
+testing = "Multi-prover cross-validation"
+versioning = "SemVer"
+documentation = "AsciiDoc"
+branching = "main for stable"
+build-tool = "just"
+
+[security]
+principle = "Defense in depth"
+
+[proof-methodology]
+rules = [
+  "Prefer Qed over Admitted",
+  "Axiomatize physical laws",
+  "Document all Admitted with rationale",
+  "Separate helpers into dedicated files",
+]
+
+[design-rationale]
+rationale = [
+  "CNOs are identity morphisms in categories",
+  "Multi-prover for maximum confidence",
+  "Thermodynamic grounding via Landauer/Bennett",
+  "Progressive: axiom -> theorem -> verified",
+]
+
+[maintenance-axes]
+scoping-first = true
+axis-1 = "must > intend > like"
+axis-2 = "corrective > adaptive > perfective"
+axis-3 = "systems > compliance > effects"
