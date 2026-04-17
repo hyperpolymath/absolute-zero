@@ -274,8 +274,12 @@ theorem cno_reversible (p : Program) (h : isCNO p) :
 
 /-! ## Composition -/
 
-/-- Sequential composition of programs -/
-def seqComp (p1 p2 : Program) : Program := p1 ++ p2
+/-- Sequential composition of programs.
+    `abbrev` (not `def`) so that `eval_seqComp` rewrites also fire when
+    the goal mentions the underlying `++` directly (downstream callers
+    in `CNOCategory.composeMorphisms` build the program with `++` and
+    rely on this transparency). -/
+abbrev seqComp (p1 p2 : Program) : Program := p1 ++ p2
 
 /-- Evaluation of composition.
     `unfold eval` unfolds the LHS one step but leaves the RHS in its
