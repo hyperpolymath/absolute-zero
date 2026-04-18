@@ -16,7 +16,7 @@
 
 ### 3. ECHIDNA Integration ✅ DONE
 - **Time**: ~30 minutes
-- **Result**: Scripts, justfile recipes, ready to use
+- **Result**: Scripts, Justfile recipes, ready to use
 - **Status**: Can now run `just echidna-list`, `just echidna-suggest`, etc.
 - **Commit**: c181523
 
