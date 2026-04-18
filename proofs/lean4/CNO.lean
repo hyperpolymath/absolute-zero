@@ -404,7 +404,34 @@ def loadStoreSame (addr : Nat) : Program :=
 theorem loadStore_preserves_memory (addr : Nat) (s : ProgramState) :
     let s' := eval (loadStoreSame addr) s
     Memory.eq s.memory s'.memory := by
-  sorry
+  unfold loadStoreSame eval step
+  simp
+  -- s' = eval [.store addr 0] (step s (.load addr 0))
+  --    = step (step s (.load addr 0)) (.store addr 0)
+  -- The intermediate state after load:
+  let s_mid := step s (.load addr 0)
+  show Memory.eq s.memory (step s_mid (.store addr 0)).memory
+  unfold step
+  -- By unfolding s_mid, we see setReg.
+  simp [s_mid, step]
+  cases h_reg : s.registers with
+  | nil =>
+      unfold setReg getReg
+      simp [h_reg]
+      unfold Memory.eq; intro a; rfl
+  | cons r rs =>
+      unfold setReg getReg
+      simp [h_reg]
+      unfold Memory.eq Memory.update
+      intro a
+      split
+      · -- Case a == addr
+        have h_eq : a = addr := by
+          apply beq_iff_eq.mp
+          assumption
+        rw [h_eq]
+      · -- Case a != addr
+        rfl
 
 /-! ## Decidability and Complexity
 
