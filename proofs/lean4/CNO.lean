@@ -382,56 +382,123 @@ theorem triple_rotation_identity (n : Nat) :
 def loadStoreSame (addr : Nat) : Program :=
   [.load addr 0, .store addr 0]
 
+/- ── Helper lemmas for loadStore_preserves_memory ──────────────────────────
+
+   These three private lemmas establish the round-trip property of
+   `setReg`/`getReg` for register index 0 and the no-op character of
+   `Memory.update m addr (m addr)`.  They are the rewrite-lemma layer
+   mentioned in the DEFERRED comment below.
+
+   `setReg_cons_zero` and `getReg_cons_zero` make `simp` able to compute
+   through the match chains in `setReg`/`getReg` (which are `def`, not
+   `abbrev`, so are otherwise opaque to the simp normal-form engine).
+
+   `Memory.update_same_pointwise` is the key identity-update fact: writing
+   the value already stored at an address is a no-op, point-wise. -/
+
+private lemma setReg_cons_zero (r val : Nat) (rs : List Nat) :
+    setReg (r :: rs) 0 val = val :: rs := by
+  unfold setReg
+  rfl
+
+private lemma getReg_cons_zero (val : Nat) (rs : List Nat) :
+    getReg (val :: rs) 0 = some val := by
+  unfold getReg
+  rfl
+
+/-- Writing the value already at `addr` back to `addr` is a pointwise no-op. -/
+private lemma Memory.update_same_pointwise (m : Memory) (addr a : Nat) :
+    Memory.update m addr (m addr) a = m a := by
+  unfold Memory.update
+  -- The branch condition is `a == addr : Bool`.  We case-split on whether
+  -- `a` and `addr` are propositionally equal, then close each sub-goal.
+  by_cases h : a = addr
+  · -- Equal branch: write m addr back → still m addr = m a (since a = addr).
+    subst h
+    -- After substitution: `(if addr == addr then m addr else m addr) = m addr`.
+    simp
+  · -- Unequal branch: the if-branch is skipped, result is m a.
+    have hne : (a == addr) = false := by simp [h]
+    simp [hne]
+
 /-- This preserves memory.
 
-    DEFERRED — pre-existing proof gap (not part of the 18-sorry
-    sorry-debt brief). The mathematics is clear:
-      - `load addr 0` puts `s.memory addr` into register 0 (no-op if
-        registers were `[]`).
-      - `store addr 0` reads register 0 back; if it was set, writes
-        `Memory.update s.memory addr (s.memory addr)` — the identity
-        update; if `getReg` returned `none`, the state is unchanged.
-      - Either way, every memory address `a` is equal in source and
-        result, satisfying `Memory.eq`.
-    The mechanisation runs into `cases s.registers` not substituting
-    inside the deeply-nested `eval`/`step`/`setReg`/`getReg` match
-    chain. A clean proof needs either an `eval_load`/`eval_store`
-    rewrite-lemma layer, a strengthened `setReg_getReg` round-trip
-    lemma, or a switch from `def` to `abbrev` for `setReg`/`getReg`
-    so simp can compute through them. Tracking in
-    `~/Desktop/proof-debt-plan.md` under "absolute-zero pre-existing
-    drift". -/
+    Proof strategy (rewrite-lemma layer):
+      - `load addr 0` puts `s.memory addr` into register 0; because
+        `loadStoreSame` only executes on a concrete two-instruction list,
+        we can `show` the definitionally-equal fully-reduced form of
+        `eval (loadStoreSame addr) s` and work on that directly.
+      - We then case-split on `s.registers`:
+          nil  → `setReg [] 0 _  = []`, `getReg [] 0 = none`, so the
+                  store instruction takes the `none` branch and leaves
+                  memory untouched.
+          cons → `setReg_cons_zero` + `getReg_cons_zero` give the round-trip
+                  `getReg (setReg (r :: rs) 0 v) 0 = some v`; the store
+                  then writes `Memory.update s.memory addr (s.memory addr)`,
+                  which equals `s.memory` pointwise by
+                  `Memory.update_same_pointwise`.
+      - No `sorry`. -/
 theorem loadStore_preserves_memory (addr : Nat) (s : ProgramState) :
     let s' := eval (loadStoreSame addr) s
     Memory.eq s.memory s'.memory := by
-  unfold loadStoreSame eval step
-  simp
-  -- s' = eval [.store addr 0] (step s (.load addr 0))
-  --    = step (step s (.load addr 0)) (.store addr 0)
-  -- The intermediate state after load:
-  let s_mid := step s (.load addr 0)
-  show Memory.eq s.memory (step s_mid (.store addr 0)).memory
+  -- Reduce `eval (loadStoreSame addr) s` to its fully-computed form.
+  -- `loadStoreSame addr = [.load addr 0, .store addr 0]` and `eval` on a
+  -- concrete two-instruction list is definitionally:
+  --   eval [l, st] s = step (step s l) st
+  -- so `show` restates the goal at that fully-reduced type.
+  show Memory.eq s.memory
+       (step (step s (.load addr 0)) (.store addr 0)).memory
+  -- Unfold both steps explicitly.
+  --   step s (.load addr 0)
+  --     = { s with registers := setReg s.registers 0 (s.memory addr),
+  --                pc := s.pc + 1 }          [call this s_mid]
+  --   step s_mid (.store addr 0)
+  --     = match getReg s_mid.registers 0 with
+  --       | some v => { s_mid with memory := Memory.update s_mid.memory addr v,
+  --                                pc := s_mid.pc + 1 }
+  --       | none   => s_mid
+  --   s_mid.registers = setReg s.registers 0 (s.memory addr)
+  --   s_mid.memory    = s.memory
+  -- Unfolding `step` leaves struct-literal field projections.
+  -- `simp only []` applies pure definitional (ι) reductions — specifically,
+  -- it reduces struct-literal field accesses like
+  -- `{ s with registers := X }.registers ↝ X`
+  -- without unfolding any user-defined `def`.
   unfold step
-  -- By unfolding s_mid, we see setReg.
-  simp [s_mid, step]
-  cases h_reg : s.registers with
+  simp only []
+  -- Now case-split on s.registers to concretise setReg/getReg.
+  cases s.registers with
   | nil =>
-      unfold setReg getReg
-      simp [h_reg]
-      unfold Memory.eq; intro a; rfl
+    -- s.registers = []
+    -- setReg [] 0 _ = []   (nil case of setReg's definition, reduces by ι)
+    -- getReg [] 0  = [].get? 0 = none  (idem, plus List.get? on nil)
+    -- ⟹ the store instruction takes the `none` error branch → leaves
+    --    memory and registers unchanged.
+    -- `unfold setReg getReg` expands both defs by their match clauses.
+    -- `simp only []` then applies ι-reductions: `[].get? 0 ↝ none`,
+    -- `match none with ... | none => X ↝ X`, and `.memory` projection;
+    -- the goal collapses to `Memory.eq s.memory s.memory`.
+    unfold setReg getReg
+    simp only []
+    -- Goal: Memory.eq s.memory s.memory
+    intro a
+    rfl
   | cons r rs =>
-      unfold setReg getReg
-      simp [h_reg]
-      unfold Memory.eq Memory.update
-      intro a
-      split
-      · -- Case a == addr
-        have h_eq : a = addr := by
-          apply beq_iff_eq.mp
-          assumption
-        rw [h_eq]
-      · -- Case a != addr
-        rfl
+    -- s.registers = r :: rs
+    -- setReg (r :: rs) 0 v = v :: rs   (setReg_cons_zero)
+    -- getReg (v :: rs)  0 = some v      (getReg_cons_zero)
+    -- ⟹ store writes Memory.update s.memory addr (s.memory addr),
+    --   which equals s.memory pointwise (Memory.update_same_pointwise).
+    --
+    -- After the two rewrites the match scrutinee is `some (s.memory addr)`.
+    -- `simp only []` applies the ι (constructor-match) reduction to resolve
+    -- it to the `some` arm, and then reduces the resulting struct-literal
+    -- `.memory` field access.  The goal is then:
+    --   Memory.eq s.memory (Memory.update s.memory addr (s.memory addr))
+    rw [setReg_cons_zero, getReg_cons_zero]
+    simp only []
+    intro a
+    exact (Memory.update_same_pointwise s.memory addr a).symm
 
 /-! ## Decidability and Complexity
 
