@@ -55,7 +55,7 @@ Definition qubit_dim (n : nat) : nat := 2 ^ n.
 (** A quantum state is a vector in C^(2^n) *)
 (** We represent it as a function from basis indices to complex amplitudes *)
 Definition QuantumState (n : nat) : Type :=
-  {ψ : nat -> C | forall k, k >= qubit_dim n -> ψ k = C0}.
+  {ψ : nat -> C | forall k, (k >= qubit_dim n)%nat -> ψ k = C0}.
 
 (** Extract the amplitude function *)
 Definition amplitude {n : nat} (ψ : QuantumState n) : nat -> C :=
@@ -87,14 +87,16 @@ Definition is_normalized {n : nat} (ψ : QuantumState n) : Prop :=
 Definition ket_0 : QuantumState 1.
 Proof.
   exists (fun k => match k with 0 => C1 | _ => C0 end).
-  intros k Hk. destruct k. omega. destruct k. omega. reflexivity.
+  intros k Hk. unfold qubit_dim in Hk; simpl in Hk.
+  destruct k as [|[|k]]; [ lia | lia | reflexivity ].
 Defined.
 
 (** |1⟩ = (0, 1) *)
 Definition ket_1 : QuantumState 1.
 Proof.
   exists (fun k => match k with 1 => C1 | _ => C0 end).
-  intros k Hk. destruct k. omega. destruct k. omega. reflexivity.
+  intros k Hk. unfold qubit_dim in Hk; simpl in Hk.
+  destruct k as [|[|k]]; [ lia | lia | reflexivity ].
 Defined.
 
 (** ** Pauli Matrices (Exact 2x2 Matrices) *)
@@ -148,10 +150,10 @@ Definition identity_2 : Matrix2 :=
                  [1  -1]  *)
 Definition hadamard : Matrix2 :=
   fun i j => match i, j with
-             | 0, 0 => (1 / sqrt 2, 0)
-             | 0, 1 => (1 / sqrt 2, 0)
-             | 1, 0 => (1 / sqrt 2, 0)
-             | 1, 1 => (-1 / sqrt 2, 0)
+             | 0, 0 => ((1 / sqrt 2)%R, 0%R)
+             | 0, 1 => ((1 / sqrt 2)%R, 0%R)
+             | 1, 0 => ((1 / sqrt 2)%R, 0%R)
+             | 1, 1 => ((-1 / sqrt 2)%R, 0%R)
              | _, _ => C0
              end.
 
@@ -168,7 +170,8 @@ Proof.
                  (Cmult (M 1 1) (amplitude ψ 1))
     | _ => C0
     end).
-  intros k Hk. destruct k. omega. destruct k. omega.
+  intros k Hk. unfold qubit_dim in Hk; simpl in Hk.
+  destruct k as [|[|k]]; [ lia | lia | ].
   simpl. reflexivity.
 Defined.
 
