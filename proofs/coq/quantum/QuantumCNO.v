@@ -16,9 +16,10 @@
 *)
 
 Require Import Coq.Reals.Reals.
-Require Import Coq.Complex.Complex.
+(* Self-contained complex numbers (proofs/coq/common/Complex.v). *)
+Require Import CNO.Complex.
 Require Import Coq.Logic.FunctionalExtensionality.
-Require Import CNO.
+Require Import CNO.CNO.
 
 Open Scope R_scope.
 Open Scope C_scope.
