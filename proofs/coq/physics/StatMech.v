@@ -11,7 +11,10 @@
 
 Require Import Coq.Reals.Reals.
 Require Import Coq.Logic.FunctionalExtensionality.
-Require Import CNO.
+Require Import Coq.Lists.List.
+Require Import Coq.micromega.Psatz.
+Require Import CNO.CNO.
+Import ListNotations.
 
 Open Scope R_scope.
 
@@ -44,13 +47,13 @@ Axiom prob_normalized :
     exists (states : list ProgramState),
       fold_right Rplus 0 (map P states) = 1.
 
-(** Point distribution (all probability on one state) *)
-Definition point_dist (s0 : ProgramState) : StateDistribution :=
-  fun s => if state_dec s s0 then 1 else 0.
-
 (** State decidability *)
 Axiom state_dec :
   forall s1 s2 : ProgramState, {s1 = s2} + {s1 <> s2}.
+
+(** Point distribution (all probability on one state) *)
+Definition point_dist (s0 : ProgramState) : StateDistribution :=
+  fun s => if state_dec s s0 then 1 else 0.
 
 (** ** Information-Theoretic Entropy *)
 
@@ -95,11 +98,20 @@ Theorem boltzmann_entropy_nonneg :
 Proof.
   intros P.
   unfold boltzmann_entropy.
-  apply Rmult_le_pos.
-  - apply Rmult_le_pos.
-    + left. apply kB_positive.
-    + apply Rlt_le. apply ln_lt_2. lra.
-  - apply shannon_entropy_nonneg.
+  pose proof kB_positive as HkB.
+  pose proof (shannon_entropy_nonneg P) as Hentropy.
+  unfold Rge in Hentropy.
+  pose proof ln_lt_2 as Hln_half.
+  assert (Hln : ln 2 > 0) by lra.
+  unfold Rge.
+  destruct Hentropy as [Hentropy_pos | Hentropy_zero].
+  - left.
+    replace (kB * ln 2 * shannon_entropy P)%R
+      with ((kB * ln 2) * shannon_entropy P)%R by ring.
+    apply Rmult_lt_0_compat.
+    + apply Rmult_lt_0_compat; assumption.
+    + exact Hentropy_pos.
+  - right. rewrite Hentropy_zero. ring.
 Qed.
 
 (** ** Landauer's Principle *)
@@ -134,7 +146,7 @@ Proof.
   - apply Rmult_lt_0_compat.
     + apply kB_positive.
     + apply temperature_positive.
-  - apply ln_lt_2. lra.
+  - pose proof ln_lt_2 as Hln_half. lra.
 Qed.
 
 (** At room temperature (300K): E_min ≈ 2.85 × 10⁻²¹ J per bit *)
@@ -229,8 +241,9 @@ Proof.
   (* Apply the axiom that reversible processes (ΔS = 0) dissipate no energy *)
   apply reversible_zero_dissipation.
   (* CNOs preserve entropy *)
+  symmetry.
   apply cno_preserves_shannon_entropy.
-  assumption.
+  exact H_cno.
 Qed.
 
 (** ** Bennett's Reversible Computing *)
@@ -303,8 +316,8 @@ Proof.
   (* Step 2: By termination, eval p s' s'' for some s'' *)
   destruct (cno_terminates p H_cno s') as [s'' H_eval'].
 
-  (* Step 3: By CNO identity property, s'' =st= s' *)
-  assert (s'' =st= s') as H_s''_eq_s'.
+  (* Step 3: By CNO identity property, s' =st= s'' *)
+  assert (s' =st= s'') as H_s'_eq_s''.
   { apply cno_preserves_state with (p := p) (s := s') (s' := s'').
     - assumption.
     - assumption. }
@@ -312,8 +325,8 @@ Proof.
   (* Step 4: By transitivity, s'' =st= s *)
   assert (s'' =st= s) as H_s''_eq_s.
   { apply state_eq_trans with (s2 := s').
-    - apply state_eq_sym. assumption.
-    - apply state_eq_sym. assumption. }
+    - apply state_eq_sym. exact H_s'_eq_s''.
+    - apply state_eq_sym. exact H_state_eq. }
 
   (* Step 5: We have eval p s' s'' and s'' =st= s
      Apply eval_respects_state_eq_right to get eval p s' s *)
@@ -345,8 +358,7 @@ Proof.
   rewrite cno_preserves_shannon_entropy; auto.
   simpl.
   (* ΔS = 0, so we're in the else branch *)
-  destruct Rlt_dec; try lra.
-  reflexivity.
+  destruct Rlt_dec; [lra | reflexivity].
 Qed.
 
 (** ** Connection to Original CNO Definition *)
@@ -358,8 +370,8 @@ Theorem symbolic_energy_matches_physical :
   forall (p : Program) (s1 s2 : ProgramState),
     eval p s1 s2 ->
     is_CNO p ->
-    CNO.energy_dissipated p s1 s2 = 0 <->
-    energy_dissipated_phys (point_dist s1) (point_dist s2) = 0.
+    CNO.energy_dissipated p s1 s2 = 0%nat <->
+    energy_dissipated_phys (point_dist s1) (post_execution_dist p (point_dist s1)) = 0.
 Proof.
   intros p s1 s2 H_eval H_cno.
   split; intros H.

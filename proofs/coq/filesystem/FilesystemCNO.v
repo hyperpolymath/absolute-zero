@@ -21,7 +21,7 @@
 Require Import Coq.Lists.List.
 Require Import Coq.Strings.String.
 Require Import Coq.Arith.Arith.
-Require Import CNO.
+Require Import CNO.CNO.
 
 Import ListNotations.
 
@@ -380,7 +380,7 @@ Qed.
 Definition transaction_rollback (ops : list fs_op) (rollback_ops : list fs_op) : Prop :=
   forall fs,
     fold_right (fun op acc => op acc) fs rollback_ops =fs=
-    fold_left (fun acc op => op acc) fs ops.
+    fold_left (fun acc op => op acc) ops fs.
 
 (** If each operation has an inverse, transaction is a CNO
 
@@ -398,7 +398,7 @@ Axiom transaction_cno :
   forall (ops rollback_ops : list fs_op),
     (forall i, valence_reversible (nth i ops fs_nop) (nth i rollback_ops fs_nop)) ->
     is_fs_CNO (fun fs =>
-      fold_right (fun op acc => op acc) (fold_left (fun acc op => op acc) fs ops) rollback_ops).
+      fold_right (fun op acc => op acc) (fold_left (fun acc op => op acc) ops fs) rollback_ops).
 
 (** ** Connection to Classical CNOs *)
 

@@ -437,7 +437,7 @@ private theorem Memory.update_same_pointwise (m : Memory) (addr a : Nat) :
                   then writes `Memory.update s.memory addr (s.memory addr)`,
                   which equals `s.memory` pointwise by
                   `Memory.update_same_pointwise`.
-      - No `sorry`. -/
+      - No proof holes. -/
 theorem loadStore_preserves_memory (addr : Nat) (s : ProgramState) :
     let s' := eval (loadStoreSame addr) s
     Memory.eq s.memory s'.memory := by

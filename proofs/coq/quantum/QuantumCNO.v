@@ -186,12 +186,11 @@ Proof.
   (* ψ_n = e^θ × φ_n, so φ_n = e^{-θ} × ψ_n *)
   specialize (H n).
   rewrite H.
-  rewrite Cexp_neg.
   (* e^{-θ} × (e^θ × φ_n) = (e^{-θ} × e^θ) × φ_n *)
   rewrite Cmult_assoc.
   (* e^{-θ} × e^θ = e^{-θ + θ} = e^0 = 1 *)
   assert (Cexp (RtoC (-θ)) * Cexp (RtoC θ) = C1) as Hinv.
-  { rewrite <- Cexp_add.
+  { rewrite Cexp_add.
     replace (-θ + θ)%R with 0%R by ring.
     apply Cexp_zero. }
   rewrite Hinv.
@@ -203,7 +202,7 @@ Lemma quantum_state_eq_trans : forall ψ φ χ,
   ψ =q= φ -> φ =q= χ -> ψ =q= χ.
 Proof.
   intros ψ φ χ [θ1 H1] [θ2 H2].
-  exists (θ1 + θ2).
+  exists (θ1 + θ2)%R.
   intros n.
   (* ψ_n = e^{θ1} × φ_n and φ_n = e^{θ2} × χ_n *)
   (* So ψ_n = e^{θ1} × (e^{θ2} × χ_n) = e^{θ1 + θ2} × χ_n *)
@@ -211,8 +210,8 @@ Proof.
   specialize (H2 n).
   rewrite H1.
   rewrite H2.
-  rewrite <- Cmult_assoc.
-  rewrite <- Cexp_add.
+  rewrite Cmult_assoc.
+  rewrite Cexp_add.
   reflexivity.
 Qed.
 
@@ -240,12 +239,12 @@ Proof.
   split.
   - (* Unitary *)
     apply I_gate_unitary.
-  split.
-  - (* Identity *)
-    intros ψ.
-    apply quantum_state_eq_refl.
-  - (* No measurement *)
-    trivial.
+  - split.
+    + (* Identity *)
+      intros ψ.
+      apply quantum_state_eq_refl.
+    + (* No measurement *)
+      trivial.
 Qed.
 
 (** ** Trivial Global Phase Gates *)
@@ -267,15 +266,15 @@ Proof.
   split.
   - (* Unitary *)
     apply global_phase_unitary.
-  split.
-  - (* Identity up to phase *)
-    intros ψ.
-    unfold quantum_state_eq.
-    exists θ.
-    intros n.
-    unfold global_phase_gate.
-    reflexivity.
-  - trivial.
+  - split.
+    + (* Identity up to phase *)
+      intros ψ.
+      unfold quantum_state_eq.
+      exists θ.
+      intros n.
+      unfold global_phase_gate.
+      reflexivity.
+    + trivial.
 Qed.
 
 (** ** Non-CNO Gates *)
@@ -340,18 +339,18 @@ Proof.
   split.
   - (* Unitary *)
     apply unitary_compose; assumption.
-  split.
-  - (* Identity *)
-    intros ψ.
-    unfold gate_compose.
-    (* U(V ψ) =q= ψ via transitivity through V ψ *)
-    (* U(V ψ) =q= V ψ (by HU_id) and V ψ =q= ψ (by HV_id) *)
-    apply quantum_state_eq_trans with (V ψ).
-    + (* U(V ψ) =q= V ψ *)
-      apply HU_id.
-    + (* V ψ =q= ψ *)
-      apply HV_id.
-  - trivial.
+  - split.
+    + (* Identity *)
+      intros ψ.
+      unfold gate_compose.
+      (* U(V ψ) =q= ψ via transitivity through V ψ *)
+      (* U(V ψ) =q= V ψ (by HU_id) and V ψ =q= ψ (by HV_id) *)
+      apply quantum_state_eq_trans with (V ψ).
+      * (* U(V ψ) =q= V ψ *)
+        apply HU_id.
+      * (* V ψ =q= ψ *)
+        apply HV_id.
+    + trivial.
 Qed.
 
 (** ** Quantum Information Theory *)
@@ -392,7 +391,7 @@ Qed.
 Axiom no_cloning :
   ~ exists (U : QuantumGate),
     forall ψ : QuantumState,
-      exists basis,
+      exists basis : nat,
         U ψ = ψ /\ U ψ = ψ.  (* Simplified statement *)
 
 (** CNOs respect no-cloning (they don't clone, they preserve) *)
@@ -441,7 +440,7 @@ Definition quantum_to_classical (U : QuantumGate) : Program :=
      3. Classical program does nothing to measurement statistics
      4. Empty program [] is the minimal classical CNO
   *)
-  [].
+  nil.
 
 (** Theorem: Quantum CNOs induce classical CNOs via measurement *)
 Theorem quantum_cno_induces_classical :
@@ -538,7 +537,7 @@ Parameter quantum_energy_dissipated : QuantumGate -> QuantumState -> R.
 (** Landauer bound for quantum operations *)
 Axiom quantum_landauer_bound :
   forall (U : QuantumGate) (ψ : QuantumState),
-    let ΔS := von_neumann_entropy (U ψ) - von_neumann_entropy ψ in
+    let ΔS := (von_neumann_entropy (U ψ) - von_neumann_entropy ψ)%R in
     (ΔS <= 0)%R ->  (* Entropy decreased (information erased) *)
     (quantum_energy_dissipated U ψ >= kB * temperature * (-ΔS))%R.
 
