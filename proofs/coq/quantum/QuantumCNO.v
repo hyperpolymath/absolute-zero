@@ -42,7 +42,7 @@ Axiom temperature_positive : temperature > 0.
 
 (** Dimension of Hilbert space (2^n for n qubits) *)
 Parameter dim : nat.
-Axiom dim_positive : dim > 0.
+Axiom dim_positive : (dim > 0)%nat.
 
 (** Complex vector representing quantum state *)
 Definition QuantumState : Type := nat -> C.
@@ -130,6 +130,12 @@ Axiom CNOT_gate_unitary : is_unitary CNOT_gate.
 
 (** ** Quantum State Equality *)
 
+(** Complex exponential. The quantum proofs use it abstractly via the
+    axioms below (Cexp_zero/neg/add, Cconj_Cexp). Declared as a parameter
+    so it is in scope before first use. Recorded as an assumption in
+    PROOF-STATUS-2026-05-18.md (post-T0 axiom audit). *)
+Parameter Cexp : C -> C.
+
 (** Two quantum states are equal up to global phase *)
 Definition quantum_state_eq (ψ φ : QuantumState) : Prop :=
   exists θ : R, forall n, ψ n = Cexp (RtoC θ) * φ n.
@@ -149,24 +155,15 @@ Axiom Cexp_neg : forall x : R, Cexp (RtoC (-x)) = Cinv (Cexp (RtoC x)).
 (** e^x × e^y = e^{x+y} *)
 Axiom Cexp_add : forall x y : R, Cexp (RtoC x) * Cexp (RtoC y) = Cexp (RtoC (x + y)).
 
-(** 1 × z = z *)
-Axiom Cmult_1_l : forall z : C, C1 * z = z.
-
-(** Complex multiplication associativity *)
-Axiom Cmult_assoc : forall a b c : C, a * (b * c) = (a * b) * c.
+(* Cmult_1_l, Cmult_assoc, Cconj_RtoC, Cconj_mult are now PROVED lemmas
+   in CNO.Complex — no longer axioms (strengthens the development and
+   removes the redeclaration clash). *)
 
 (** Complex conjugate of exponential: (e^x)* = e^{x*} *)
 Axiom Cconj_Cexp : forall x : C, Cconj (Cexp x) = Cexp (Cconj x).
 
-(** Conjugate of real is identity: (r)* = r *)
-Axiom Cconj_RtoC : forall r : R, Cconj (RtoC r) = RtoC r.
-
-(** (a × b)* = a* × b* *)
-Axiom Cconj_mult : forall a b : C, Cconj (a * b) = Cconj a * Cconj b.
-
-(** Global phase gates are unitary (standard quantum mechanics result) *)
-Axiom global_phase_unitary :
-  forall θ : R, is_unitary (global_phase_gate θ).
+(* `global_phase_unitary` axiom moved below, after `global_phase_gate`
+   is defined (it referenced the gate before its definition). *)
 
 (** Reflexivity, symmetry, transitivity *)
 Lemma quantum_state_eq_refl : forall ψ, ψ =q= ψ.
@@ -184,7 +181,7 @@ Qed.
 Lemma quantum_state_eq_sym : forall ψ φ, ψ =q= φ -> φ =q= ψ.
 Proof.
   intros ψ φ [θ H].
-  exists (-θ).
+  exists (-θ)%R.
   intros n.
   (* ψ_n = e^θ × φ_n, so φ_n = e^{-θ} × ψ_n *)
   specialize (H n).
@@ -256,6 +253,11 @@ Qed.
 (** A gate that only adds global phase is a CNO *)
 Definition global_phase_gate (θ : R) : QuantumGate :=
   fun ψ n => Cexp (RtoC θ) * ψ n.
+
+(** Global phase gates are unitary (standard QM result). Assumption —
+    see PROOF-STATUS-2026-05-18.md (post-T0 axiom audit). *)
+Axiom global_phase_unitary :
+  forall θ : R, is_unitary (global_phase_gate θ).
 
 Theorem global_phase_is_cno :
   forall θ : R, is_quantum_CNO (global_phase_gate θ).
