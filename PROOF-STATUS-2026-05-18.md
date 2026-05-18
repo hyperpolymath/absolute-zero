@@ -94,3 +94,51 @@ an accurate ledger. **Better in reality and epistemically**; not the
 illusory "100%". The underlying thesis is plausibly intact; the
 *formalization* required real repair — keystone delivered, remainder
 scoped above.
+
+---
+
+# RESUME HERE — priority: the 7 dependent Coq files
+
+**Branch:** `repair/proofs-tier0-2026-05-18` (commits `f388db1`, `cc0d375`;
+NOT pushed). Repo: `~/dev/repos/absolute-zero` (WSL Ubuntu).
+
+**Environment / build loop (per file):**
+- Coq 8.20 via `nix shell github:NixOS/nixpkgs/nixos-24.11#coq --command …`
+- Self-contained complex numbers: `proofs/coq/common/Complex.v` (NO
+  Coquelicot/mathcomp/HB). Build order: in `proofs/coq/common`,
+  `coqc -R . CNO CNO.v && coqc -R . CNO Complex.v`; then in the file's
+  dir: `coqc -R ../common CNO <FILE>.v 2>&1`.
+- Edit files via the Edit tool on `\\wsl.localhost\Ubuntu\…` UNC paths,
+  or PowerShell `base64 | wsl bash` for scripts (PS↔WSL mangles inline
+  multiline; use the base64-script-file pattern).
+- Fix first error → recompile → repeat until `.vo`. **Commit per file**
+  on the branch as each goes green.
+
+**Recurring bit-rot patterns → fixes (proven in CNO.v/Complex.v):**
+1. inversion auto-names (`H3`) → grab by shape: `match goal with H : <pat> |- _ => …`
+2. `repeat split` over conjunctions → explicit `split; [|split;[|split]]` + fresh names
+3. dead `unfold mem_eq. reflexivity.` ("No such goal") → `all: try (…)`
+4. `Open Scope C_scope` captures real `/`, unary `-`, literals →
+   annotate `%R` (and `%nat` for nat compares like `(k >= n)%nat`)
+5. `omega` → `lia`
+6. `lia` can't evaluate `2^n` → `unfold qubit_dim in *; simpl` first
+7. forward-referenced def/axiom → reorder below its dependency
+8. Require convention: use `Require Import CNO.CNO.` and
+   `Require Import CNO.Complex.` (NOT bare `CNO`)
+9. axioms duplicating CNO.Complex lemmas → delete (Complex proves them)
+
+**Per-file frontier (start each here):**
+- `quantum/QuantumMechanicsExact.v` — ⚠️ `:167` in `apply_matrix_2`
+- `quantum/QuantumCNO.v` — ⚠️ `:194` `rewrite <- Cexp_add` shape fails
+  (`Cexp` is an opaque `Parameter`; may need `Cexp_add` restated, or
+  prove via the axioms differently)
+- `lambda/LambdaCNO.v` — add `Require Import Lia.` then CNO.v-class bit-rot
+- `physics/StatMech.v`, `physics/LandauerDerivation.v`,
+  `malbolge/MalbolgeCore.v`, `category/CNOCategory.v`,
+  `filesystem/FilesystemCNO.v` — change `Require Import CNO.` →
+  `Require Import CNO.CNO.`, then CNO.v-class bit-rot loop
+- (after the 7) Lean `proofs/lean4/CNO.lean` cons-case memory lemma;
+  then the ~121-axiom audit (post-T0)
+
+**Done & committed:** Agda `CNO.agda` verified; Coq `CNO.v` + `Complex.v`
+compile clean. Soundness fix: `state_eq` excludes the program counter.
