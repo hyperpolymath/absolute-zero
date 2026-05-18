@@ -396,18 +396,18 @@ def loadStoreSame (addr : Nat) : Program :=
    `Memory.update_same_pointwise` is the key identity-update fact: writing
    the value already stored at an address is a no-op, point-wise. -/
 
-private lemma setReg_cons_zero (r val : Nat) (rs : List Nat) :
+private theorem setReg_cons_zero (r val : Nat) (rs : List Nat) :
     setReg (r :: rs) 0 val = val :: rs := by
   unfold setReg
   rfl
 
-private lemma getReg_cons_zero (val : Nat) (rs : List Nat) :
+private theorem getReg_cons_zero (val : Nat) (rs : List Nat) :
     getReg (val :: rs) 0 = some val := by
   unfold getReg
   rfl
 
 /-- Writing the value already at `addr` back to `addr` is a pointwise no-op. -/
-private lemma Memory.update_same_pointwise (m : Memory) (addr a : Nat) :
+private theorem Memory.update_same_pointwise (m : Memory) (addr a : Nat) :
     Memory.update m addr (m addr) a = m a := by
   unfold Memory.update
   -- The branch condition is `a == addr : Bool`.  We case-split on whether
@@ -437,7 +437,7 @@ private lemma Memory.update_same_pointwise (m : Memory) (addr a : Nat) :
                   then writes `Memory.update s.memory addr (s.memory addr)`,
                   which equals `s.memory` pointwise by
                   `Memory.update_same_pointwise`.
-      - No `sorry`. -/
+      - No proof holes. -/
 theorem loadStore_preserves_memory (addr : Nat) (s : ProgramState) :
     let s' := eval (loadStoreSame addr) s
     Memory.eq s.memory s'.memory := by
@@ -479,7 +479,6 @@ theorem loadStore_preserves_memory (addr : Nat) (s : ProgramState) :
     -- `match none with ... | none => X ↝ X`, and `.memory` projection;
     -- the goal collapses to `Memory.eq s.memory s.memory`.
     unfold setReg getReg
-    simp only []
     -- Goal: Memory.eq s.memory s.memory
     intro a
     rfl

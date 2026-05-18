@@ -164,10 +164,10 @@ Definition apply_matrix_2 (M : Matrix2) (ψ : QuantumState 1) : QuantumState 1.
 Proof.
   exists (fun k =>
     match k with
-    | 0 => Cplus (Cmult (M 0 0) (amplitude ψ 0))
-                 (Cmult (M 0 1) (amplitude ψ 1))
-    | 1 => Cplus (Cmult (M 1 0) (amplitude ψ 0))
-                 (Cmult (M 1 1) (amplitude ψ 1))
+    | O => Cplus (Cmult (M 0%nat 0%nat) (amplitude ψ 0%nat))
+                 (Cmult (M 0%nat 1%nat) (amplitude ψ 1%nat))
+    | S O => Cplus (Cmult (M 1%nat 0%nat) (amplitude ψ 0%nat))
+                   (Cmult (M 1%nat 1%nat) (amplitude ψ 1%nat))
     | _ => C0
     end).
   intros k Hk. unfold qubit_dim in Hk; simpl in Hk.
@@ -345,7 +345,7 @@ Proof.
     replace (sin 0) with 0 by (rewrite sin_0; reflexivity).
     unfold Cmult. simpl.
     destruct (amplitude ψ k) as [r i].
-    simpl. ring_simplify. reflexivity.
+    simpl. apply Cpair_eq; simpl; ring.
 Qed.
 
 (** ** Measurement and No-Cloning Theorem *)

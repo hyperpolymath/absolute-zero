@@ -180,7 +180,7 @@ theorem quantum_cno_composition (U V : QuantumGate) :
   · intro ψ
     unfold gateCompose
     -- Goal: U (V ψ) =q= ψ. Chain U(Vψ)=q=Vψ (hU_id (V ψ)) with Vψ=q=ψ (hV_id ψ).
-    -- The original `sorry` comment misdiagnosed the second goal: after
+    -- The original proof-hole comment misdiagnosed the second goal: after
     -- `apply quantum_state_eq_trans`, transitivity routes via `V ψ`, so
     -- the second leg is just `hV_id ψ`, not a U-rewrite under =q=.
     exact quantum_state_eq_trans (U (V ψ)) (V ψ) ψ (hU_id (V ψ)) (hV_id ψ)
