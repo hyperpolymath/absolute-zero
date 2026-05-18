@@ -13,9 +13,12 @@
 
 Require Import Coq.Reals.Reals.
 Require Import Coq.Reals.RIneq.
-Require Import Coq.Complex.Complex.
+(* Self-contained complex numbers — see proofs/coq/common/Complex.v and
+   PROOF-STATUS-2026-05-18.md. Replaces the non-existent
+   `Coq.Complex.Complex`; Coquelicot rejected (mathcomp2/HB/elpi weight). *)
+Require Import CNO.Complex.
 Require Import Coq.micromega.Psatz.
-Require Import CNO.
+Require Import CNO.CNO.
 
 Open Scope R_scope.
 Open Scope C_scope.
@@ -25,9 +28,8 @@ Open Scope C_scope.
 (** Complex numbers are already defined in Coq.Complex.Complex *)
 (** C = R + iR, with Cplus, Cmult, etc. *)
 
-(** Complex conjugate *)
-Definition Cconj (z : C) : C :=
-  (fst z, - snd z).
+(** Complex conjugate is provided by CNO.Complex (identical definition);
+    the previous local redefinition would clash. *)
 
 (** Complex modulus squared *)
 Definition Cmod2 (z : C) : R :=
