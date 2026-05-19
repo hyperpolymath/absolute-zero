@@ -80,7 +80,7 @@ license = "MIT OR Palimpsest-0.6"  ❌ OUTDATED
 **Source files** (mixed):
 ```rust
 // SPDX-License-Identifier: MIT OR Palimpsest-0.6  ❌ OUTDATED (some files)
-// SPDX-License-Identifier: PMPL-1.0              ✅ CORRECT (other files)
+// SPDX-License-Identifier: PMPL-1.0-or-later              ✅ CORRECT (other files)
 // SPDX-License-Identifier: PMPL-1.0-or-later    ✅ CORRECT (LICENSE)
 ```
 
