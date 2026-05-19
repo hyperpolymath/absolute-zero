@@ -5,7 +5,7 @@
 
    Author: Jonathan D. A. Jewell
    Project: Absolute Zero (integrating Valence Shell)
-   License: AGPL-3.0 / Palimpsest 0.5
+   License: PMPL-1.0-or-later
 -/
 
 -- Std.Data.List.Basic was vestigial in pre-Batteries layouts. The List
