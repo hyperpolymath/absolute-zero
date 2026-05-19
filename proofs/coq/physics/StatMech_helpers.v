@@ -2,6 +2,10 @@
 
     Auxiliary lemmas needed for thermodynamic CNO proofs.
     These should eventually be integrated into CNO.v.
+
+    Author: Jonathan D. A. Jewell
+    Project: Absolute Zero
+    License: PMPL-1.0-or-later
 *)
 
 Require Import CNO.
