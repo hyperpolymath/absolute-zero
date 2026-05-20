@@ -10,7 +10,8 @@
      ("ADR-004" "accepted" "post_execution_dist specialized for CNOs (identity on distributions)")
      ("ADR-005" "proposed" "Fix QuantumCNO.v Cexp: real exp -> complex phase factor")
      ("ADR-006" "accepted" "state_eq excludes state_pc — PC is control-flow bookkeeping, not observable side effect (2026-05-18 rescue)")
-     ("ADR-007" "accepted" "Discharge eval_deterministic Axiom → Theorem via step_deterministic_strong helper (2026-05-20, PR #24); first post-T0 axiom audit win")))
+     ("ADR-007" "accepted" "Discharge eval_deterministic Axiom → Theorem via step_deterministic_strong helper (2026-05-20, PR #24); first post-T0 axiom audit win")
+     ("ADR-008" "accepted" "Delete unsound eval_respects_state_eq_{left,right} axioms; weaken logically_reversible to =st= (observational reversibility); re-prove cno_eval_on_equal_states + cno_logically_reversible via cno_terminates + cno_preserves_state (2026-05-20)")))
 
   (development-practices
     (code-style "Coq proof engineering")

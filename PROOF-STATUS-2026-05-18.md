@@ -78,14 +78,15 @@ quantum) `Require Import CNO.Complex.` — fixes the inconsistent
 | `proofs/coq/filesystem/FilesystemCNO.v` | ✅ compiles | fixed `CNO.CNO` import and `fold_left` argument order. |
 | `proofs/lean4/CNO.lean` | ✅ builds | completed `loadStore_preserves_memory` cons case with rewrite helper lemmas; no proof holes. |
 | `proofs/lean4/{FilesystemCNO,LambdaCNO,QuantumCNO,StatMech,CNOCategory}.lean` | ✅ build | full `lake build` succeeds. |
-| ~120 Coq `Axiom`/`Parameter` | ⚠️ assumptions | **NOT holes.** Separate post-T0 audit (e.g. `cno_decidable`, `eval_respects_state_eq_left/right`). `eval_deterministic` was on this list — **discharged 2026-05-20** (PR `#24`, `Print Assumptions` "Closed under the global context"). |
+| 73 Coq `Axiom` + 42 `Parameter` | ⚠️ model-layer assumptions | **NOT holes.** Triage 2026-05-20: ~73 Axioms are properties of abstract `Parameter`s (physics constants/laws, quantum gate unitarity, Cexp properties, POSIX semantics, Y-combinator non-termination, intentionally-typed `hom_functor` per inline comment) — **legitimate model layer; do not discharge without first defining the underlying Parameter**. **3 discharges shipped: `eval_deterministic` (PR #24, 2026-05-20), `eval_respects_state_eq_left` + `_right` (this PR, 2026-05-20)** — the last two were unsound under the rescue branch's PC-excluding `state_eq` and have been **deleted outright**; their downstream consumers (`cno_eval_on_equal_states`, `cno_logically_reversible`) re-proved via `cno_terminates` + `cno_preserves_state` with a correspondingly-weakened `logically_reversible` definition. `cno_decidable` (depends on undecidable Memory function equality) deferred. |
 
 ## Tier-0 status
 
 - **Keystone complete:** `CNO.v` (Coq) + `CNO.agda` (Agda) verified.
 - **T0 complete:** dependent Coq files, `StatMech_helpers.v`, and full Lean package build.
-- **Post-T0 (in progress):** the ~120-axiom audit (classify *legitimate model assumption*
-  vs *hard proof papered over*). 1 axiom discharged so far (`eval_deterministic`).
+- **Post-T0 (in progress):** 75 → 73 Axioms; the remainder are model-layer assumptions
+  (legitimate model assumptions about abstract Parameters or external physical laws).
+  See ADR-008 (`logically_reversible` weakening / removal of unsound state_eq axioms).
 
 ## Position vs. before the review
 
@@ -107,7 +108,24 @@ by `Theorem eval_deterministic` proved from a new helper `Lemma
 step_deterministic_strong`. `Print Assumptions` on both reports "Closed
 under the global context". Re-verified on Coq 8.18.0 + 8.20.1 (proof is
 portable). Full `lake build` 1631/1632 green; all 11 Coq files
-recompile clean. ~120 other `Axiom`/`Parameter` declarations remain.
+recompile clean.
+
+**Status update 2026-05-20 (later).** Full triage of the remaining axioms:
+75 Axioms total; ~73 are legitimate model-layer assumptions (properties
+of abstract `Parameter`s — physics constants/laws, quantum gate unitarity,
+Cexp properties, POSIX semantics, Y combinator non-termination,
+intentionally-typed `hom_functor`); 2 (`eval_respects_state_eq_left/right`)
+were **unsound** under the rescue branch's PC-excluding [state_eq]
+(s and s'' can be `=st=` with different PC, while eval deterministically
+propagates PC). Discharged 2026-05-20 by **deletion + downstream
+refactor**: `logically_reversible` definition weakened to use `=st=`
+(observational reversibility — the strict form was unproveable, and
+`bennett_logical_implies_thermodynamic`'s body never used the hypothesis,
+so no theory is lost); `cno_eval_on_equal_states` re-proved via
+`cno_terminates` (different witnesses, sound); `cno_logically_reversible`
+re-proved via `cno_terminates` + `cno_preserves_state`. `Print Assumptions`
+on both lemmas: "Closed under the global context". 75 → 73 axioms.
+See ADR-008.
 
 **Branch:** `repair/proofs-tier0-2026-05-18` (not pushed). Repo:
 `~/dev/repos/absolute-zero`.
