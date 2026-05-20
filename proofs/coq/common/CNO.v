@@ -444,15 +444,57 @@ Qed.
 
 (** ** CNO Equivalence *)
 
-(** Evaluation is deterministic *)
-Axiom eval_deterministic :
-  forall p s s1 s2,
-    eval p s s1 -> eval p s s2 -> s1 =st= s2.
+(** Single-step evaluation is fully deterministic: same start state and
+    instruction force a syntactically identical result state. The result
+    of `step` is always `mkState …` whose components are functions of the
+    instruction and the start state (`state_memory`, `get_reg`,
+    `set_reg`, `mem_update`); the auxiliary witnesses in [step_load] /
+    [step_store] / [step_add] are pinned by their hypotheses. *)
+Lemma step_deterministic_strong : forall s i s1 s2,
+  step s i s1 -> step s i s2 -> s1 = s2.
+Proof.
+  intros s i s1 s2 H1 H2.
+  destruct i; inversion H1; subst; inversion H2; subst; try reflexivity.
+  - (* Store: two get_reg results agree by functional dependence. *)
+    match goal with
+    | [ Ha : get_reg _ _ = Some ?v1,
+        Hb : get_reg _ _ = Some ?v2 |- _ ] =>
+        rewrite Ha in Hb; injection Hb as ->
+    end.
+    reflexivity.
+  - (* Add: two pairs of get_reg results. *)
+    repeat match goal with
+    | [ Ha : get_reg ?regs ?r = Some ?v1,
+        Hb : get_reg ?regs ?r = Some ?v2 |- _ ] =>
+        rewrite Ha in Hb; injection Hb as ->; clear Ha
+    end.
+    reflexivity.
+Qed.
 
-(** Note: This could be proven by induction on the evaluation relation,
-    but would require showing that the step relation is deterministic.
-    For now, we axiomatize it as a reasonable assumption for our
-    simple instruction set. *)
+(** Evaluation is deterministic. Discharged 2026-05-20 from
+    [step_deterministic_strong] by induction on the eval derivation —
+    [Print Assumptions] reports "Closed under the global context".
+    Was previously an [Axiom] (see PROOF-STATUS-2026-05-18.md
+    "post-T0 axiom audit"). *)
+Theorem eval_deterministic : forall p s s1 s2,
+  eval p s s1 -> eval p s s2 -> s1 =st= s2.
+Proof.
+  intros p s s1 s2 H1.
+  generalize dependent s2.
+  induction H1 as [ s0 | i is sA sB sC Hstep Hev IH ]; intros s2 H2.
+  - (* eval_empty: inversion forces s2 = s0. *)
+    inversion H2; subst. apply state_eq_refl.
+  - (* eval_step: inversion gives step sA i sB' and eval is sB' s2.
+       step_deterministic_strong then forces sB = sB' (syntactic), so the
+       induction hypothesis closes the tail. *)
+    inversion H2; subst.
+    match goal with
+    | [ Hs : step sA i ?sBp, He : eval is ?sBp s2 |- _ ] =>
+        pose proof (step_deterministic_strong _ _ _ _ Hstep Hs) as Heq;
+        subst sBp;
+        apply IH; exact He
+    end.
+Qed.
 
 (** Two programs are CNO-equivalent if they produce the same state transformations *)
 Definition cno_equiv (p1 p2 : Program) : Prop :=
