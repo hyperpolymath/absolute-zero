@@ -572,9 +572,21 @@ Qed.
 (** ** Decidability *)
 
 (** Question: Is CNO verification decidable? *)
-(** This is a major research question *)
 
-Axiom cno_decidable : forall p, {is_CNO p} + {~ is_CNO p}.
+(** Universal decidability of [is_CNO] over arbitrary programs was
+    previously asserted as an [Axiom] [cno_decidable]. That axiom has
+    been dropped (owner ruling, Stage 3 of standards#157): the
+    universal form asks for a constructive decision procedure over an
+    unbounded state space ([Memory : nat -> nat], unbounded
+    registers, unbounded I/O traces), and [is_CNO]'s
+    universally-quantified clauses range over all of them. This is
+    essentially the Rice's-theorem situation: deciding a non-trivial
+    semantic property of an arbitrary program is undecidable, so the
+    universal-decidability claim is not constructively achievable in
+    Coq and any client that wants decidability must work in a
+    restricted syntactic fragment of [Program] (which the current
+    development does not formalise). No theorem in this file depended
+    on it. *)
 
 (** ** Complexity *)
 
