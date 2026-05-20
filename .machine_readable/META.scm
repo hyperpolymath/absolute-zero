@@ -8,7 +8,9 @@
      ("ADR-002" "accepted" "Dual Landauer formalization: axiom (StatMech.v) + derivation (LandauerDerivation.v)")
      ("ADR-003" "accepted" "Lambda CNO = identity property only, not termination")
      ("ADR-004" "accepted" "post_execution_dist specialized for CNOs (identity on distributions)")
-     ("ADR-005" "proposed" "Fix QuantumCNO.v Cexp: real exp -> complex phase factor")))
+     ("ADR-005" "proposed" "Fix QuantumCNO.v Cexp: real exp -> complex phase factor")
+     ("ADR-006" "accepted" "state_eq excludes state_pc — PC is control-flow bookkeeping, not observable side effect (2026-05-18 rescue)")
+     ("ADR-007" "accepted" "Discharge eval_deterministic Axiom → Theorem via step_deterministic_strong helper (2026-05-20, PR #24); first post-T0 axiom audit win")))
 
   (development-practices
     (code-style "Coq proof engineering")

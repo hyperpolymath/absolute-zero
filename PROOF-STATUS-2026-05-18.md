@@ -78,14 +78,14 @@ quantum) `Require Import CNO.Complex.` — fixes the inconsistent
 | `proofs/coq/filesystem/FilesystemCNO.v` | ✅ compiles | fixed `CNO.CNO` import and `fold_left` argument order. |
 | `proofs/lean4/CNO.lean` | ✅ builds | completed `loadStore_preserves_memory` cons case with rewrite helper lemmas; no proof holes. |
 | `proofs/lean4/{FilesystemCNO,LambdaCNO,QuantumCNO,StatMech,CNOCategory}.lean` | ✅ build | full `lake build` succeeds. |
-| ~121 Coq `Axiom`/`Parameter` | ⚠️ assumptions | **NOT holes.** Separate post-T0 audit (e.g. `eval_deterministic`, `cno_decidable`, `eval_respects_state_eq_left/right`). |
+| ~120 Coq `Axiom`/`Parameter` | ⚠️ assumptions | **NOT holes.** Separate post-T0 audit (e.g. `cno_decidable`, `eval_respects_state_eq_left/right`). `eval_deterministic` was on this list — **discharged 2026-05-20** (PR `#24`, `Print Assumptions` "Closed under the global context"). |
 
 ## Tier-0 status
 
 - **Keystone complete:** `CNO.v` (Coq) + `CNO.agda` (Agda) verified.
 - **T0 complete:** dependent Coq files, `StatMech_helpers.v`, and full Lean package build.
-- **Post-T0:** the ~121-axiom audit (classify *legitimate model assumption*
-  vs *hard proof papered over*).
+- **Post-T0 (in progress):** the ~120-axiom audit (classify *legitimate model assumption*
+  vs *hard proof papered over*). 1 axiom discharged so far (`eval_deterministic`).
 
 ## Position vs. before the review
 
@@ -99,6 +99,15 @@ scoped above.
 ---
 
 # RESUME HERE — post-T0 axiom audit
+
+**Status update 2026-05-20.** Rescue work rebased onto current `main` and
+the first post-T0 axiom (`eval_deterministic`) discharged in PR
+[`#24`](https://github.com/hyperpolymath/absolute-zero/pull/24) — replaced
+by `Theorem eval_deterministic` proved from a new helper `Lemma
+step_deterministic_strong`. `Print Assumptions` on both reports "Closed
+under the global context". Re-verified on Coq 8.18.0 + 8.20.1 (proof is
+portable). Full `lake build` 1631/1632 green; all 11 Coq files
+recompile clean. ~120 other `Axiom`/`Parameter` declarations remain.
 
 **Branch:** `repair/proofs-tier0-2026-05-18` (not pushed). Repo:
 `~/dev/repos/absolute-zero`.
@@ -132,5 +141,6 @@ scoped above.
 - Coq: every file under `proofs/coq/{common,quantum,lambda,physics,malbolge,category,filesystem}` compiles with Coq 8.20.1 via `build-coq.sh`.
 - Lean: `lake build` succeeds for all Lean targets.
 
-**Next frontier:** the ~121 Coq `Axiom`/`Parameter` audit (legitimate model
-assumption vs avoidable proof shortcut).
+**Next frontier:** the ~120 Coq `Axiom`/`Parameter` audit (legitimate model
+assumption vs avoidable proof shortcut). 1 discharged (`eval_deterministic`,
+PR `#24`, 2026-05-20).

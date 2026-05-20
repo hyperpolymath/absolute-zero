@@ -11,7 +11,7 @@ repo = "github.com/hyperpolymath/absolute-zero"
 version = "1.0.0-alpha"
 schema-version = "1.0"
 created = "2026-01-03"
-last-updated = "2026-02-05"
+last-updated = "2026-05-20"
 status = "active"
 
 [project-context]
@@ -26,10 +26,10 @@ maturity = "experimental"
 
 [components]
 # Format: name = [percentage, "notes"]
-coq-proofs = [81, "81 Qed, 19 Admitted, 6 Defined, 63 Axioms"]
-lean4-proofs = [70, "syntax-complete, needs verification"]
+coq-proofs = [88, "11/11 files compile (Coq 8.18.0+8.20.1); 0 Admitted (rescue 2026-05-18); ~120 Axiom/Parameter as post-T0 audit, 1 discharged (eval_deterministic, PR #24, 2026-05-20)"]
+lean4-proofs = [95, "lake build 1631/1632 green (mathlib + 6 lean_lib targets); verified 2026-05-20"]
 z3-proofs = [90, "10 theorems encoded, needs z3 runtime"]
-agda-proofs = [40, "phase 1 complete"]
+agda-proofs = [60, "CNO.agda type-checks clean — 0 postulates/holes/unsolved metas (verified 2026-05-18)"]
 isabelle-proofs = [40, "phase 1 complete"]
 mizar-proofs = [10, "stub, needs installation"]
 
@@ -53,13 +53,11 @@ milestones = [
 [blockers-and-issues]
 critical = []
 high = [
-  "19 Admitted proofs in Coq",
   "Python interpreters violate RSR",
-  "No local coqc for compilation",
 ]
 medium = [
-  "QuantumCNO.v Cexp real-vs-phase bug",
   "LandauerDerivation.v needs measure theory",
+  "~120 post-T0 Coq Axiom/Parameter audit (legitimate model assumption vs avoidable proof shortcut)",
 ]
 low = [
   "y_not_cno non-termination proof",
@@ -67,12 +65,10 @@ low = [
 
 [critical-next-actions]
 immediate = [
-  "Complete QuantumCNO.v proofs",
-  "Classify FilesystemCNO.v proofs",
-  "Classify MalbolgeCore.v proof",
+  "PR #24 review + merge (eval_deterministic discharge + rescue rebase)",
 ]
 this-week = [
-  "Target 12-15 of 19 Admitted proofs",
+  "Begin classification sweep of remaining ~120 Axiom declarations",
   "Migrate Python to Rust",
 ]
 this-month = [
@@ -82,13 +78,15 @@ this-month = [
 
 [session-history]
 sessions = [
+  { date = "2026-05-20", agent = "opus", summary = "Rescue branch rebased onto current main (clean); eval_deterministic Axiom discharged → Theorem (via step_deterministic_strong helper); Print Assumptions Closed under global context; 11/11 Coq + 1631/1632 Lean targets green; PR #24 filed (draft, Refs standards#124+#133)" },
+  { date = "2026-05-18", agent = "opus", summary = "Tier-0 rescue: CNO.v keystone re-proved (state_eq PC-exclusion fix, 9 named repairs); Complex.v self-contained complex numbers added; 11 Coq files compile under Coq 8.20.1; full Lean lake build succeeds; PROOF-STATUS-2026-05-18.md ledger added" },
   { date = "2026-02-05", agent = "opus", summary = "Completed 8 proofs, created PROOF-INSIGHTS.md" },
   { date = "2026-02-04", agent = "opus", summary = "Completed cno_logically_reversible, added axioms" },
 ]
 
 [maintenance-status]
-last-run-utc = "2026-02-05T00:00:00Z"
-last-result = "unknown"  # unknown | pass | warn | fail
+last-run-utc = "2026-05-20T15:00:00Z"
+last-result = "pass"  # unknown | pass | warn | fail
 
 [migration-notes]
 # Fields from STATE.scm that map cleanly:
