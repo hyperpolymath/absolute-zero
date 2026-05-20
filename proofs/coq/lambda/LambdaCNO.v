@@ -14,6 +14,8 @@
 Require Import Coq.Lists.List.
 Require Import Coq.Arith.Arith.
 Require Import Coq.Bool.Bool.
+Require Import Lia.
+Require Import CNO.CNO.
 Import ListNotations.
 
 (** ** Lambda Calculus Syntax *)
@@ -408,13 +410,13 @@ Qed.
 
     1. Lambda calculus has CNOs (identity function)          [lambda_id_is_cno: Qed]
     2. CNO composition works in lambda calculus (closed)     [lambda_cno_composition: Qed]
-    3. Y combinator is not a CNO (non-termination)           [y_not_cno: Admitted]
+    3. Y combinator is not a CNO (non-termination)           [y_not_cno: Axiom]
     4. Connection to Church encodings
     5. Eta equivalence expands CNO class                     [eta_expanded_id_is_cno: Qed]
 
-    Proof status: 3 of 4 theorems fully proven (1 Admitted).
+    Proof status: 3 of 4 theorems fully proven (1 explicit axiom).
 
-    The remaining Admitted proof (y_not_cno) requires formal
+    The remaining axiomatized result (y_not_cno) requires formal
     non-termination reasoning, which is inherently difficult
     in constructive type theory. The result itself is well-established
     in lambda calculus theory (Y f diverges for all f).
