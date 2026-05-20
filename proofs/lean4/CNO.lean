@@ -384,7 +384,7 @@ def loadStoreSame (addr : Nat) : Program :=
 
 /- ── Helper lemmas for loadStore_preserves_memory ──────────────────────────
 
-   These three private lemmas establish the round-trip property of
+   These three private theorems establish the round-trip property of
    `setReg`/`getReg` for register index 0 and the no-op character of
    `Memory.update m addr (m addr)`.  They are the rewrite-lemma layer
    mentioned in the DEFERRED comment below.
@@ -396,18 +396,18 @@ def loadStoreSame (addr : Nat) : Program :=
    `Memory.update_same_pointwise` is the key identity-update fact: writing
    the value already stored at an address is a no-op, point-wise. -/
 
-private lemma setReg_cons_zero (r val : Nat) (rs : List Nat) :
+private theorem setReg_cons_zero (r val : Nat) (rs : List Nat) :
     setReg (r :: rs) 0 val = val :: rs := by
   unfold setReg
   rfl
 
-private lemma getReg_cons_zero (val : Nat) (rs : List Nat) :
+private theorem getReg_cons_zero (val : Nat) (rs : List Nat) :
     getReg (val :: rs) 0 = some val := by
   unfold getReg
   rfl
 
 /-- Writing the value already at `addr` back to `addr` is a pointwise no-op. -/
-private lemma Memory.update_same_pointwise (m : Memory) (addr a : Nat) :
+private theorem Memory.update_same_pointwise (m : Memory) (addr a : Nat) :
     Memory.update m addr (m addr) a = m a := by
   unfold Memory.update
   -- The branch condition is `a == addr : Bool`.  We case-split on whether
@@ -475,12 +475,10 @@ theorem loadStore_preserves_memory (addr : Nat) (s : ProgramState) :
     -- ⟹ the store instruction takes the `none` error branch → leaves
     --    memory and registers unchanged.
     -- `unfold setReg getReg` expands both defs by their match clauses.
-    -- `simp only []` then applies ι-reductions: `[].get? 0 ↝ none`,
-    -- `match none with ... | none => X ↝ X`, and `.memory` projection;
-    -- the goal collapses to `Memory.eq s.memory s.memory`.
+    -- ι-reductions then collapse the goal: `[].get? 0 ↝ none`,
+    -- `match none with ... | none => X ↝ X`, and `.memory` projection
+    -- happen by definitional equality, so `rfl` closes after `intro a`.
     unfold setReg getReg
-    simp only []
-    -- Goal: Memory.eq s.memory s.memory
     intro a
     rfl
   | cons r rs =>
