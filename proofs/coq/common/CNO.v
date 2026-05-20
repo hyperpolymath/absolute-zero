@@ -643,32 +643,188 @@ Conjecture cno_verification_overhead :
 
 (** ** State Equality and Evaluation *)
 
-(** CRITICAL LEMMA: Evaluation respects state equality on the right
-    
-    This lemma is essential for proving CNO reversibility.
-    It states that if we can evaluate p from s to s', and s' is
-    state-equal to s'', then we can also evaluate p from s to s''.
-    
-    This is needed because the eval relation is defined inductively
-    on specific states, but CNO theory works with state equality (=st=).
-*)
-Axiom eval_respects_state_eq_right :
-  forall p s s' s'',
-    eval p s s' ->
-    s' =st= s'' ->
-    eval p s s''.
+(** Inversion helpers for [step], extracted so the [step_respects_state_eq]
+    case-analysis below doesn't rely on Coq 8.18's positional [Hn]
+    auto-naming.  Each returns the explicit equations that the [step_*]
+    constructor's premises imply about the post-state. *)
 
-(** TODO: Prove this axiom by induction on eval structure.
-    This requires showing that each step constructor respects state equality.
-    For now, we axiomatize it to unblock cno_logically_reversible proof.
-*)
+Lemma step_load_inv :
+  forall s addr reg s',
+    step s (Load addr reg) s' ->
+    s' = mkState s.(state_memory)
+                 (set_reg s.(state_registers) reg (s.(state_memory) addr))
+                 s.(state_io)
+                 (S s.(state_pc)).
+Proof.
+  intros s addr reg s' H.
+  inversion H; subst.
+  reflexivity.
+Qed.
 
-(** Similarly for the left side *)
-Axiom eval_respects_state_eq_left :
-  forall p s s' s'',
-    eval p s s'' ->
-    s =st= s' ->
-    eval p s' s''.
+Lemma step_store_inv :
+  forall s addr reg s',
+    step s (Store addr reg) s' ->
+    exists val, get_reg s.(state_registers) reg = Some val /\
+                s' = mkState (mem_update s.(state_memory) addr val)
+                             s.(state_registers)
+                             s.(state_io)
+                             (S s.(state_pc)).
+Proof.
+  intros s addr reg s' H.
+  inversion H; subst.
+  eexists. split; [ eassumption | reflexivity ].
+Qed.
+
+Lemma step_add_inv :
+  forall s r1 r2 r3 s',
+    step s (Add r1 r2 r3) s' ->
+    exists v1 v2, get_reg s.(state_registers) r1 = Some v1 /\
+                  get_reg s.(state_registers) r2 = Some v2 /\
+                  s' = mkState s.(state_memory)
+                               (set_reg s.(state_registers) r3 (v1 + v2))
+                               s.(state_io)
+                               (S s.(state_pc)).
+Proof.
+  intros s r1 r2 r3 s' H.
+  inversion H; subst.
+  do 2 eexists. split; [ eassumption | split; [ eassumption | reflexivity ] ].
+Qed.
+
+(** [step] respects [state_eq] on inputs: if [s1 =st= s2] and
+    [step s1 i sm], then there exists a post-state [sm'] with
+    [step s2 i sm'] and [sm =st= sm'].
+
+    The witness for [sm'] is determined by case-analysis on [i] (since
+    [step] is deterministic given [=st=]-equal inputs — registers and
+    memory agree pointwise, and any read-out value from memory or
+    registers matches). The conclusion uses [=st=] rather than
+    syntactic equality because [Load]/[Store]/[Add] re-build records
+    from [s2]'s components, which differ from [s1]'s on [state_pc] and
+    are only [=mem=]-equal (not syntactically equal) on
+    [state_memory]. *)
+Lemma step_respects_state_eq :
+  forall s1 s2 i sm,
+    s1 =st= s2 ->
+    step s1 i sm ->
+    exists sm', step s2 i sm' /\ sm =st= sm'.
+Proof.
+  intros s1 s2 i sm Heq Hstep.
+  destruct Heq as [Hmem [Hreg Hio]].
+  destruct i.
+  - (* Nop *)
+    inversion Hstep; subst.
+    exists (mkState s2.(state_memory) s2.(state_registers) s2.(state_io)
+                    (S s2.(state_pc))).
+    split.
+    + constructor.
+    + unfold state_eq. simpl. split; [assumption | split; assumption].
+  - (* Load addr reg *)
+    apply step_load_inv in Hstep. subst sm.
+    exists (mkState s2.(state_memory)
+                    (set_reg s2.(state_registers) n0
+                             (s2.(state_memory) n))
+                    s2.(state_io)
+                    (S s2.(state_pc))).
+    split.
+    + econstructor. reflexivity.
+    + unfold state_eq. simpl. split; [assumption | split; [| assumption]].
+      (* set_reg s1.regs n0 (s1.mem n) = set_reg s2.regs n0 (s2.mem n) *)
+      rewrite Hreg.
+      f_equal.
+      apply Hmem.
+  - (* Store addr reg *)
+    apply step_store_inv in Hstep.
+    destruct Hstep as [val [Hget Hsm]]. subst sm.
+    exists (mkState (mem_update s2.(state_memory) n val)
+                    s2.(state_registers)
+                    s2.(state_io)
+                    (S s2.(state_pc))).
+    split.
+    + econstructor. rewrite <- Hreg. exact Hget.
+    + unfold state_eq, mem_eq. simpl.
+      split; [| split; assumption].
+      (* mem_update s1.mem n val =mem= mem_update s2.mem n val *)
+      intros addr.
+      unfold mem_update.
+      destruct (Nat.eqb addr n); [reflexivity | apply Hmem].
+  - (* Add r1 r2 r3 *)
+    apply step_add_inv in Hstep.
+    destruct Hstep as [v1 [v2 [Hg1 [Hg2 Hsm]]]]. subst sm.
+    exists (mkState s2.(state_memory)
+                    (set_reg s2.(state_registers) n1 (v1 + v2))
+                    s2.(state_io)
+                    (S s2.(state_pc))).
+    split.
+    + econstructor; rewrite <- Hreg; eassumption.
+    + unfold state_eq. simpl. split; [assumption | split; [| assumption]].
+      rewrite Hreg. reflexivity.
+  - (* Jump target *)
+    inversion Hstep; subst.
+    exists (mkState s2.(state_memory) s2.(state_registers) s2.(state_io) n).
+    split.
+    + constructor.
+    + unfold state_eq. simpl. split; [assumption | split; assumption].
+  - (* Halt *)
+    inversion Hstep; subst.
+    exists s2.
+    split.
+    + constructor.
+    + unfold state_eq. split; [assumption | split; assumption].
+Qed.
+
+(** CRITICAL LEMMA: Evaluation respects state equality on the input side.
+
+    The original universal form
+      [s =st= s' -> eval p s s'' -> eval p s' s'']
+    is unsound under the relaxed 3-clause [state_eq] from Stage 2: the
+    [eval_empty] base case would need [s = s'] syntactically, but
+    [s =st= s'] only constrains memory + registers + I/O (not
+    [state_pc]). Stage 3 (standards#157) accordingly reformulates the
+    conclusion existentially: from [s1 =st= s2] and [eval p s1 s'] we
+    obtain *some* [s''] reached by [p] starting from [s2], with
+    [s' =st= s''] (i.e. final states agree modulo [state_pc]).
+
+    The proof is by induction on the [eval] derivation, using
+    [step_respects_state_eq] to advance the witness one instruction at
+    a time. *)
+Theorem eval_respects_state_eq_left :
+  forall p s1 s2 s',
+    s1 =st= s2 ->
+    eval p s1 s' ->
+    exists s'', eval p s2 s'' /\ s' =st= s''.
+Proof.
+  intros p s1 s2 s' Heq Heval.
+  generalize dependent s2.
+  induction Heval as [s | i is sa sb sc Hstep_a Heval_rest IH];
+    intros s2 Heq.
+  - (* eval_empty: p = [], s' = s, witness s'' = s2 *)
+    exists s2. split.
+    + constructor.
+    + assumption.
+  - (* eval_step: step sa i sb, eval is sb sc *)
+    destruct (step_respects_state_eq _ _ _ _ Heq Hstep_a)
+      as [sb' [Hstep_b Heq_b]].
+    destruct (IH sb' Heq_b) as [sc' [Heval_rest' Heq_c]].
+    exists sc'. split.
+    + eapply eval_step; eassumption.
+    + assumption.
+Qed.
+
+(** Symmetric form on the output side.
+
+    The output-side version is trivial under the existential
+    reformulation: simply witness [s'' := s1].  We retain the
+    statement (now a [Theorem] rather than an [Axiom]) so that
+    downstream files have the symmetric API available. *)
+Theorem eval_respects_state_eq_right :
+  forall p s s1 s2,
+    eval p s s1 ->
+    s1 =st= s2 ->
+    exists s'', eval p s s'' /\ s'' =st= s2.
+Proof.
+  intros p s s1 s2 Heval Heq.
+  exists s1. split; assumption.
+Qed.
 
 (** For CNOs specifically, if s =st= s', then eval p s s evaluates the same as eval p s' s' *)
 Lemma cno_eval_on_equal_states :
@@ -678,16 +834,19 @@ Lemma cno_eval_on_equal_states :
     (exists s1, eval p s s1) <-> (exists s2, eval p s' s2).
 Proof.
   intros p s s' H_cno H_eq.
-  split; intros [sx H_eval].
-  - (* Forward: eval p s sx  and  s =st= s'  ==>  eval p s' sx *)
-    exists sx.
-    eapply eval_respects_state_eq_left.
-    + eassumption.
-    + assumption.
-  - (* Backward: eval p s' sx  and  s =st= s'  ==>  eval p s sx *)
-    exists sx.
-    eapply eval_respects_state_eq_left.
-    + eassumption.
-    + apply state_eq_sym. assumption.
+  split.
+  { (* Forward direction *)
+    intros [sx H_eval].
+    destruct (eval_respects_state_eq_left _ _ _ _ H_eq H_eval)
+      as [sx' [H_eval' _]].
+    exists sx'. assumption.
+  }
+  { (* Backward direction *)
+    intros [sx H_eval].
+    destruct (eval_respects_state_eq_left _ _ _ _
+               (state_eq_sym _ _ H_eq) H_eval)
+      as [sx' [H_eval' _]].
+    exists sx'. assumption.
+  }
 Qed.
 

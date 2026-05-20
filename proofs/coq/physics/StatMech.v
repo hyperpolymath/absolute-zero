@@ -251,12 +251,20 @@ Qed.
 (** Bennett (1973): Computation can be made thermodynamically reversible
     by never erasing information, only permuting it. *)
 
-(** A program is logically reversible if it's bijective *)
+(** A program is logically reversible if it's bijective.
+
+    Stage 3 (standards#157) note: the conclusion is phrased modulo
+    [=st=] (the relaxed Stage-2 state equality that ignores
+    [state_pc]) rather than strict equality on [s]. This is necessary
+    because [eval] from a re-entered state may differ from [s] only on
+    the program counter, and Stage 2 explicitly chose to ignore that
+    field in the semantic notion of state-equivalence. The
+    [cno_logically_reversible] proof below witnesses this directly. *)
 Definition logically_reversible (p : Program) : Prop :=
   exists p_inv : Program,
     forall s s',
       eval p s s' ->
-      eval p_inv s' s.
+      exists s_inv, eval p_inv s' s_inv /\ s_inv =st= s.
 
 (** Logical reversibility implies thermodynamic reversibility *)
 
@@ -292,7 +300,13 @@ Proof.
   reflexivity.
 Qed.
 
-(** CNOs are trivially logically reversible (identity is its own inverse) *)
+(** CNOs are trivially logically reversible (identity is its own inverse).
+
+    Stage 3 (standards#157) note: with [logically_reversible] now
+    phrased existentially modulo [=st=], the proof no longer needs an
+    [eval_respects_state_eq_*] coercion: we witness the inverse run
+    directly from CNO termination, then use the CNO state-preservation
+    property to discharge the [=st=] obligation by transitivity. *)
 Theorem cno_logically_reversible :
   forall p : Program,
     is_CNO p ->
@@ -303,36 +317,28 @@ Proof.
   exists p.  (* CNO is its own inverse *)
   intros s s' H_eval.
 
-  (* Key insight: For a CNO, eval p s s' implies s =st= s'
-     So "reversing" just means running p again on s', which maps back to s.
-     Since s =st= s', running p on s' gives a result =st= to s'. *)
-
   (* Step 1: CNO property gives us s =st= s' *)
   assert (s =st= s') as H_state_eq.
   { apply cno_preserves_state with (p := p) (s := s) (s' := s').
     - assumption.
     - assumption. }
 
-  (* Step 2: By termination, eval p s' s'' for some s'' *)
-  destruct (cno_terminates p H_cno s') as [s'' H_eval'].
+  (* Step 2: By termination, eval p s' s_inv for some s_inv *)
+  destruct (cno_terminates p H_cno s') as [s_inv H_eval'].
 
-  (* Step 3: By CNO identity property, s' =st= s'' *)
-  assert (s' =st= s'') as H_s'_eq_s''.
-  { apply cno_preserves_state with (p := p) (s := s') (s' := s'').
+  (* Step 3: By CNO identity property, s' =st= s_inv *)
+  assert (s' =st= s_inv) as H_s'_eq_s_inv.
+  { apply cno_preserves_state with (p := p) (s := s') (s' := s_inv).
     - assumption.
     - assumption. }
 
-  (* Step 4: By transitivity, s'' =st= s *)
-  assert (s'' =st= s) as H_s''_eq_s.
-  { apply state_eq_trans with (s2 := s').
-    - apply state_eq_sym. exact H_s'_eq_s''.
-    - apply state_eq_sym. exact H_state_eq. }
-
-  (* Step 5: We have eval p s' s'' and s'' =st= s
-     Apply eval_respects_state_eq_right to get eval p s' s *)
-  apply eval_respects_state_eq_right with (s' := s'').
+  (* Step 4: Witness s_inv satisfies eval p s' s_inv and s_inv =st= s *)
+  exists s_inv. split.
   - exact H_eval'.
-  - exact H_s''_eq_s.
+  - (* s_inv =st= s by transitivity: s_inv =st= s' =st= s *)
+    apply state_eq_trans with (s2 := s').
+    + apply state_eq_sym. assumption.
+    + apply state_eq_sym. assumption.
 Qed.
 
 (** ** Physical Implications *)
