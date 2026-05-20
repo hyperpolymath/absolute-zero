@@ -26,7 +26,7 @@ maturity = "experimental"
 
 [components]
 # Format: name = [percentage, "notes"]
-coq-proofs = [88, "11/11 files compile (Coq 8.18.0+8.20.1); 0 Admitted (rescue 2026-05-18); ~120 Axiom/Parameter as post-T0 audit, 1 discharged (eval_deterministic, PR #24, 2026-05-20)"]
+coq-proofs = [90, "11/11 files compile (Coq 8.18.0+8.20.1); 0 Admitted (rescue 2026-05-18); 75→73 Axioms + 42 Parameters; 3 discharges 2026-05-20 — eval_deterministic (PR #24) + eval_respects_state_eq_{left,right} (deleted as unsound, downstream refactored to use cno_terminates + weakened logically_reversible); remainder are legitimate model-layer assumptions about abstract Parameters"]
 lean4-proofs = [95, "lake build 1631/1632 green (mathlib + 6 lean_lib targets); verified 2026-05-20"]
 z3-proofs = [90, "10 theorems encoded, needs z3 runtime"]
 agda-proofs = [60, "CNO.agda type-checks clean — 0 postulates/holes/unsolved metas (verified 2026-05-18)"]
@@ -78,7 +78,8 @@ this-month = [
 
 [session-history]
 sessions = [
-  { date = "2026-05-20", agent = "opus", summary = "Rescue branch rebased onto current main (clean); eval_deterministic Axiom discharged → Theorem (via step_deterministic_strong helper); Print Assumptions Closed under global context; 11/11 Coq + 1631/1632 Lean targets green; PR #24 filed (draft, Refs standards#124+#133)" },
+  { date = "2026-05-20", agent = "opus", summary = "Post-T0 axiom audit: 117 declarations triaged into Tier A/B/C; 2 unsound axioms (eval_respects_state_eq_left/right) deleted with downstream refactor; logically_reversible weakened to =st=; cno_eval_on_equal_states + cno_logically_reversible re-proved without axioms; 75→73 Axioms total" },
+  { date = "2026-05-20", agent = "opus", summary = "Rescue branch rebased onto current main (clean); eval_deterministic Axiom discharged → Theorem (via step_deterministic_strong helper); Print Assumptions Closed under global context; 11/11 Coq + 1631/1632 Lean targets green; PR #24 MERGED (admin-squash 69e7a22)" },
   { date = "2026-05-18", agent = "opus", summary = "Tier-0 rescue: CNO.v keystone re-proved (state_eq PC-exclusion fix, 9 named repairs); Complex.v self-contained complex numbers added; 11 Coq files compile under Coq 8.20.1; full Lean lake build succeeds; PROOF-STATUS-2026-05-18.md ledger added" },
   { date = "2026-02-05", agent = "opus", summary = "Completed 8 proofs, created PROOF-INSIGHTS.md" },
   { date = "2026-02-04", agent = "opus", summary = "Completed cno_logically_reversible, added axioms" },

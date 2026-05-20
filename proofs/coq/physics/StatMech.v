@@ -251,12 +251,23 @@ Qed.
 (** Bennett (1973): Computation can be made thermodynamically reversible
     by never erasing information, only permuting it. *)
 
-(** A program is logically reversible if it's bijective *)
+(** A program is logically reversible up to observational equivalence:
+    there exists an inverse program that, run on the post-execution state,
+    recovers a state observationally equal ([=st=]) to the input.
+
+    Stating reversibility up to [=st=] (rather than strict [=]) is forced
+    by the rescue branch's PC-excluding [state_eq]: [eval p s s'] uniquely
+    determines [s'] (cf. [eval_deterministic_strong]) including its PC,
+    so re-running [p] on a different start state cannot in general produce
+    a PC-identical result. Observational reversibility is what the
+    thermodynamic argument actually needs (memory + registers + I/O are
+    the bits of physical record; the PC is bookkeeping). See ADR-008
+    (2026-05-20). *)
 Definition logically_reversible (p : Program) : Prop :=
   exists p_inv : Program,
     forall s s',
       eval p s s' ->
-      eval p_inv s' s.
+      exists s'', eval p_inv s' s'' /\ s'' =st= s.
 
 (** Logical reversibility implies thermodynamic reversibility *)
 
@@ -328,11 +339,13 @@ Proof.
     - apply state_eq_sym. exact H_s'_eq_s''.
     - apply state_eq_sym. exact H_state_eq. }
 
-  (* Step 5: We have eval p s' s'' and s'' =st= s
-     Apply eval_respects_state_eq_right to get eval p s' s *)
-  apply eval_respects_state_eq_right with (s' := s'').
-  - exact H_eval'.
-  - exact H_s''_eq_s.
+  (* Step 5: We have eval p s' s'' and s'' =st= s.
+     The (now weakened) definition of [logically_reversible] only requires
+     a witness end-state observationally equal to s — H_eval' + H_s''_eq_s
+     supply it directly. The previous proof used the unsound
+     [eval_respects_state_eq_right] axiom; that axiom has been removed
+     (see CNO.v / ADR-008). *)
+  exists s''. split; [ exact H_eval' | exact H_s''_eq_s ].
 Qed.
 
 (** ** Physical Implications *)

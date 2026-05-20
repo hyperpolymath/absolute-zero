@@ -631,51 +631,35 @@ Conjecture cno_verification_overhead :
 
 (** ** State Equality and Evaluation *)
 
-(** CRITICAL LEMMA: Evaluation respects state equality on the right
-    
-    This lemma is essential for proving CNO reversibility.
-    It states that if we can evaluate p from s to s', and s' is
-    state-equal to s'', then we can also evaluate p from s to s''.
-    
-    This is needed because the eval relation is defined inductively
-    on specific states, but CNO theory works with state equality (=st=).
-*)
-Axiom eval_respects_state_eq_right :
-  forall p s s' s'',
-    eval p s s' ->
-    s' =st= s'' ->
-    eval p s s''.
+(** UNSOUND-AS-STATED axioms previously declared here
+    (`eval_respects_state_eq_right` and `_left`) have been REMOVED
+    (2026-05-20). The rescue branch's PC-excluding [state_eq] (memory +
+    registers + I/O, not [state_pc]) means two `=st=` states can carry
+    different PCs, while the eval relation deterministically propagates
+    PC through every step constructor. So [eval p s s'] forces a unique
+    [s'] (cf. [eval_deterministic]) — replacing [s'] by an [=st=]-equal
+    [s''] is generally unsound (different PC).
 
-(** TODO: Prove this axiom by induction on eval structure.
-    This requires showing that each step constructor respects state equality.
-    For now, we axiomatize it to unblock cno_logically_reversible proof.
-*)
+    The only consumer that needed the strong form ([cno_logically_reversible]
+    in StatMech.v) has been refactored to use [cno_terminates] +
+    [cno_preserves_state] directly, with a correspondingly-weakened
+    [logically_reversible] definition. See ADR-008. *)
 
-(** Similarly for the left side *)
-Axiom eval_respects_state_eq_left :
-  forall p s s' s'',
-    eval p s s'' ->
-    s =st= s' ->
-    eval p s' s''.
-
-(** For CNOs specifically, if s =st= s', then eval p s s evaluates the same as eval p s' s' *)
+(** For CNOs specifically, termination from one state is equivalent to
+    termination from any state-equal state — both can be witnessed by
+    [cno_terminates] (the witnesses need not coincide). *)
 Lemma cno_eval_on_equal_states :
   forall p s s',
     is_CNO p ->
     s =st= s' ->
     (exists s1, eval p s s1) <-> (exists s2, eval p s' s2).
 Proof.
-  intros p s s' H_cno H_eq.
-  split; intros [sx H_eval].
-  - (* Forward: eval p s sx  and  s =st= s'  ==>  eval p s' sx *)
-    exists sx.
-    eapply eval_respects_state_eq_left.
-    + eassumption.
-    + assumption.
-  - (* Backward: eval p s' sx  and  s =st= s'  ==>  eval p s sx *)
-    exists sx.
-    eapply eval_respects_state_eq_left.
-    + eassumption.
-    + apply state_eq_sym. assumption.
+  intros p s s' H_cno _.
+  split; intros _.
+  - (* termination from s' is direct from is_CNO p *)
+    destruct (cno_terminates p H_cno s') as [s2 Heval2].
+    exists s2; exact Heval2.
+  - destruct (cno_terminates p H_cno s) as [s1 Heval1].
+    exists s1; exact Heval1.
 Qed.
 
