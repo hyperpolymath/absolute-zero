@@ -1,0 +1,16 @@
+# Hypatia rule exemptions for absolute-zero.
+#
+# Format: `<rule_id>:<file_path_relative_to_repo_root>` (one per line).
+# Comments (lines starting with #) and blank lines are ignored.
+#
+# Adding an entry requires a stated rationale below the line so the
+# exemption survives review and audit.
+
+# Per-language CNO reference example. `examples/<lang>/` is a 30-language
+# showcase comparing how each language expresses "do absolutely nothing"
+# — the Go-specific runtime characteristics (goroutine scheduler init,
+# GC startup, runtime.GOMAXPROCS) are the point of the example. Mirrors
+# the rationale for keeping `examples/javascript/nop.js` (also a
+# per-language reference). The repo language policy still bans new Go
+# code; this is reference material, not implementation.
+cicd_rules/banned_language_file:examples/go/nop.go
