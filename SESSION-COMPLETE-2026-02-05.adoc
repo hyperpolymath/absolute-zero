@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 = Session Complete: All Three Tasks
 :toc:
 :sectnums:
@@ -24,10 +24,10 @@ Successfully completed all three requested tasks:
 
 === absolute-zero Repository
 
-**Commit**: `cbeb34a` - fix: migrate to PMPL-1.0-or-later license
+**Commit**: `cbeb34a` - fix: migrate to MPL-2.0 license
 
 **Changes**:
-* Added LICENSE file (PMPL-1.0-or-later full text)
+* Added LICENSE file (MPL-2.0 full text)
 * Updated README.adoc license section
 * Fixed SPDX headers in 6 checkpoint files
 * Removed LICENSE-PALIMPS.md stub (0 bytes)
@@ -39,7 +39,7 @@ Successfully completed all three requested tasks:
 
 === echidna Repository
 
-**Commit**: `482892e` - fix: standardize to PMPL-1.0-or-later license
+**Commit**: `482892e` - fix: standardize to MPL-2.0 license
 
 **Changes**:
 * Updated Cargo.toml license field
@@ -55,20 +55,20 @@ Successfully completed all three requested tasks:
 ```bash
 # absolute-zero
 $ grep "SPDX-License-Identifier" LICENSE
-SPDX-License-Identifier: PMPL-1.0-or-later
+SPDX-License-Identifier: MPL-2.0
 
 $ head -1 STATE.scm
-;; SPDX-License-Identifier: PMPL-1.0-or-later
+;; SPDX-License-Identifier: MPL-2.0
 
 # echidna
 $ grep "license =" Cargo.toml
-license = "PMPL-1.0-or-later"
+license = "MPL-2.0"
 
 $ head -1 src/rust/main.rs
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 ```
 
-**Result**: Both repos consistently use PMPL-1.0-or-later ✅
+**Result**: Both repos consistently use MPL-2.0 ✅
 
 ---
 
@@ -114,7 +114,7 @@ $ head -1 src/rust/main.rs
   - Assists with proof completion
 
 * License CONSISTENT ✅
-  - PMPL-1.0-or-later everywhere
+  - MPL-2.0 everywhere
   - No AGPL references
   - No version mismatches
 
@@ -332,7 +332,7 @@ $ just echidna-suggest proofs/coq/physics/StatMech.v
 **Achieved**: 3/3 (100%) 🎉
 
 **v1.0 Goals** (6 months):
-* [x] ✅ License: PMPL-1.0-or-later
+* [x] ✅ License: MPL-2.0
 * [x] ✅ Documentation: Comprehensive
 * [x] ✅ ECHIDNA: Integrated
 * [ ] 🎯 Proofs: 27 → 0 Admitted
