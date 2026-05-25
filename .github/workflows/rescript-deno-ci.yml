@@ -12,7 +12,7 @@ jobs:
           deno-version: v1.x
       
       - name: Deno lint
-        run: deno lint
+        run: deno lint --config deno.json
       
       - name: Deno fmt check
         run: deno fmt --check
