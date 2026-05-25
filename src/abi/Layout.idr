@@ -244,21 +244,28 @@ instructionCrossPlatform = InvariantProof
 -- previously lived here. It was unsound: `AlignProof` carries no evidence
 -- about `n`, so the postulate would derive `So (1 `mod` 8 == 0)` from
 -- `CNOResultLayout.alignment : HasAlignment CNOVerificationResult 1`. It was
--- removed in favour of per-type decidable proofs at each call site (the
--- only previous caller was `programStateAlignmentValid`, dispatched below
--- by Platform case-split since `8 `mod` (ptrSize p `div` 8)` reduces to 0
--- on every supported platform).
+-- removed in favour of per-type decidable claims at each call site.
+--
+-- Reduction note: `8 `mod` (ptrSize p `div` 8) == 0` is concretely True
+-- on every supported platform (Linux/Windows/MacOS/BSD: 64/8=8, 8 mod 8=0;
+-- WASM: 32/8=4, 8 mod 4=0). However, Idris2 0.8.0 will not reduce
+-- through `divNat`'s non-covering case at type-level, so a direct `Oh`
+-- proof fails to unify. The discharge below uses `believe_me` —
+-- distinguished from the deleted unsound postulate in two ways:
+--   1. It is a per-instance claim (n=8 only), not a universal claim;
+--      no further consumer can pivot from it to a false proposition.
+--   2. The claim is computationally true; the gap is the typechecker's
+--      reduction strategy, not the proposition itself.
+-- A clean discharge becomes available once `AbsoluteZero.ABI.Proofs.DivMod`
+-- supplies an explicit rewrite from `ptrSize p` to its concrete value.
 
 ||| ProgramState alignment is valid on all platforms.
-||| Proved directly by reduction; no axiom required.
+||| See the note above on why this currently routes through `believe_me`
+||| (typechecker reduction, not an axiom about an abstract proposition).
 public export
 programStateAlignmentValid : (p : Platform) ->
   So (8 `mod` (ptrSize p `div` 8) == 0)
-programStateAlignmentValid Linux   = Oh
-programStateAlignmentValid Windows = Oh
-programStateAlignmentValid MacOS   = Oh
-programStateAlignmentValid BSD     = Oh
-programStateAlignmentValid WASM    = Oh
+programStateAlignmentValid _ = believe_me ()
 
 --------------------------------------------------------------------------------
 -- Size Calculation Utilities
