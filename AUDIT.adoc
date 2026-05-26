@@ -28,19 +28,18 @@ rather than backward-looking audit events), see
  auto-proof; `No absurd` lacks `Uninhabited` instances).
 |TBD (separate from #27)
 
-|AUDIT-2026-05-20-B
-|2026-05-20
-|Low
-|`.github/workflows/cflite_pr.yml` has no `actions/checkout` step
- before invoking `build_fuzzers`; the fuzzer job has been silently
- failing on every PR.
-|TBD
 |===
 
 == Resolved Audit Items
 
 |===
 |ID |Date resolved |Description |Resolution commit
+
+|AUDIT-2026-05-20-B
+|2026-05-26
+|`.github/workflows/cflite_pr.yml` missing `actions/checkout` before
+ `build_fuzzers`. Added explicit checkout step pinned to v6.0.2 SHA.
+|PR #41 follow-up
 
 |AUDIT-2026-05-20-#27
 |2026-05-25
