@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: PMPL-1.0-or-later -->
+<!-- SPDX-License-Identifier: MPL-2.0 -->
 # Absolute Zero — Wiki
 
 > **Formal Verification of Certified Null Operations: When Doing Nothing Is Everything.**

@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: PMPL-1.0-or-later -->
+<!-- SPDX-License-Identifier: MPL-2.0 -->
 # Audit Trail
 
 Short summary; the authoritative ledger is [`AUDIT.adoc`](../../AUDIT.adoc).

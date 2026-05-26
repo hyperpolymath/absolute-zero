@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 = Absolute Zero — Rhodium Standard Repository (RSR) Compliance
 Jonathan D. A. Jewell <developer@joshuajewell.dev>
 :toc:
