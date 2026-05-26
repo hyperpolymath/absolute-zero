@@ -1,0 +1,11 @@
+# Hypatia-honoured exemption file for absolute-zero.
+# Format: <rule_module>/<rule_type>:<path>
+#
+# The 3 .res files below pre-date the 2026-04-30 ReScript ban; they are
+# intentionally retained while the .res→.affine migration is sequenced
+# (affinescript#57 Phase 2 = tree-sitter walker). The standards#168
+# consolidated language-policy check honours these lines via the
+# enforce()/is_exempt() helpers in governance-reusable.yml.
+cicd_rules/banned_language_file:src/AuditTrail.res
+cicd_rules/banned_language_file:examples/SafeDOMExample.res
+cicd_rules/banned_language_file:interpreters/rescript/malbolgeInterpreter.res
