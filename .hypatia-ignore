@@ -1,16 +1,27 @@
-# Hypatia rule exemptions for absolute-zero.
+# SPDX-License-Identifier: MPL-2.0
 #
-# Format: `<rule_id>:<file_path_relative_to_repo_root>` (one per line).
-# Comments (lines starting with #) and blank lines are ignored.
+# Estate-policy exemptions for the absolute-zero language-demonstration
+# repo. This repo intentionally ships example files in many banned and
+# allowed languages — it is the canonical "what NOT to use, here is what
+# you'd get" exemplar. Each entry below is a language-demo file under
+# `examples/` or a one-off interpreter implementation, not load-bearing
+# code.
 #
-# Adding an entry requires a stated rationale below the line so the
-# exemption survives review and audit.
+# After standards#180 (file_pattern glob support in in_baseline()) merges,
+# this whole file collapses to a single `examples/**` file_pattern entry
+# in .hypatia-baseline.json. Tracked in the standards repo as a follow-up.
 
-# Per-language CNO reference example. `examples/<lang>/` is a 30-language
-# showcase comparing how each language expresses "do absolutely nothing"
-# — the Go-specific runtime characteristics (goroutine scheduler init,
-# GC startup, runtime.GOMAXPROCS) are the point of the example. Mirrors
-# the rationale for keeping `examples/javascript/nop.js` (also a
-# per-language reference). The repo language policy still bans new Go
-# code; this is reference material, not implementation.
+# ReScript demonstration files (banned 2026-04-30 — kept as historical
+# examples until the .res→.affine migration ships).
+cicd_rules/banned_language_file:src/AuditTrail.res
+cicd_rules/banned_language_file:interpreters/rescript/malbolgeInterpreter.res
+cicd_rules/banned_language_file:examples/SafeDOMExample.res
+
+# Banned-language example files used to demonstrate the cross-language
+# nop-semantics study. None are imported into the toolchain build.
 cicd_rules/banned_language_file:examples/go/nop.go
+cicd_rules/banned_language_file:examples/java/Nop.java
+cicd_rules/banned_language_file:examples/java/BalancedOps.java
+cicd_rules/banned_language_file:examples/kotlin/Nop.kt
+cicd_rules/banned_language_file:examples/kotlin/BalancedOps.kt
+cicd_rules/banned_language_file:examples/swift/Nop.swift
