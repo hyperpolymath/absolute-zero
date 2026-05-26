@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: PMPL-1.0-or-later -->
+<!-- SPDX-License-Identifier: MPL-2.0 -->
 # ABI
 
 The Idris2 ABI surface at `src/abi/` declares the FFI boundary that the

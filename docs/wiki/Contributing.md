@@ -1,4 +1,4 @@
-<!-- SPDX-License-Identifier: PMPL-1.0-or-later -->
+<!-- SPDX-License-Identifier: MPL-2.0 -->
 # Contributing
 
 Short summary; the authoritative version is [`CONTRIBUTING.adoc`](../../CONTRIBUTING.adoc) at the root.

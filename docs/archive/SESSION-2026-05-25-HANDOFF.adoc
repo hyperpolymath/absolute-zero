@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 = Session Handoff — 2026-05-25 Repo Tidy
 Claude (session 7927557c-2938-4d53-b987-a6f8ebc44611)
 :toc:

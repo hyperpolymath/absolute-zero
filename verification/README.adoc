@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: PMPL-1.0-or-later
+// SPDX-License-Identifier: MPL-2.0
 = verification/ — Formal verification entry points
 
 RSR-conventional location for verification scripts. These wrap the
