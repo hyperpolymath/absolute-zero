@@ -2,13 +2,13 @@
 
 **Formal Verification of Certified Null Operations: When Doing Nothing Is Everything**
 
-image:https://img.shields.io/badge/License-PMPL_1.0-blue.svg[PMPL-1.0-or-later]
+image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[MPL-2.0]
 
 == License
 
-**SPDX-License-Identifier: PMPL-1.0-or-later**
+**SPDX-License-Identifier: MPL-2.0**
 
-Licensed under the Palimpsest-MPL License 1.0 or later. See `LICENSE` for full text. MPL-2.0 fallback where platform requires OSI-approved license.
+Licensed under the Mozilla Public License 2.0. See `LICENSE` for full text.
 
 > *"The universe tends toward maximum entropy. A Certified Null Operation is a pocket of perfect computational order—a program that resists the Second Law. It does nothing, but in doing nothing, it says everything about the structure of computation itself."*
 
@@ -322,9 +322,9 @@ GitLab CI automatically:
 
 ## License
 
-**SPDX-License-Identifier: PMPL-1.0-or-later**
+**SPDX-License-Identifier: MPL-2.0**
 
-This project is licensed under the **Palimpsest-MPL License 1.0 or later** (PMPL-1.0-or-later).
+This project is licensed under the **Palimpsest-MPL License 1.0 or later** (MPL-2.0).
 
 The Palimpsest-MPL extends Mozilla Public License 2.0 with provisions for ethical use, post-quantum cryptographic provenance, and emotional lineage protection.
 

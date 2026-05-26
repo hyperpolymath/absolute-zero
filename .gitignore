@@ -81,3 +81,6 @@ htmlcov/
 # Crash recovery artifacts
 ai-cli-crash-capture/
 proofs/lean4/.lake/
+
+# Rust build outputs in subdirectories (e.g. fuzz/target/)
+**/target/

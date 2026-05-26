@@ -7,7 +7,7 @@
 
     Author: Jonathan D. A. Jewell
     Project: Absolute Zero - Phase 1 Complete Derivation
-    License: PMPL-1.0-or-later
+    License: MPL-2.0
 *)
 
 Require Import Coq.Reals.Reals.

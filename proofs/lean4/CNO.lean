@@ -5,7 +5,7 @@
 
    Author: Jonathan D. A. Jewell
    Project: Absolute Zero
-   License: PMPL-1.0-or-later
+   License: MPL-2.0
 -/
 
 -- Std.Data.{List,Nat}.Basic were vestigial: Std was renamed to Batteries

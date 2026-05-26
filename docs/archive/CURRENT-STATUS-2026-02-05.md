@@ -4,7 +4,7 @@
 
 ### 1. License Standardization ✅ DONE
 - **Time**: ~30 minutes
-- **Result**: Both repos (absolute-zero + echidna) use PMPL-1.0-or-later
+- **Result**: Both repos (absolute-zero + echidna) use MPL-2.0
 - **Commits**: 2 (absolute-zero: cbeb34a, echidna: 482892e)
 - **Files**: 79 files updated
 
