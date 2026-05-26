@@ -1,6 +1,9 @@
 # SPDX-License-Identifier: MPL-2.0-or-later
 name: Language Policy Enforcement
 on: [push, pull_request]
+
+permissions: read-all
+
 jobs:
   check:
     runs-on: ubuntu-latest
