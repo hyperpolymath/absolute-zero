@@ -97,6 +97,45 @@ need a discharge PR — see §(d) DEBT below.
 All 18 §(c) entries above are annotated inline with `-- AXIOM:`
 leading comments.
 
+## Phase 2d triage — Lean Quantum cluster (2026-05-27)
+
+Third Lean cluster: `proofs/lean4/QuantumCNO.lean` (14 axioms).
+
+### Hilbert-space + gate primitives (§(c) AXIOM, 7)
+
+| Line | Identifier | Disposition | Justification |
+|-----:|------------|-------------|---------------|
+|  29  | `innerProduct`        | §(c) AXIOM | Opaque inner product primitive (mirrors Coq parameter). |
+|  46  | `X_gate`              | §(c) AXIOM | Quantum gate primitive (Pauli X). |
+|  47  | `X_gate_unitary`      | §(c) AXIOM | Gate primitive property (mirrors Coq QuantumCNO.v:113). |
+|  49  | `H_gate`              | §(c) AXIOM | Quantum gate primitive (Hadamard). |
+|  50  | `H_gate_unitary`      | §(c) AXIOM | Gate primitive property (mirrors Coq QuantumCNO.v:125). |
+|  52  | `CNOT_gate`           | §(c) AXIOM | Quantum gate primitive (CNOT). |
+|  53  | `CNOT_gate_unitary`   | §(c) AXIOM | Gate primitive property (mirrors Coq QuantumCNO.v:129). |
+
+### Entropy + reversibility (§(c) AXIOM — mirror Coq, 4)
+
+| Line | Identifier | Disposition |
+|-----:|------------|-------------|
+| 192  | `vonNeumannEntropy`        | §(c) AXIOM (opaque entropy functional) |
+| 194  | `von_neumann_nonneg`       | §(c) AXIOM (mirrors Coq QuantumCNO.v:361) |
+| 198  | `unitary_preserves_entropy`| §(c) AXIOM (mirrors Coq QuantumCNO.v:372) |
+| 233  | `unitaryInverse`           | §(c) AXIOM (opaque inverse primitive) |
+
+### Discharge candidates (§(d) DEBT — 3)
+
+These mirror DISCHARGE candidates on the Coq side; they should fall out
+once a concrete basis-state model lands.
+
+| Line | Identifier | Disposition | Plan |
+|-----:|------------|-------------|------|
+| 134  | `X_gate_not_identity`     | §(d) DEBT | Existence proof; exhibit `|0⟩` as witness once a concrete basis state is in the model. Mirrors Coq site at `QuantumCNO.v:283`. |
+| 144  | `H_gate_not_identity`     | §(d) DEBT | Existence proof; exhibit `|0⟩` as witness. Mirrors Coq site at `QuantumCNO.v:296`. |
+| 235  | `unitary_inverse_property`| §(d) DEBT | Follows from `isUnitary` definition (`U†U = I`). Mirrors Coq site at `QuantumCNO.v:487`. |
+
+All 11 §(c) entries above are annotated inline with `-- AXIOM:`
+leading comments.
+
 ## (a) DISCHARGE backlog (Coq, 17)
 
 Provable propositions currently stated as `Axiom`. Enumerated in
@@ -169,6 +208,48 @@ no longer in §(d).
     in #58.
   - **Deadline**: INDEFINITE.
 
+- `proofs/coq/quantum/QuantumCNO.v:258` — `global_phase_unitary`
+  - **Owner**: @hyperpolymath
+  - **Plan**: derivable from gate algebra: `(e^{iθ} U)` is unitary iff
+    `U` is. Triaged DISCHARGE in #58 (Phase 2d).
+  - **Deadline**: INDEFINITE (needs `is_unitary` algebraic lemmas).
+
+- `proofs/coq/quantum/QuantumCNO.v:283` — `X_gate_not_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: existence proof; exhibit `|0⟩` as witness once a concrete
+    basis state is in the model. Triaged DISCHARGE in #58 (Phase 2d).
+  - **Deadline**: INDEFINITE (blocked on concrete basis-state model).
+
+- `proofs/coq/quantum/QuantumCNO.v:296` — `H_gate_not_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: existence proof; exhibit `|0⟩` as witness. Triaged
+    DISCHARGE in #58 (Phase 2d).
+  - **Deadline**: INDEFINITE (blocked on concrete basis-state model).
+
+- `proofs/coq/quantum/QuantumCNO.v:487` — `unitary_inverse_property`
+  - **Owner**: @hyperpolymath
+  - **Plan**: follows from `is_unitary` definition (`U†U = I`). Triaged
+    DISCHARGE in #58 (Phase 2d).
+  - **Deadline**: INDEFINITE.
+
+- `proofs/coq/quantum/QuantumCNO.v:545` — `unitary_zero_entropy_change`
+  - **Owner**: @hyperpolymath
+  - **Plan**: derivable from `unitary_preserves_entropy` + entropy
+    definition. Triaged DISCHARGE in #58 (Phase 2d).
+  - **Deadline**: INDEFINITE.
+
+- `proofs/coq/quantum/QuantumCNO.v:551` — `reversible_quantum_zero_dissipation`
+  - **Owner**: @hyperpolymath
+  - **Plan**: derivable from `quantum_landauer_bound` + unitarity.
+    Triaged DISCHARGE in #58 (Phase 2d).
+  - **Deadline**: INDEFINITE.
+
+- `proofs/coq/quantum/QuantumCNO.v:584` — `fidelity_bound`
+  - **Owner**: @hyperpolymath
+  - **Plan**: provable from `inner_product_pos_def` + Cauchy-Schwarz.
+    Triaged DISCHARGE in #58 (Phase 2d).
+  - **Deadline**: INDEFINITE.
+
 ### Lean — provable, awaiting proof
 
 - `proofs/lean4/LambdaCNO.lean:183` — `subst_closed_term`
@@ -198,12 +279,30 @@ no longer in §(d).
     repeat-mkdir semantics. Mirrors Coq site at `FilesystemCNO.v:421`.
   - **Deadline**: INDEFINITE.
 
+- `proofs/lean4/QuantumCNO.lean:134` — `X_gate_not_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: existence proof; exhibit `|0⟩` as witness once a concrete
+    basis state is in the model. Mirrors Coq site at `QuantumCNO.v:283`.
+  - **Deadline**: INDEFINITE.
+
+- `proofs/lean4/QuantumCNO.lean:144` — `H_gate_not_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: existence proof; exhibit `|0⟩` as witness. Mirrors Coq
+    site at `QuantumCNO.v:296`.
+  - **Deadline**: INDEFINITE.
+
+- `proofs/lean4/QuantumCNO.lean:235` — `unitary_inverse_property`
+  - **Owner**: @hyperpolymath
+  - **Plan**: follows from `isUnitary` definition (`U†U = I`). Mirrors
+    Coq site at `QuantumCNO.v:487`.
+  - **Deadline**: INDEFINITE.
+
 ### Lean — pending triage
 
-28 Lean axioms remain to be triaged (QuantumCNO 14, StatMech 14;
-Lambda and Filesystem clusters done in Phase 2a/2c). Triage planned
-in cluster-sized PRs through 2026-06 — see this file's status block
-at the bottom.
+14 Lean axioms remain to be triaged (StatMech only; Lambda, Filesystem,
+and QuantumCNO clusters done in Phase 2a/2c/2d). Triage planned in
+cluster-sized PRs through 2026-06 — see this file's status block at
+the bottom.
 
 ### Idris2 — pending triage
 

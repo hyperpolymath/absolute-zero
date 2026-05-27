@@ -28,10 +28,14 @@ Open Scope C_scope.
 
 (** Boltzmann constant (J/K) *)
 Parameter kB : R.
+(* AXIOM: kB_positive; Boltzmann constant — physical constant.
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom kB_positive : kB > 0.
 
 (** Temperature (Kelvin) *)
 Parameter temperature : R.
+(* AXIOM: temperature_positive; Temperature scalar — physical precondition.
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom temperature_positive : temperature > 0.
 
 (** ** Quantum State Representation *)
@@ -42,6 +46,8 @@ Axiom temperature_positive : temperature > 0.
 
 (** Dimension of Hilbert space (2^n for n qubits) *)
 Parameter dim : nat.
+(* AXIOM: dim_positive; Hilbert-space dimensionality precondition.
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom dim_positive : (dim > 0)%nat.
 
 (** Complex vector representing quantum state *)
@@ -65,11 +71,15 @@ Parameter inner_product : QuantumState -> QuantumState -> C.
 (** Inner product axioms (defining properties of a Hilbert space) *)
 
 (** Conjugate symmetry: ⟨ψ|φ⟩ = (⟨φ|ψ⟩)* *)
+(* AXIOM: inner_product_conj_sym; Inner product space axiom (conjugate symmetry).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom inner_product_conj_sym :
   forall ψ φ : QuantumState,
     inner_product ψ φ = Cconj (inner_product φ ψ).
 
 (** Linearity in second argument: ⟨ψ|aφ₁ + bφ₂⟩ = a⟨ψ|φ₁⟩ + b⟨ψ|φ₂⟩ *)
+(* AXIOM: inner_product_linear; Inner product space axiom (linearity).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom inner_product_linear :
   forall ψ φ1 φ2 : QuantumState,
   forall a b : C,
@@ -77,6 +87,8 @@ Axiom inner_product_linear :
     True.  (* Simplified - full axiom requires state arithmetic *)
 
 (** Positive definiteness: ⟨ψ|ψ⟩ ≥ 0, and ⟨ψ|ψ⟩ = 0 iff ψ = 0 *)
+(* AXIOM: inner_product_pos_def; Inner product space axiom (positive definiteness).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom inner_product_pos_def :
   forall ψ : QuantumState,
     (Re (inner_product ψ ψ) >= 0)%R.
@@ -110,22 +122,33 @@ Qed.
 
 (** Pauli X gate (NOT gate) *)
 Parameter X_gate : QuantumGate.
+(* AXIOM: X_gate_unitary; Quantum gate primitive (Pauli X) — duplicate of
+   QuantumMechanicsExact:249 (see follow-up 2 in docs/proof-debt-triage.md).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom X_gate_unitary : is_unitary X_gate.
 
 (** Pauli Y gate *)
 Parameter Y_gate : QuantumGate.
+(* AXIOM: Y_gate_unitary; Quantum gate primitive (Pauli Y).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom Y_gate_unitary : is_unitary Y_gate.
 
 (** Pauli Z gate *)
 Parameter Z_gate : QuantumGate.
+(* AXIOM: Z_gate_unitary; Quantum gate primitive (Pauli Z).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom Z_gate_unitary : is_unitary Z_gate.
 
 (** Hadamard gate *)
 Parameter H_gate : QuantumGate.
+(* AXIOM: H_gate_unitary; Quantum gate primitive (Hadamard).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom H_gate_unitary : is_unitary H_gate.
 
 (** CNOT gate (two-qubit) *)
 Parameter CNOT_gate : QuantumGate.
+(* AXIOM: CNOT_gate_unitary; Quantum gate primitive (CNOT).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom CNOT_gate_unitary : is_unitary CNOT_gate.
 
 (** ** Quantum State Equality *)
@@ -147,12 +170,19 @@ Notation "ψ =q= φ" := (quantum_state_eq ψ φ) (at level 70).
     provided by libraries like CoqQ or Coquelicot in a full development. *)
 
 (** e^0 = 1 *)
+(* AXIOM: Cexp_zero; Complex exponential algebra. §(c) per docs/proof-debt.md
+   (Phase 2d triage). Would collapse to DISCHARGE if Complex.v defines Cexp
+   constructively — see follow-up 4 in docs/proof-debt-triage.md. *)
 Axiom Cexp_zero : Cexp (RtoC 0) = C1.
 
 (** e^{-x} = (e^x)^{-1} *)
+(* AXIOM: Cexp_neg; Complex exponential algebra. §(c) per docs/proof-debt.md
+   (Phase 2d triage). See follow-up 4 (Cexp_zero comment) for collapse plan. *)
 Axiom Cexp_neg : forall x : R, Cexp (RtoC (-x)) = Cinv (Cexp (RtoC x)).
 
 (** e^x × e^y = e^{x+y} *)
+(* AXIOM: Cexp_add; Complex exponential algebra. §(c) per docs/proof-debt.md
+   (Phase 2d triage). See follow-up 4 (Cexp_zero comment) for collapse plan. *)
 Axiom Cexp_add : forall x y : R, Cexp (RtoC x) * Cexp (RtoC y) = Cexp (RtoC (x + y)).
 
 (* Cmult_1_l, Cmult_assoc, Cconj_RtoC, Cconj_mult are now PROVED lemmas
@@ -160,6 +190,8 @@ Axiom Cexp_add : forall x y : R, Cexp (RtoC x) * Cexp (RtoC y) = Cexp (RtoC (x +
    removes the redeclaration clash). *)
 
 (** Complex conjugate of exponential: (e^x)* = e^{x*} *)
+(* AXIOM: Cconj_Cexp; Complex exponential algebra. §(c) per docs/proof-debt.md
+   (Phase 2d triage). See follow-up 4 (Cexp_zero comment) for collapse plan. *)
 Axiom Cconj_Cexp : forall x : C, Cconj (Cexp x) = Cexp (Cconj x).
 
 (* `global_phase_unitary` axiom moved below, after `global_phase_gate`
@@ -254,7 +286,11 @@ Definition global_phase_gate (θ : R) : QuantumGate :=
   fun ψ n => Cexp (RtoC θ) * ψ n.
 
 (** Global phase gates are unitary (standard QM result). Assumption —
-    see PROOF-STATUS-2026-05-18.md (post-T0 axiom audit). *)
+    see PROOF-STATUS-2026-05-18.md (post-T0 axiom audit).
+
+    Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d)
+    DEBT in docs/proof-debt.md (Phase 2d) — derivable from gate algebra
+    (e^{iθ} U is unitary iff U is). *)
 Axiom global_phase_unitary :
   forall θ : R, is_unitary (global_phase_gate θ).
 
@@ -279,7 +315,11 @@ Qed.
 
 (** ** Non-CNO Gates *)
 
-(** X gate is NOT a CNO because it flips |0⟩ ↔ |1⟩ *)
+(** X gate is NOT a CNO because it flips |0⟩ ↔ |1⟩
+
+    Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d)
+    DEBT in docs/proof-debt.md (Phase 2d) — existence proof, exhibit
+    |0⟩ as witness once a concrete basis state is in the model. *)
 Axiom X_gate_not_identity : exists ψ, ~ (X_gate ψ =q= ψ).
 
 Theorem X_gate_not_cno : ~ is_quantum_CNO X_gate.
@@ -292,7 +332,11 @@ Proof.
   contradiction.
 Qed.
 
-(** Hadamard gate is NOT a CNO *)
+(** Hadamard gate is NOT a CNO
+
+    Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d)
+    DEBT in docs/proof-debt.md (Phase 2d) — existence proof, exhibit
+    |0⟩ as witness. *)
 Axiom H_gate_not_identity : exists ψ, ~ (H_gate ψ =q= ψ).
 
 Theorem H_gate_not_cno : ~ is_quantum_CNO H_gate.
@@ -358,17 +402,25 @@ Qed.
 (** Von Neumann entropy (quantum analog of Shannon entropy) *)
 Parameter von_neumann_entropy : QuantumState -> R.
 
+(* AXIOM: von_neumann_nonneg; Quantum statmech — von Neumann entropy
+   non-negativity. §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom von_neumann_nonneg :
   forall ψ : QuantumState,
     von_neumann_entropy ψ >= 0.
 
 (** Pure states have zero entropy *)
+(* AXIOM: von_neumann_pure_zero; S(|ψ⟩⟨ψ|) = 0 for pure states.
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom von_neumann_pure_zero :
   forall ψ : QuantumState,
     is_normalized ψ ->
     von_neumann_entropy ψ = 0.
 
 (** Unitary evolution preserves entropy *)
+(* AXIOM: unitary_preserves_entropy; Quantum statmech postulate — von Neumann
+   entropy invariant under unitary. Duplicate of QuantumMechanicsExact:316
+   (see follow-up 2 in docs/proof-debt-triage.md).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom unitary_preserves_entropy :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
@@ -388,6 +440,10 @@ Qed.
 (** ** No-Cloning Theorem *)
 
 (** The no-cloning theorem states you cannot copy arbitrary quantum states *)
+(* AXIOM: no_cloning; Fundamental quantum theorem — standardly taken as a
+   physical postulate in this style of axiomatisation. Duplicate of
+   QuantumMechanicsExact:393 (see follow-up 2 in docs/proof-debt-triage.md).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom no_cloning :
   ~ exists (U : QuantumGate),
     forall ψ : QuantumState,
@@ -418,6 +474,8 @@ Qed.
 Parameter measure : QuantumState -> ProgramState.
 
 (** Axiom: Measuring after identity gate gives same result as measuring before *)
+(* AXIOM: measure_identity_commutes; Measurement postulate.
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom measure_identity_commutes :
   forall (ψ : QuantumState),
     measure (I_gate ψ) = measure ψ.
@@ -484,6 +542,9 @@ Qed.
 (** U followed by U† is a CNO (unitary inverse) *)
 Parameter unitary_inverse : QuantumGate -> QuantumGate.
 
+(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
+   in docs/proof-debt.md (Phase 2d) — follows from is_unitary definition
+   (U†U = I). *)
 Axiom unitary_inverse_property :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
@@ -535,6 +596,8 @@ Qed.
 Parameter quantum_energy_dissipated : QuantumGate -> QuantumState -> R.
 
 (** Landauer bound for quantum operations *)
+(* AXIOM: quantum_landauer_bound; Physical postulate (quantum Landauer).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom quantum_landauer_bound :
   forall (U : QuantumGate) (ψ : QuantumState),
     let ΔS := (von_neumann_entropy (U ψ) - von_neumann_entropy ψ)%R in
@@ -542,12 +605,18 @@ Axiom quantum_landauer_bound :
     (quantum_energy_dissipated U ψ >= kB * temperature * (-ΔS))%R.
 
 (** Unitary operations preserve entropy exactly *)
+(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
+   in docs/proof-debt.md (Phase 2d) — derivable from
+   `unitary_preserves_entropy` + entropy definition. *)
 Axiom unitary_zero_entropy_change :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
     von_neumann_entropy (U ψ) = von_neumann_entropy ψ.
 
 (** Reversible quantum operations dissipate zero energy *)
+(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
+   in docs/proof-debt.md (Phase 2d) — derivable from `quantum_landauer_bound`
+   + unitarity. *)
 Axiom reversible_quantum_zero_dissipation :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
@@ -581,9 +650,14 @@ Parameter noisy_channel : QuantumGate -> QuantumGate.
 (** Fidelity: how close is noisy gate to ideal gate *)
 Parameter fidelity : QuantumGate -> QuantumGate -> R.
 
+(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
+   in docs/proof-debt.md (Phase 2d) — provable from `inner_product_pos_def`
+   + Cauchy-Schwarz. *)
 Axiom fidelity_bound : forall U V, 0 <= fidelity U V <= 1.
 
 (** Even with noise, approximate CNOs preserve high fidelity *)
+(* AXIOM: approximate_cno; Definitional / structural — encodes a relation,
+   not a derivable fact. §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom approximate_cno :
   forall U : QuantumGate,
     is_quantum_CNO U ->

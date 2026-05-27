@@ -26,6 +26,9 @@ def QuantumState : Type := Nat → ℂ
 def QuantumGate : Type := QuantumState → QuantumState
 
 /-- Inner product (simplified) -/
+-- AXIOM: innerProduct; Hilbert-space inner product — opaque primitive
+-- (mirrors Coq `inner_product` parameter in QuantumCNO.v).
+-- §(c) per docs/proof-debt.md (Phase 2d Lean triage).
 axiom innerProduct : QuantumState → QuantumState → ℂ
 
 /-- A gate is unitary if it preserves inner products -/
@@ -43,13 +46,25 @@ theorem I_gate_unitary : isUnitary I_gate := by
 
 /-! ## Common Quantum Gates -/
 
+-- AXIOM: X_gate; Quantum gate primitive (Pauli X) — opaque.
+-- §(c) per docs/proof-debt.md (Phase 2d Lean triage).
 axiom X_gate : QuantumGate
+-- AXIOM: X_gate_unitary; Pauli-X unitarity (gate primitive property).
+-- Mirrors Coq QuantumCNO.v:113. §(c) per docs/proof-debt.md.
 axiom X_gate_unitary : isUnitary X_gate
 
+-- AXIOM: H_gate; Quantum gate primitive (Hadamard) — opaque.
+-- §(c) per docs/proof-debt.md (Phase 2d Lean triage).
 axiom H_gate : QuantumGate
+-- AXIOM: H_gate_unitary; Hadamard unitarity (gate primitive property).
+-- Mirrors Coq QuantumCNO.v:125. §(c) per docs/proof-debt.md.
 axiom H_gate_unitary : isUnitary H_gate
 
+-- AXIOM: CNOT_gate; Quantum gate primitive (CNOT) — opaque.
+-- §(c) per docs/proof-debt.md (Phase 2d Lean triage).
 axiom CNOT_gate : QuantumGate
+-- AXIOM: CNOT_gate_unitary; CNOT unitarity (gate primitive property).
+-- Mirrors Coq QuantumCNO.v:129. §(c) per docs/proof-debt.md.
 axiom CNOT_gate_unitary : isUnitary CNOT_gate
 
 /-! ## Quantum State Equality -/
@@ -130,7 +145,10 @@ theorem global_phase_is_cno (θ : ℝ) :
 
 /-! ## Non-CNO Gates -/
 
-/-- X gate is NOT a CNO (flips |0⟩ ↔ |1⟩) -/
+/-- X gate is NOT a CNO (flips |0⟩ ↔ |1⟩)
+
+    Triaged §(d) DEBT in docs/proof-debt.md (Phase 2d Lean triage) —
+    existence proof; mirrors Coq QuantumCNO.v:283. -/
 axiom X_gate_not_identity : ∃ ψ, ¬ (X_gate ψ =q= ψ)
 
 theorem X_gate_not_cno : ¬ isQuantumCNO X_gate := by
@@ -140,7 +158,10 @@ theorem X_gate_not_cno : ¬ isQuantumCNO X_gate := by
   have := h_id ψ
   contradiction
 
-/-- Hadamard gate is NOT a CNO -/
+/-- Hadamard gate is NOT a CNO
+
+    Triaged §(d) DEBT in docs/proof-debt.md (Phase 2d Lean triage) —
+    existence proof; mirrors Coq QuantumCNO.v:296. -/
 axiom H_gate_not_identity : ∃ ψ, ¬ (H_gate ψ =q= ψ)
 
 theorem H_gate_not_cno : ¬ isQuantumCNO H_gate := by
@@ -189,12 +210,19 @@ theorem quantum_cno_composition (U V : QuantumGate) :
 /-! ## Quantum Information Theory -/
 
 /-- Von Neumann entropy -/
+-- AXIOM: vonNeumannEntropy; Quantum entropy functional — opaque primitive.
+-- §(c) per docs/proof-debt.md (Phase 2d Lean triage).
 axiom vonNeumannEntropy : QuantumState → ℝ
 
+-- AXIOM: von_neumann_nonneg; von Neumann entropy non-negativity (statmech
+-- postulate). Mirrors Coq QuantumCNO.v:361. §(c) per docs/proof-debt.md.
 axiom von_neumann_nonneg (ψ : QuantumState) :
   vonNeumannEntropy ψ ≥ 0
 
 /-- Unitary evolution preserves entropy -/
+-- AXIOM: unitary_preserves_entropy; Quantum statmech postulate — von Neumann
+-- entropy invariant under unitary. Mirrors Coq QuantumCNO.v:372.
+-- §(c) per docs/proof-debt.md (Phase 2d Lean triage).
 axiom unitary_preserves_entropy (U : QuantumGate) (ψ : QuantumState) :
   isUnitary U →
   vonNeumannEntropy (U ψ) = vonNeumannEntropy ψ
@@ -230,8 +258,12 @@ theorem empty_circuit_is_cno : isCircuitCNO .QEmpty := by
   exact quantum_state_eq_refl ψ
 
 /-- Unitary inverse -/
+-- AXIOM: unitaryInverse; Unitary inverse operator — opaque primitive.
+-- §(c) per docs/proof-debt.md (Phase 2d Lean triage).
 axiom unitaryInverse : QuantumGate → QuantumGate
 
+/- Triaged §(d) DEBT in docs/proof-debt.md (Phase 2d Lean triage) — follows
+   from is_unitary definition (U†U = I); mirrors Coq QuantumCNO.v:487. -/
 axiom unitary_inverse_property (U : QuantumGate) (ψ : QuantumState) :
   isUnitary U →
   unitaryInverse U (U ψ) =q= ψ
