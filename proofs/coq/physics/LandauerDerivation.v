@@ -16,26 +16,20 @@ Require Import Coq.micromega.Psatz.
 Require Import Coq.Lists.List.
 Require Import Lia.
 Require Import CNO.CNO.
+(* Shared physics constants — kB, temperature, kB_positive,
+   temperature_positive. See proofs/coq/common/PhysicsConstants.v
+   (consolidated by Follow-up 1 of docs/proof-debt-triage.md). *)
+Require Import CNO.PhysicsConstants.
 Import ListNotations.
 
 Open Scope R_scope.
 
-(** ** Physical Constants (Measured Values, Not Derived) *)
+(** ** Physical Constants (Measured Values, Not Derived)
 
-(** Boltzmann constant: k_B = 1.380649 × 10^-23 J/K *)
-(** This is a measured physical constant, grounded in experiment *)
-Parameter kB : R.
-(* AXIOM: kB_positive; Boltzmann constant — physical constant. Duplicate of
-   StatMech.v:25 + QuantumCNO.v:31 (see follow-up 1 in docs/proof-debt-triage.md).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom kB_positive : kB > 0.
-
-(** Temperature in Kelvin (must be positive) *)
-Parameter temperature : R.
-(* AXIOM: temperature_positive; Temperature scalar — physical precondition.
-   Duplicate of StatMech.v:30 + QuantumCNO.v:35 (see follow-up 1).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom temperature_positive : temperature > 0.
+    Boltzmann constant [k_B = 1.380649 × 10^{-23} J/K] and [temperature]
+    in Kelvin (must be positive) are imported from [CNO.PhysicsConstants]
+    (consolidated by Follow-up 1). These are measured physical constants,
+    grounded in experiment. *)
 
 (** ** Foundation: Probability Theory *)
 

@@ -14,27 +14,19 @@ Require Import Coq.Logic.FunctionalExtensionality.
 Require Import Coq.Lists.List.
 Require Import Coq.micromega.Psatz.
 Require Import CNO.CNO.
+(* Shared physics constants — kB, temperature, kB_positive,
+   temperature_positive. See proofs/coq/common/PhysicsConstants.v
+   (consolidated by Follow-up 1 of docs/proof-debt-triage.md). *)
+Require Import CNO.PhysicsConstants.
 Import ListNotations.
 
 Open Scope R_scope.
 
-(** ** Physical Constants *)
+(** ** Physical Constants
 
-(** Boltzmann constant (J/K) *)
-Parameter kB : R.
-(* AXIOM: kB_positive; Boltzmann constant — physical constant. Duplicate of
-   LandauerDerivation.v:28 + QuantumCNO.v:31 (see follow-up 1).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom kB_positive : kB > 0.
-(** In SI units: kB ≈ 1.380649×10⁻²³ J/K *)
-
-(** Temperature (Kelvin) *)
-Parameter temperature : R.
-(* AXIOM: temperature_positive; Temperature scalar — physical precondition.
-   Duplicate of LandauerDerivation.v:32 + QuantumCNO.v:35 (see follow-up 1).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom temperature_positive : temperature > 0.
-(** Room temperature ≈ 300 K *)
+    [kB], [temperature], [kB_positive], and [temperature_positive] are
+    imported from [CNO.PhysicsConstants] (consolidated by Follow-up 1).
+    In SI units: [kB ≈ 1.380649×10⁻²³ J/K]; room temperature ≈ 300 K. *)
 
 (** ** Probability Distributions *)
 

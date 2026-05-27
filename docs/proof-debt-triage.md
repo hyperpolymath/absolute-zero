@@ -161,10 +161,12 @@ These are concrete sub-projects that fall out of the table. Each is
 its own PR-sized piece of work — none of them is in scope for this
 triage PR.
 
-1. **De-duplicate physics constants.** `kB_positive` and
-   `temperature_positive` are axiomatised three times (QuantumCNO,
-   StatMech, LandauerDerivation). Move to a shared `Physics.Constants`
-   module and import.
+1. **De-duplicate physics constants.** ✅ DONE 2026-05-27.
+   `kB_positive` and `temperature_positive` previously axiomatised
+   three times (QuantumCNO, StatMech, LandauerDerivation); now
+   consolidated in `proofs/coq/common/PhysicsConstants.v` and imported
+   via `Require Import CNO.PhysicsConstants`. Net: 129 → 125 markers
+   (−4: removed 6 sites, added 2 canonical sites).
 2. **De-duplicate quantum laws.** `unitary_preserves_entropy` and
    `no_cloning` appear in both `QuantumMechanicsExact.v` and
    `QuantumCNO.v` with the same name. Pick one as canonical.
