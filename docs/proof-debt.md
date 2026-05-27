@@ -334,6 +334,21 @@ the bottom.
 4. The `check-trusted-base` CI job (standards#211) ensures markers
    are never un-annotated AND un-enumerated simultaneously.
 
+## False positives (no markers; script over-matches)
+
+### `proofs/agda/EchoBridgeCNO.agda` — `Axiom.Extensionality` import
+
+`check-trusted-base.sh`'s grep matches the line
+`open import Axiom.Extensionality.Propositional using (Extensionality)`
+at L11 as if it were an axiom declaration. It is not — it imports the
+`Extensionality` type, which is then accepted as an *explicit module
+parameter* by every downstream function that needs it
+(`program-state-model`, `program-rel-bridge`, etc.). The file
+introduces zero postulates and zero axioms; extensionality is
+propagated from the caller as a hypothesis.
+
+Listed here to satisfy the script's path-enumeration clause.
+
 ## Companion documents
 
 - [standards#195](https://github.com/hyperpolymath/standards/pull/195) — estate proof-debt audit.
