@@ -20,11 +20,20 @@ open Real
 /-! ## Physical Constants -/
 
 /-- Boltzmann constant (axiomatized as positive real) -/
+-- AXIOM: kB; Boltzmann constant — opaque physical constant.
+-- Duplicate of Coq StatMech.v:25/LandauerDerivation.v:28 (see follow-up 1).
+-- §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom kB : ℝ
+-- AXIOM: kB_positive; physical constant positivity. Mirrors Coq StatMech.v:25.
+-- §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom kB_positive : kB > 0
 
 /-- Temperature in Kelvin -/
+-- AXIOM: temperature; Temperature scalar — opaque physical precondition.
+-- §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom temperature : ℝ
+-- AXIOM: temperature_positive; physical precondition. Mirrors Coq
+-- StatMech.v:30. §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom temperature_positive : temperature > 0
 
 /-! ## Probability Distributions -/
@@ -33,10 +42,14 @@ axiom temperature_positive : temperature > 0
 def StateDistribution : Type := CNO.ProgramState → ℝ
 
 /-- Probabilities are non-negative -/
+-- AXIOM: prob_nonneg; Kolmogorov probability axiom. Mirrors Coq
+-- StatMech.v:39. §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom prob_nonneg (P : StateDistribution) (s : CNO.ProgramState) :
   P s ≥ 0
 
 /-- Probabilities are normalized (sum to 1) -/
+-- AXIOM: prob_normalized; Kolmogorov probability axiom (Σp = 1). Mirrors
+-- Coq StatMech.v:45. §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom prob_normalized (P : StateDistribution) :
   ∃ (states : List CNO.ProgramState), states.foldl (fun acc s => acc + P s) 0 = 1
 
@@ -48,13 +61,19 @@ def pointDist (s0 : CNO.ProgramState) : StateDistribution :=
 
 /-- Shannon entropy: H(P) = -Σ p(s) log₂ p(s)
     Measured in bits -/
+-- AXIOM: shannonEntropy; Information functional — opaque primitive.
+-- §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom shannonEntropy : StateDistribution → ℝ
 
 /-- Shannon entropy is non-negative -/
+-- AXIOM: shannon_entropy_nonneg; Shannon entropy core inequality. Mirrors
+-- Coq StatMech.v:67. §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom shannon_entropy_nonneg (P : StateDistribution) :
   shannonEntropy P ≥ 0
 
 /-- Point distributions have zero entropy -/
+-- AXIOM: shannon_entropy_point_zero; H(δ_x) = 0. Mirrors Coq StatMech.v:72.
+-- §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom shannon_entropy_point_zero (s : CNO.ProgramState) :
   shannonEntropy (pointDist s) = 0
 
@@ -88,10 +107,14 @@ theorem boltzmann_entropy_nonneg (P : StateDistribution) :
 /-! ## Landauer's Principle -/
 
 /-- Energy dissipated by a computational process (Joules) -/
+-- AXIOM: energyDissipatedPhys; Physical energy primitive — opaque.
+-- §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom energyDissipatedPhys : StateDistribution → StateDistribution → ℝ
 
 /-- Landauer's Principle: Erasing information dissipates energy
     E_dissipated ≥ kT ln(2) × (-ΔS) when ΔS < 0 -/
+-- AXIOM: landauer_principle; Physical postulate (Landauer's principle).
+-- Mirrors Coq StatMech.v:132. §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom landauer_principle (P_initial P_final : StateDistribution) :
   let ΔS := shannonEntropy P_final - shannonEntropy P_initial
   ΔS < 0 →
@@ -104,6 +127,8 @@ noncomputable def landauer_limit : ℝ := kB * temperature * log 2
 /-! ## CNO Thermodynamics -/
 
 /-- Distribution after program execution -/
+-- AXIOM: postExecutionDist; Post-execution distribution functional — opaque.
+-- §(c) per docs/proof-debt.md (Phase 2e Lean triage).
 axiom postExecutionDist : CNO.Program → StateDistribution → StateDistribution
 
 /-- The mechanism connecting `postExecutionDist` to per-state semantics.
@@ -113,6 +138,10 @@ axiom postExecutionDist : CNO.Program → StateDistribution → StateDistributio
     can be proved. This axiom states the minimum required link:
     a program that pointwise preserves states leaves the distribution
     fixed. -/
+-- AXIOM: postExecutionDist_id_of_state_preserving; Bridge axiom linking the
+-- opaque `postExecutionDist` to per-state semantics — required because
+-- `postExecutionDist` is itself axiomatic. §(c) per docs/proof-debt.md
+-- (Phase 2e Lean triage).
 axiom postExecutionDist_id_of_state_preserving
   (p : CNO.Program) (P : StateDistribution)
   (h : ∀ s, CNO.ProgramState.eq (CNO.eval p s) s) :
@@ -139,6 +168,11 @@ theorem cno_zero_entropy_change (p : CNO.Program) (P : StateDistribution) :
   simp
 
 /-- Reversible processes dissipate no energy -/
+-- AXIOM: reversible_zero_dissipation; Thermodynamic postulate (Landauer
+-- corollary for reversible processes). Mirrors Coq StatMech.v:229.
+-- §(c) per docs/proof-debt.md (Phase 2e Lean triage). Note: the Coq
+-- counterpart is triaged DISCHARGE; the Lean side keeps it §(c) AXIOM
+-- because no Lean-side derivation chain is in place yet.
 axiom reversible_zero_dissipation (P_initial P_final : StateDistribution) :
   shannonEntropy P_initial = shannonEntropy P_final →
   energyDissipatedPhys P_initial P_final = 0

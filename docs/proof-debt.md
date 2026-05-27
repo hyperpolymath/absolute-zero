@@ -136,6 +136,42 @@ once a concrete basis-state model lands.
 All 11 §(c) entries above are annotated inline with `-- AXIOM:`
 leading comments.
 
+## Phase 2e triage — Lean StatMech cluster (2026-05-27)
+
+Fourth Lean cluster: `proofs/lean4/StatMech.lean` (14 axioms).
+
+### Physical constants (§(c) AXIOM — duplicate of Coq, 4)
+
+| Line | Identifier | Disposition |
+|-----:|------------|-------------|
+|  23  | `kB`                    | §(c) AXIOM (opaque, mirrors Coq StatMech.v:25) |
+|  24  | `kB_positive`           | §(c) AXIOM (mirrors Coq StatMech.v:25) |
+|  27  | `temperature`           | §(c) AXIOM (opaque, mirrors Coq StatMech.v:30) |
+|  28  | `temperature_positive`  | §(c) AXIOM (mirrors Coq StatMech.v:30) |
+
+### Probability + Shannon entropy (§(c) AXIOM — mirror Coq, 5)
+
+| Line | Identifier | Disposition |
+|-----:|------------|-------------|
+|  36  | `prob_nonneg`               | §(c) AXIOM (mirrors Coq StatMech.v:39) |
+|  40  | `prob_normalized`           | §(c) AXIOM (mirrors Coq StatMech.v:45) |
+|  51  | `shannonEntropy`            | §(c) AXIOM (opaque entropy functional) |
+|  54  | `shannon_entropy_nonneg`    | §(c) AXIOM (mirrors Coq StatMech.v:67) |
+|  58  | `shannon_entropy_point_zero`| §(c) AXIOM (mirrors Coq StatMech.v:72) |
+
+### Landauer + execution model (§(c) AXIOM, 5)
+
+| Line | Identifier | Disposition |
+|-----:|------------|-------------|
+|  91  | `energyDissipatedPhys`     | §(c) AXIOM (opaque physical energy primitive) |
+|  95  | `landauer_principle`       | §(c) AXIOM (mirrors Coq StatMech.v:132) |
+| 107  | `postExecutionDist`        | §(c) AXIOM (opaque execution-distribution primitive) |
+| 116  | `postExecutionDist_id_of_state_preserving` | §(c) AXIOM (bridge to per-state semantics; required because `postExecutionDist` is opaque) |
+| 142  | `reversible_zero_dissipation` | §(c) AXIOM (Coq counterpart is DISCHARGE; Lean keeps as §(c) until derivation chain lands) |
+
+All 14 §(c) entries above are annotated inline with `-- AXIOM:`
+leading comments.
+
 ## (a) DISCHARGE backlog (Coq, 17)
 
 Provable propositions currently stated as `Axiom`. Enumerated in
@@ -250,6 +286,34 @@ no longer in §(d).
     Triaged DISCHARGE in #58 (Phase 2d).
   - **Deadline**: INDEFINITE.
 
+- `proofs/coq/physics/StatMech.v:229` — `reversible_zero_dissipation`
+  - **Owner**: @hyperpolymath
+  - **Plan**: derivable from `landauer_principle` + reversibility
+    hypothesis. Triaged DISCHARGE in #58 (Phase 2e).
+  - **Deadline**: INDEFINITE.
+
+- `proofs/coq/physics/LandauerDerivation.v:81` — `shannon_entropy_additive`
+  - **Owner**: @hyperpolymath
+  - **Plan**: chain rule of entropy; provable from the definition of
+    `H(X,Y)` given an independence hypothesis. Triaged DISCHARGE in #58
+    (Phase 2e).
+  - **Deadline**: INDEFINITE (blocked on `product_dist` semantics).
+
+- `proofs/coq/physics/LandauerDerivation.v:277` — `cno_preserves_shannon_entropy`
+  - **Owner**: @hyperpolymath
+  - **Plan**: should follow from the CNO definition (state in = state
+    out) + functional Shannon entropy. Triaged DISCHARGE in #58 (Phase 2e).
+  - **Deadline**: INDEFINITE (blocked on bijection-preserves-entropy
+    machinery).
+
+- `proofs/coq/physics/LandauerDerivation.v:326` — `cno_zero_energy_dissipation_derived`
+  - **Owner**: @hyperpolymath
+  - **Plan**: name literally says `_derived`; the file admits this
+    rather than discharging it. Should follow from
+    `cno_preserves_shannon_entropy` + Landauer. Triaged DISCHARGE in #58
+    (Phase 2e).
+  - **Deadline**: INDEFINITE.
+
 ### Lean — provable, awaiting proof
 
 - `proofs/lean4/LambdaCNO.lean:183` — `subst_closed_term`
@@ -299,10 +363,9 @@ no longer in §(d).
 
 ### Lean — pending triage
 
-14 Lean axioms remain to be triaged (StatMech only; Lambda, Filesystem,
-and QuantumCNO clusters done in Phase 2a/2c/2d). Triage planned in
-cluster-sized PRs through 2026-06 — see this file's status block at
-the bottom.
+0 Lean axioms remain to be triaged — Lambda (Phase 2a), Filesystem
+(Phase 2c), QuantumCNO (Phase 2d), and StatMech (Phase 2e) clusters
+all done. Lean side fully classified per standards#203 as of 2026-05-27.
 
 ### Idris2 — pending triage
 

@@ -22,11 +22,17 @@ Open Scope R_scope.
 
 (** Boltzmann constant (J/K) *)
 Parameter kB : R.
+(* AXIOM: kB_positive; Boltzmann constant — physical constant. Duplicate of
+   LandauerDerivation.v:28 + QuantumCNO.v:31 (see follow-up 1).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom kB_positive : kB > 0.
 (** In SI units: kB ≈ 1.380649×10⁻²³ J/K *)
 
 (** Temperature (Kelvin) *)
 Parameter temperature : R.
+(* AXIOM: temperature_positive; Temperature scalar — physical precondition.
+   Duplicate of LandauerDerivation.v:32 + QuantumCNO.v:35 (see follow-up 1).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom temperature_positive : temperature > 0.
 (** Room temperature ≈ 300 K *)
 
@@ -36,18 +42,28 @@ Axiom temperature_positive : temperature > 0.
 Definition StateDistribution : Type := ProgramState -> R.
 
 (** Axiom: Probabilities are non-negative *)
+(* AXIOM: prob_nonneg; Kolmogorov probability axiom (non-negativity).
+   Duplicate of LandauerDerivation.v:40 (see follow-up 3).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom prob_nonneg :
   forall (P : StateDistribution) (s : ProgramState),
     P s >= 0.
 
 (** Axiom: Probabilities sum to 1 (normalization) *)
 (** Note: Proper formalization requires measure theory *)
+(* AXIOM: prob_normalized; Kolmogorov probability axiom (Σp = 1).
+   Duplicate of LandauerDerivation.v:43 (see follow-up 3).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom prob_normalized :
   forall (P : StateDistribution),
     exists (states : list ProgramState),
       fold_right Rplus 0 (map P states) = 1.
 
 (** State decidability *)
+(* AXIOM: state_dec; Decidable equality over opaque `ProgramState`; needs
+   oracle or §(b) refutation budget. Duplicate of LandauerDerivation.v:48
+   `state_eq_dec` (see follow-up 3). PROPERTY-TEST (§(b)) — treated as
+   §(c) until a property-test budget is attached. *)
 Axiom state_dec :
   forall s1 s2 : ProgramState, {s1 = s2} + {s1 <> s2}.
 
@@ -64,16 +80,24 @@ Definition point_dist (s0 : ProgramState) : StateDistribution :=
 Parameter shannon_entropy : StateDistribution -> R.
 
 (** Axiom: Shannon entropy is non-negative *)
+(* AXIOM: shannon_entropy_nonneg; Shannon entropy core inequality. Duplicate
+   of LandauerDerivation.v:63 (see follow-up 3).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom shannon_entropy_nonneg :
   forall P : StateDistribution,
     shannon_entropy P >= 0.
 
 (** Axiom: Point distributions have zero entropy *)
+(* AXIOM: shannon_entropy_point_zero; H(δ_x) = 0. Duplicate of
+   LandauerDerivation.v:67 (see follow-up 3).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom shannon_entropy_point_zero :
   forall s : ProgramState,
     shannon_entropy (point_dist s) = 0.
 
 (** Axiom: Entropy is maximized for uniform distribution *)
+(* AXIOM: shannon_entropy_maximum; H ≤ log n (Gibbs inequality).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom shannon_entropy_maximum :
   forall (P : StateDistribution) (states : list ProgramState),
     (forall s1 s2, In s1 states -> In s2 states -> P s1 = P s2) ->
@@ -129,6 +153,8 @@ Qed.
 (** Energy dissipated by a computational process (Joules) *)
 Parameter energy_dissipated_phys : StateDistribution -> StateDistribution -> R.
 
+(* AXIOM: landauer_principle; Physical postulate (Landauer's principle).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom landauer_principle :
   forall (P_initial P_final : StateDistribution),
     let ΔS := shannon_entropy P_final - shannon_entropy P_initial in
@@ -226,6 +252,9 @@ Qed.
 
 (** Physical axiom: Reversible processes (ΔS = 0) dissipate no energy *)
 (** This is a consequence of Landauer's Principle and thermodynamic reversibility *)
+(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
+   in docs/proof-debt.md (Phase 2e) — derivable from `landauer_principle`
+   + reversibility hypothesis. *)
 Axiom reversible_zero_dissipation :
   forall P_initial P_final : StateDistribution,
     shannon_entropy P_initial = shannon_entropy P_final ->
