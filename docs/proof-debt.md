@@ -45,6 +45,58 @@ First cluster: `proofs/lean4/LambdaCNO.lean` (3 axioms).
 The two §(c) entries are annotated inline with `-- AXIOM:` leading
 comments. The §(d) entry below has an owner + deadline.
 
+## Phase 2c triage — Lean Filesystem cluster (2026-05-27)
+
+Second Lean cluster: `proofs/lean4/FilesystemCNO.lean` (21 axioms).
+
+### POSIX primitive operations (§(c) AXIOM — opaque ops, 10)
+
+| Line | Identifier | Disposition | Justification |
+|-----:|------------|-------------|---------------|
+|  56  | `mkdir`     | §(c) AXIOM | Opaque POSIX primitive — no executable body in the model. |
+|  60  | `rmdir`     | §(c) AXIOM | Opaque POSIX primitive. |
+|  64  | `create`    | §(c) AXIOM | Opaque POSIX primitive. |
+|  68  | `unlink`    | §(c) AXIOM | Opaque POSIX primitive. |
+|  72  | `readFile`  | §(c) AXIOM | Opaque POSIX primitive. |
+|  76  | `writeFile` | §(c) AXIOM | Opaque POSIX primitive. |
+|  80  | `stat`      | §(c) AXIOM | Opaque POSIX primitive. |
+|  84  | `chmod`     | §(c) AXIOM | Opaque POSIX primitive. |
+|  88  | `chown`     | §(c) AXIOM | Opaque POSIX primitive. |
+|  92  | `rename`    | §(c) AXIOM | Opaque POSIX primitive. |
+
+### POSIX semantics specifications (§(c) AXIOM — mirror Coq, 6)
+
+| Line | Identifier | Disposition |
+|-----:|------------|-------------|
+|  98  | `mkdir_rmdir_inverse`  | §(c) AXIOM (mirrors Coq) |
+| 104  | `create_unlink_inverse`| §(c) AXIOM (mirrors Coq) |
+| 109  | `read_write_identity`  | §(c) AXIOM (mirrors Coq) |
+| 115  | `chmod_identity`       | §(c) AXIOM (mirrors Coq) |
+| 121  | `rename_identity`      | §(c) AXIOM (mirrors Coq) |
+| 126  | `rename_inverse`       | §(c) AXIOM (mirrors Coq) |
+
+### Snapshot primitives (§(c) AXIOM — opaque ops, 2)
+
+| Line | Identifier | Disposition |
+|-----:|------------|-------------|
+| 281  | `snapshot` | §(c) AXIOM (opaque snapshot primitive) |
+| 285  | `restore`  | §(c) AXIOM (opaque restore primitive) |
+
+### Discharge candidates (§(d) DEBT — 3)
+
+These claim provable existence / equality facts that should follow
+from the §(c) primitives once the model is concretely defined. They
+need a discharge PR — see §(d) DEBT below.
+
+| Line | Identifier | Disposition | Plan |
+|-----:|------------|-------------|------|
+| 233  | `mkdir_not_identity`         | §(d) DEBT | Existence proof; exhibit one concrete `fs` lacking the path. |
+| 288  | `snapshot_restore_identity`  | §(d) DEBT | Composite theorem; derivable from `snapshot`/`restore` once a concrete snapshot model lands. |
+| 309  | `mkdir_idempotent`           | §(d) DEBT | Follows from `mkdir_rmdir_inverse` family with stronger repeat-mkdir semantics. |
+
+All 18 §(c) entries above are annotated inline with `-- AXIOM:`
+leading comments.
+
 ## (a) DISCHARGE backlog (Coq, 17)
 
 Provable propositions currently stated as `Axiom`. Enumerated in
@@ -85,6 +137,38 @@ no longer in §(d).
   - **Deadline**: INDEFINITE (blocked on `SetCategory` instance —
     universe-polymorphism scaffolding precondition).
 
+- `proofs/coq/filesystem/FilesystemCNO.v:300` — `mkdir_not_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: existence proof; exhibit one concrete `fs` lacking the
+    path. Triaged DISCHARGE in #58.
+  - **Deadline**: INDEFINITE (small proof; awaits a discharge PR).
+
+- `proofs/coq/filesystem/FilesystemCNO.v:316` — `write_different_not_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: existence proof; exhibit one concrete content mismatch.
+    Triaged DISCHARGE in #58.
+  - **Deadline**: INDEFINITE.
+
+- `proofs/coq/filesystem/FilesystemCNO.v:397` — `transaction_cno`
+  - **Owner**: @hyperpolymath
+  - **Plan**: composite theorem; derivable from primitive `_inverse`
+    axioms once a `transaction` definition is in place. Triaged
+    DISCHARGE in #58.
+  - **Deadline**: INDEFINITE (blocked on `transaction` definition).
+
+- `proofs/coq/filesystem/FilesystemCNO.v:421` — `mkdir_idempotent`
+  - **Owner**: @hyperpolymath
+  - **Plan**: follows from `mkdir_rmdir_inverse` family + stronger
+    repeat-mkdir semantics. Triaged DISCHARGE in #58.
+  - **Deadline**: INDEFINITE.
+
+- `proofs/coq/filesystem/FilesystemCNO.v:453` — `snapshot_restore_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: composite theorem; derivable from primitive `_identity`
+    / `_inverse` axioms once a snapshot model lands. Triaged DISCHARGE
+    in #58.
+  - **Deadline**: INDEFINITE.
+
 ### Lean — provable, awaiting proof
 
 - `proofs/lean4/LambdaCNO.lean:183` — `subst_closed_term`
@@ -95,11 +179,31 @@ no longer in §(d).
   - **Deadline**: INDEFINITE (no proof-PR scheduled yet — provable;
     awaits Lean-side discharge push).
 
+- `proofs/lean4/FilesystemCNO.lean:233` — `mkdir_not_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: existence proof; exhibit one concrete `fs` lacking the
+    path. Mirrors Coq site at `FilesystemCNO.v:300`.
+  - **Deadline**: INDEFINITE.
+
+- `proofs/lean4/FilesystemCNO.lean:288` — `snapshot_restore_identity`
+  - **Owner**: @hyperpolymath
+  - **Plan**: composite theorem; derivable from `snapshot`/`restore`
+    primitives once a concrete snapshot model is in place. Mirrors
+    Coq site at `FilesystemCNO.v:453`.
+  - **Deadline**: INDEFINITE.
+
+- `proofs/lean4/FilesystemCNO.lean:309` — `mkdir_idempotent`
+  - **Owner**: @hyperpolymath
+  - **Plan**: follows from `mkdir_rmdir_inverse` + stronger
+    repeat-mkdir semantics. Mirrors Coq site at `FilesystemCNO.v:421`.
+  - **Deadline**: INDEFINITE.
+
 ### Lean — pending triage
 
-49 Lean axioms remain to be triaged (FilesystemCNO 21, QuantumCNO 14,
-StatMech 14). Triage planned in cluster-sized PRs through
-2026-06 — see this file's status block at the bottom.
+28 Lean axioms remain to be triaged (QuantumCNO 14, StatMech 14;
+Lambda and Filesystem clusters done in Phase 2a/2c). Triage planned
+in cluster-sized PRs through 2026-06 — see this file's status block
+at the bottom.
 
 ### Idris2 — pending triage
 
