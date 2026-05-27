@@ -11,7 +11,7 @@ repo = "github.com/hyperpolymath/absolute-zero"
 version = "1.0.0-alpha"
 schema-version = "1.0"
 created = "2026-01-03"
-last-updated = "2026-05-20"
+last-updated = "2026-05-27"
 status = "active"
 
 [project-context]
@@ -26,7 +26,7 @@ maturity = "experimental"
 
 [components]
 # Format: name = [percentage, "notes"]
-coq-proofs = [90, "11/11 files compile (Coq 8.18.0+8.20.1); 0 Admitted (rescue 2026-05-18); 75→73 Axioms + 42 Parameters; 3 discharges 2026-05-20 — eval_deterministic (PR #24) + eval_respects_state_eq_{left,right} (deleted as unsound, downstream refactored to use cno_terminates + weakened logically_reversible); remainder are legitimate model-layer assumptions about abstract Parameters"]
+coq-proofs = [90, "11/11 files compile (Coq 8.18.0+8.20.1); 0 Admitted (rescue 2026-05-18); 75→72 Axioms + 42 Parameters; Phase 1 triage 2026-05-27 (PR #58) classifies 72 Coq Axioms into §c TRUSTED-BASE (52) + §a DISCHARGE backlog (17) + §b PROPERTY-TEST (3); see docs/proof-debt-triage.md"]
 lean4-proofs = [95, "lake build 1631/1632 green (mathlib + 6 lean_lib targets); verified 2026-05-20"]
 z3-proofs = [90, "10 theorems encoded, needs z3 runtime"]
 agda-proofs = [60, "CNO.agda type-checks clean — 0 postulates/holes/unsolved metas (verified 2026-05-18)"]
@@ -57,7 +57,8 @@ high = [
 ]
 medium = [
   "LandauerDerivation.v needs measure theory",
-  "~120 post-T0 Coq Axiom/Parameter audit (legitimate model assumption vs avoidable proof shortcut)",
+  "17 §a DISCHARGE Coq axioms backlog (post-Phase-1 triage, see docs/proof-debt-triage.md)",
+  "Triage Phase 2 for 52 Lean axioms + 7 Idris2 postulates (#27) still pending",
 ]
 low = [
   "y_not_cno non-termination proof",
@@ -65,10 +66,11 @@ low = [
 
 [critical-next-actions]
 immediate = [
-  "PR #24 review + merge (eval_deterministic discharge + rescue rebase)",
+  "Phase 2 triage: Lean axioms (52) + Idris2 postulates (#27, 7)",
 ]
 this-week = [
-  "Begin classification sweep of remaining ~120 Axiom declarations",
+  "Begin discharging the 17 §a Coq DISCHARGE-backlog axioms (lowest-hanging: cno_zero_energy_dissipation_derived, fidelity_bound, unitary_inverse_property, *_not_identity existence pair)",
+  "Physics-constant deduplication (kB_positive/temperature_positive declared 3x across QuantumCNO/StatMech/LandauerDerivation)",
   "Migrate Python to Rust",
 ]
 this-month = [
@@ -78,6 +80,7 @@ this-month = [
 
 [session-history]
 sessions = [
+  { date = "2026-05-27", agent = "opus", summary = "Phase 1 per-axiom triage of all 72 Coq Axioms per standards#203 trusted-base policy. Classification: 52 §c TRUSTED-BASE (physics constants, quantum primitives, POSIX semantics, Kolmogorov+Shannon axioms, Cexp algebra, physical laws), 17 §a DISCHARGE (derivable theorems incl. 2 named *_derived), 3 §b PROPERTY-TEST (decidability over opaque types). Surfaced 5 follow-ups (physics-constant dedup ×3, quantum-law dedup ×2, Cexp constructive in Complex.v). PR #58 MERGED 2026-05-27 (commit e17256b). Also: traced phantom '315 Lean sorries' figure to a metric mismatch — actual local user-sorry count = 0; canonical figure is 129 (now 124) escape hatches across all proof languages per standards#195 + scripts/check-trusted-base.sh." },
   { date = "2026-05-20", agent = "opus", summary = "Post-T0 axiom audit: 117 declarations triaged into Tier A/B/C; 2 unsound axioms (eval_respects_state_eq_left/right) deleted with downstream refactor; logically_reversible weakened to =st=; cno_eval_on_equal_states + cno_logically_reversible re-proved without axioms; 75→73 Axioms total" },
   { date = "2026-05-20", agent = "opus", summary = "Rescue branch rebased onto current main (clean); eval_deterministic Axiom discharged → Theorem (via step_deterministic_strong helper); Print Assumptions Closed under global context; 11/11 Coq + 1631/1632 Lean targets green; PR #24 MERGED (admin-squash 69e7a22)" },
   { date = "2026-05-18", agent = "opus", summary = "Tier-0 rescue: CNO.v keystone re-proved (state_eq PC-exclusion fix, 9 named repairs); Complex.v self-contained complex numbers added; 11 Coq files compile under Coq 8.20.1; full Lean lake build succeeds; PROOF-STATUS-2026-05-18.md ledger added" },
@@ -86,7 +89,7 @@ sessions = [
 ]
 
 [maintenance-status]
-last-run-utc = "2026-05-20T15:00:00Z"
+last-run-utc = "2026-05-27T08:00:00Z"
 last-result = "pass"  # unknown | pass | warn | fail
 
 [migration-notes]
