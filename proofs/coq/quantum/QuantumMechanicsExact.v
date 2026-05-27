@@ -246,6 +246,9 @@ Qed.
     ⟨Xψ|Xψ⟩ = ⟨β|0⟩ + α|1⟩ | β|0⟩ + α|1⟩⟩
             = |β|² + |α|² = |α|² + |β|² = ⟨ψ|ψ⟩
 *)
+(* AXIOM: X_gate_unitary; Pauli-X is a primitive quantum gate; unitarity is
+   its defining property in the model.
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom X_gate_unitary : is_unitary X_gate_exact.
 
 (** ** CNOT Gate (Exact 4x4 Matrix for 2 Qubits) *)
@@ -313,6 +316,10 @@ Qed.
     The result is deeply connected to the fact that quantum mechanics is
     deterministic at the level of pure state evolution (Schrödinger equation).
 *)
+(* AXIOM: unitary_preserves_entropy; Quantum statmech postulate (von Neumann
+   entropy invariant under unitary). Duplicate of QuantumCNO:372 (see
+   follow-up 2 in docs/proof-debt-triage.md).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom unitary_preserves_entropy :
   forall (n : nat) (U : QuantumGate n) (ψ : QuantumState n),
     is_unitary U ->
@@ -390,6 +397,10 @@ Qed.
     The no-cloning theorem is a direct consequence of the linearity of quantum
     mechanics and is empirically confirmed through countless quantum experiments.
 *)
+(* AXIOM: no_cloning; Fundamental quantum theorem; standardly taken as
+   physical postulate in this style of axiomatisation. Duplicate of
+   QuantumCNO:391 (see follow-up 2 in docs/proof-debt-triage.md).
+   §(c) per docs/proof-debt.md (Phase 2d triage). *)
 Axiom no_cloning :
   ~ exists (U : QuantumGate 2),
       forall (ψ : QuantumState 1),
