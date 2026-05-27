@@ -11,37 +11,53 @@ SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell (hyperpolymath)
 
 The 2026-05-26 estate proof-debt audit
 ([standards#195](https://github.com/hyperpolymath/standards/pull/195))
-detected **129 soundness-relevant escape hatches** in this
-repo. This file is the **initial seed** — every marker starts in §(d)
-DEBT and the maintainer triages each into §(a) / §(b) / §(c) / §(d) as
-classification proceeds.
+detected **129 soundness-relevant escape hatches** in this repo (now
+**124** after intervening closures). Markers were originally seeded
+in §(d) DEBT pending classification.
 
-## (a) DISCHARGED in this repo
+## Phase 1 triage — 72 Coq Axioms (2026-05-27, [#58](https://github.com/hyperpolymath/absolute-zero/pull/58))
 
-*(None yet — entries move here when the proof lands or the construct
-is removed.)*
+The per-marker classification for every Coq `Axiom` lives in
+[`docs/proof-debt-triage.md`](./proof-debt-triage.md). Summary:
 
-## (b) BUDGETED — tested with a refutation budget
+| Disposition | Count |
+|-------------|------:|
+| §(c) AXIOM (TRUSTED-BASE) | 52 |
+| §(a) DISCHARGE backlog    | 17 |
+| §(b) PROPERTY-TEST        |  3 |
+| **Total Coq Axioms**      | **72** |
 
-*(None yet — entries belong here when the construct is at an
-extraction boundary and is covered by a documented property-test
-budget.)*
+Out of scope for Phase 1 (still in §(d) pending future triage):
+52 Lean 4 `axiom` declarations and the 7 Idris2 postulates tracked by
+[#27](https://github.com/hyperpolymath/absolute-zero/issues/27).
 
-## (c) NECESSARY AXIOM
+## (a) DISCHARGE backlog (Coq, 17)
 
-*(None yet — entries belong here when the construct encodes a
-metatheoretic assumption that cannot be discharged within the working
-logic.)*
+Provable propositions currently stated as `Axiom`. Enumerated in
+[`docs/proof-debt-triage.md`](./proof-debt-triage.md) — each row marked
+`DISCHARGE` is a candidate for a future proof PR.
+
+## (b) BUDGETED — tested with a refutation budget (3)
+
+Decidability claims over opaque types: `fs_eq_dec`, `state_dec`,
+`state_eq_dec`. Belong to §(b) once a §(b) property-test budget is
+attached; otherwise treat as §(c).
+
+## (c) NECESSARY AXIOM (Coq, 52)
+
+Physics constants, quantum gate primitives, POSIX semantics,
+Kolmogorov + Shannon entropy core inequalities, complex exponential
+algebra, and fundamental physical laws (second law, Landauer, no-cloning).
+Full enumeration in [`docs/proof-debt-triage.md`](./proof-debt-triage.md).
 
 ## (d) DEBT — actively to be closed
 
-All 129 markers below start in this section. As the
-maintainer classifies each, it should be moved into §(a) / §(b) /
-§(c) as appropriate. Markers that genuinely belong in §(d) need a
-deadline and an owner.
+After Phase 1, the §(d) bucket contains only the 52 Lean axioms and
+7 Idris2 postulates that have not yet been triaged. Coq markers are
+no longer in §(d).
 
 ```
-(no markers; check-trusted-base passes already)
+(no Coq markers in §(d) post Phase 1; see triage doc for §a/§b/§c.)
 ```
 
 > If `129` > 30, the list above shows the first 30 only.

@@ -12,7 +12,8 @@
      ("ADR-006" "accepted" "state_eq excludes state_pc — PC is control-flow bookkeeping, not observable side effect (2026-05-18 rescue)")
      ("ADR-007" "accepted" "Discharge eval_deterministic Axiom → Theorem via step_deterministic_strong helper (2026-05-20, PR #24); first post-T0 axiom audit win")
      ("ADR-008" "accepted" "Delete unsound eval_respects_state_eq_{left,right} axioms; weaken logically_reversible to =st= (observational reversibility); re-prove cno_eval_on_equal_states + cno_logically_reversible via cno_terminates + cno_preserves_state (2026-05-20)")
-     ("ADR-009" "accepted" "Delete unsound alignmentMatchesPlatformWord Idris2 postulate (HasAlignment carries no evidence; would derive So (1 mod 8 == 0) from CNOResultLayout.alignment); replace single consumer with per-Platform decidable proof. Consolidate remaining alignedSizeCorrect postulate into shared AbsoluteZero.ABI.Proofs.DivMod module as the estate-wide div/mod lemma surface (absolute-zero#27, civic-connect alignUpDivides/mkFieldsAligned/offsetInBoundsPrf migrate here)")))
+     ("ADR-009" "accepted" "Delete unsound alignmentMatchesPlatformWord Idris2 postulate (HasAlignment carries no evidence; would derive So (1 mod 8 == 0) from CNOResultLayout.alignment); replace single consumer with per-Platform decidable proof. Consolidate remaining alignedSizeCorrect postulate into shared AbsoluteZero.ABI.Proofs.DivMod module as the estate-wide div/mod lemma surface (absolute-zero#27, civic-connect alignUpDivides/mkFieldsAligned/offsetInBoundsPrf migrate here)")
+     ("ADR-010" "accepted" "Phase 1 per-axiom triage of 72 Coq Axioms per standards#203 trusted-base policy (2026-05-27, PR #58): 52 §c TRUSTED-BASE + 17 §a DISCHARGE backlog + 3 §b PROPERTY-TEST; canonical disposition in docs/proof-debt-triage.md")))
 
   (development-practices
     (code-style "Coq proof engineering")

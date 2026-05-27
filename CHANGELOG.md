@@ -37,6 +37,7 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Documentation
 
+- docs: Phase 1 per-axiom triage of 72 Coq Axioms (#58)
 - docs: seed docs/proof-debt.md per trusted-base policy (#52)
 - docs: record tech-debt audit findings (2026-05-26) (#47)
 
