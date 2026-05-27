@@ -353,6 +353,10 @@ Definition y_combinator : LambdaTerm :=
 
     This is a fundamental result in lambda calculus and is safely axiomatized.
 *)
+(* AXIOM: y_not_cno; non-termination claim about the Y combinator —
+   requires step-indexed semantics or coinduction to discharge within
+   the working logic. §(c) NECESSARY AXIOM per docs/proof-debt.md
+   (triage: docs/proof-debt-triage.md row LambdaCNO.v:356). *)
 Axiom y_not_cno : ~ is_lambda_CNO y_combinator.
 
 (** ** Practical Examples *)
@@ -373,6 +377,10 @@ Definition snd : LambdaTerm :=
 (** ** Eta Equivalence *)
 
 (** Eta reduction: (λx. f x) ≡ f *)
+(* AXIOM: eta_equivalence; η-equivalence is not derivable under β-only
+   reduction — requires an extra reduction rule or extensional equality.
+   §(c) NECESSARY AXIOM per docs/proof-debt.md (triage:
+   docs/proof-debt-triage.md row LambdaCNO.v:376). *)
 Axiom eta_equivalence :
   forall f : LambdaTerm,
     beta_reduce_star (LAbs (LApp f (LVar 0))) f.

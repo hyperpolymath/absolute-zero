@@ -31,6 +31,20 @@ Out of scope for Phase 1 (still in §(d) pending future triage):
 52 Lean 4 `axiom` declarations and the 7 Idris2 postulates tracked by
 [#27](https://github.com/hyperpolymath/absolute-zero/issues/27).
 
+## Phase 2a triage — Lean Lambda cluster (2026-05-27)
+
+Per-cluster Lean triage rolling out 2026-05-27 in cluster-sized PRs.
+First cluster: `proofs/lean4/LambdaCNO.lean` (3 axioms).
+
+| Line | Identifier | Disposition | Justification |
+|-----:|------------|-------------|---------------|
+| 183  | `subst_closed_term`        | §(d) DEBT   | Standard metatheoretic property of lambda calculus; provable by induction on `t` once the substitution-on-closed-terms lemma is mechanised. |
+| 232  | `y_combinator_not_identity` | §(c) AXIOM | Non-termination claim about Y combinator; requires step-indexed semantics or coinduction (same justification as Coq `y_not_cno`). |
+| 258  | `eta_equivalence`           | §(c) AXIOM | η-equivalence is not derivable under β-only reduction (same justification as Coq `eta_equivalence` at LambdaCNO.v:376). |
+
+The two §(c) entries are annotated inline with `-- AXIOM:` leading
+comments. The §(d) entry below has an owner + deadline.
+
 ## (a) DISCHARGE backlog (Coq, 17)
 
 Provable propositions currently stated as `Axiom`. Enumerated in
@@ -52,12 +66,33 @@ Full enumeration in [`docs/proof-debt-triage.md`](./proof-debt-triage.md).
 
 ## (d) DEBT — actively to be closed
 
-After Phase 1, the §(d) bucket contains only the 52 Lean axioms and
-7 Idris2 postulates that have not yet been triaged. Coq markers are
+After Phase 1, the §(d) bucket contains only the Lean axioms and 7
+Idris2 postulates that have not yet been triaged. Coq markers are
 no longer in §(d).
 
+### Lean — provable, awaiting proof
+
+- `proofs/lean4/LambdaCNO.lean:183` — `subst_closed_term`
+  - **Owner**: @hyperpolymath
+  - **Plan**: discharge by induction on `t : LambdaTerm`; closed-term
+    invariant carries through `LVar`, `LAbs`, `LApp` cases. Sibling to
+    Coq's `subst` lemmas in `proofs/coq/lambda/LambdaCNO.v`.
+  - **Deadline**: INDEFINITE (no proof-PR scheduled yet — provable;
+    awaits Lean-side discharge push).
+
+### Lean — pending triage
+
+49 Lean axioms remain to be triaged (FilesystemCNO 21, QuantumCNO 14,
+StatMech 14). Triage planned in cluster-sized PRs through
+2026-06 — see this file's status block at the bottom.
+
+### Idris2 — pending triage
+
+7 Idris2 postulates in `src/abi/Layout.idr`. Tracked by
+[#27](https://github.com/hyperpolymath/absolute-zero/issues/27).
+
 ```
-(no Coq markers in §(d) post Phase 1; see triage doc for §a/§b/§c.)
+(Coq markers no longer in §(d) post Phase 1; see triage doc for §a/§b/§c.)
 ```
 
 > If `129` > 30, the list above shows the first 30 only.

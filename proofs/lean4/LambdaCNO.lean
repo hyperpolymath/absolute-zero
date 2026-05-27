@@ -229,6 +229,9 @@ def y_combinator : LambdaTerm :=
 
 /-- Y is NOT a CNO because it doesn't act as identity.
     Y f reduces to f (Y f), not back to f. -/
+-- AXIOM: y_combinator_not_identity; non-termination claim about the Y combinator —
+--   requires step-indexed semantics or coinduction to discharge.
+--   §(c) NECESSARY AXIOM per docs/proof-debt.md (Lean Lambda triage 2026-05-27).
 axiom y_combinator_not_identity :
   ¬ BetaReduceStar (LApp y_combinator lambda_id) lambda_id
 
@@ -255,6 +258,9 @@ example : BetaReduceStar (LApp church_zero church_zero) (LAbs (LVar 0)) := by
 /-! ## Eta Equivalence -/
 
 /-- Eta reduction: (λx. f x) ≡ f -/
+-- AXIOM: eta_equivalence; η-equivalence is not derivable under β-only reduction —
+--   requires an extra reduction rule or extensional equality.
+--   §(c) NECESSARY AXIOM per docs/proof-debt.md (Lean Lambda triage 2026-05-27).
 axiom eta_equivalence (f : LambdaTerm) :
   BetaReduceStar (LAbs (LApp f (LVar 0))) f
 
