@@ -82,5 +82,14 @@ htmlcov/
 ai-cli-crash-capture/
 proofs/lean4/.lake/
 
+# Coq build outputs
+*.vo
+*.vok
+*.vos
+*.glob
+.*.aux
+.lia.cache
+.nia.cache
+
 # Rust build outputs in subdirectories (e.g. fuzz/target/)
 **/target/

@@ -20,23 +20,18 @@ Require Import Coq.Reals.Reals.
 Require Import CNO.Complex.
 Require Import Coq.Logic.FunctionalExtensionality.
 Require Import CNO.CNO.
+(* Shared physics constants — kB, temperature, kB_positive,
+   temperature_positive. See proofs/coq/common/PhysicsConstants.v
+   (consolidated by Follow-up 1 of docs/proof-debt-triage.md). *)
+Require Import CNO.PhysicsConstants.
 
 Open Scope R_scope.
 Open Scope C_scope.
 
-(** ** Physical Constants (for Landauer principle) *)
+(** ** Physical Constants (for Landauer principle)
 
-(** Boltzmann constant (J/K) *)
-Parameter kB : R.
-(* AXIOM: kB_positive; Boltzmann constant — physical constant.
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom kB_positive : kB > 0.
-
-(** Temperature (Kelvin) *)
-Parameter temperature : R.
-(* AXIOM: temperature_positive; Temperature scalar — physical precondition.
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom temperature_positive : temperature > 0.
+    [kB], [temperature], [kB_positive], and [temperature_positive] are
+    imported from [CNO.PhysicsConstants] (consolidated by Follow-up 1). *)
 
 (** ** Quantum State Representation *)
 

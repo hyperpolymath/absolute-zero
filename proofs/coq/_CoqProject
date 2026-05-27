@@ -1,5 +1,7 @@
 -R common CNO
 -R malbolge Malbolge
 
+common/PhysicsConstants.v
 common/CNO.v
+common/StatMechBasis.v
 malbolge/MalbolgeCore.v

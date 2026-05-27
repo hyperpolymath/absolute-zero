@@ -16,78 +16,35 @@ Require Import Coq.micromega.Psatz.
 Require Import Coq.Lists.List.
 Require Import Lia.
 Require Import CNO.CNO.
+(* Shared physics constants — kB, temperature, kB_positive,
+   temperature_positive. See proofs/coq/common/PhysicsConstants.v
+   (consolidated by Follow-up 1 of docs/proof-debt-triage.md). *)
+Require Import CNO.PhysicsConstants.
+(* Shared statmech basis — StateDistribution, prob_nonneg, prob_normalized,
+   state_dec, point_dist, shannon_entropy, shannon_entropy_nonneg,
+   shannon_entropy_point_zero. See proofs/coq/common/StatMechBasis.v
+   (consolidated by Follow-up 3 of docs/proof-debt-triage.md). *)
+Require Import CNO.StatMechBasis.
 Import ListNotations.
 
 Open Scope R_scope.
 
-(** ** Physical Constants (Measured Values, Not Derived) *)
+(** ** Physical Constants (Measured Values, Not Derived)
 
-(** Boltzmann constant: k_B = 1.380649 × 10^-23 J/K *)
-(** This is a measured physical constant, grounded in experiment *)
-Parameter kB : R.
-(* AXIOM: kB_positive; Boltzmann constant — physical constant. Duplicate of
-   StatMech.v:25 + QuantumCNO.v:31 (see follow-up 1 in docs/proof-debt-triage.md).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom kB_positive : kB > 0.
+    Boltzmann constant [k_B = 1.380649 × 10^{-23} J/K] and [temperature]
+    in Kelvin (must be positive) are imported from [CNO.PhysicsConstants]
+    (consolidated by Follow-up 1). These are measured physical constants,
+    grounded in experiment. *)
 
-(** Temperature in Kelvin (must be positive) *)
-Parameter temperature : R.
-(* AXIOM: temperature_positive; Temperature scalar — physical precondition.
-   Duplicate of StatMech.v:30 + QuantumCNO.v:35 (see follow-up 1).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom temperature_positive : temperature > 0.
+(** ** Foundation: Probability + Shannon Entropy Basis
 
-(** ** Foundation: Probability Theory *)
-
-(** A probability distribution over program states *)
-Definition StateDistribution : Type := ProgramState -> R.
-
-(** Probability axioms (Kolmogorov) *)
-(* AXIOM: prob_nonneg; Kolmogorov probability axiom (non-negativity).
-   Duplicate of StatMech.v:39 (see follow-up 3 in docs/proof-debt-triage.md).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom prob_nonneg :
-  forall (P : StateDistribution) (s : ProgramState), P s >= 0.
-
-(* AXIOM: prob_normalized; Kolmogorov probability axiom (Σp = 1).
-   Duplicate of StatMech.v:45 (see follow-up 3).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom prob_normalized :
-  forall (P : StateDistribution),
-    exists (states : list ProgramState),
-      fold_right (fun s acc => acc + P s) 0 states = 1.
-
-(* AXIOM: state_eq_dec; Decidable equality over opaque `ProgramState`;
-   needs oracle or §(b) refutation budget. Duplicate of StatMech.v:51
-   `state_dec` (see follow-up 3). PROPERTY-TEST (§(b)) — treated as §(c)
-   until a property-test budget is attached. *)
-Axiom state_eq_dec : forall s1 s2 : ProgramState, {s1 = s2} + {s1 <> s2}.
-
-(** Point distribution (Dirac delta) *)
-Definition point_dist (s0 : ProgramState) : StateDistribution :=
-  fun s => if state_eq_dec s s0 then 1 else 0.
-
-(** ** Shannon Entropy: Information-Theoretic Foundation *)
-
-(** Shannon entropy: H(P) = -Σ p_i log_2(p_i)
-    Measured in bits *)
-Parameter shannon_entropy : StateDistribution -> R.
+    [StateDistribution], [prob_nonneg], [prob_normalized], [state_dec],
+    [point_dist], [shannon_entropy], [shannon_entropy_nonneg], and
+    [shannon_entropy_point_zero] are imported from [CNO.StatMechBasis]
+    (consolidated by Follow-up 3 of [docs/proof-debt-triage.md]). This
+    file adds [log2] and the uniform-max / additive axioms below. *)
 
 Definition log2 (x : R) : R := ln x / ln 2.
-
-(** Shannon entropy axioms (from information theory) *)
-(* AXIOM: shannon_entropy_nonneg; Shannon entropy core inequality.
-   Duplicate of StatMech.v:67 (see follow-up 3).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom shannon_entropy_nonneg :
-  forall P : StateDistribution, shannon_entropy P >= 0.
-
-(** Point distributions have zero entropy (no uncertainty) *)
-(* AXIOM: shannon_entropy_point_zero; H(δ_x) = 0. Duplicate of
-   StatMech.v:72 (see follow-up 3).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom shannon_entropy_point_zero :
-  forall s : ProgramState, shannon_entropy (point_dist s) = 0.
 
 (** Entropy is maximized for uniform distribution *)
 (* AXIOM: shannon_entropy_uniform_max; Variant of Gibbs inequality for
