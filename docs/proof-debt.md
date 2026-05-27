@@ -70,6 +70,21 @@ After Phase 1, the §(d) bucket contains only the Lean axioms and 7
 Idris2 postulates that have not yet been triaged. Coq markers are
 no longer in §(d).
 
+### Coq — provable, awaiting proof
+
+- `proofs/coq/category/CNOCategory.v:323` — `hom_functor`
+  - **Owner**: @hyperpolymath
+  - **Plan**: replace `Axiom hom_functor : ... Functor C C` with the
+    proper Yoneda construction `Functor C SetCategory`. The
+    file's leading comment (L312-322) records why this is currently
+    axiomatised: (1) `yoneda_cno` is already proven without it,
+    (2) `SetCategory` needs universe-polymorphism machinery,
+    (3) the conceptual claim stands.
+  - **Triage**: classified DISCHARGE in `docs/proof-debt-triage.md`
+    (Phase 1, #58).
+  - **Deadline**: INDEFINITE (blocked on `SetCategory` instance —
+    universe-polymorphism scaffolding precondition).
+
 ### Lean — provable, awaiting proof
 
 - `proofs/lean4/LambdaCNO.lean:183` — `subst_closed_term`
