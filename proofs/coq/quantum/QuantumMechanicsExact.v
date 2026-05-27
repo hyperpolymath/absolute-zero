@@ -315,16 +315,13 @@ Qed.
 
     The result is deeply connected to the fact that quantum mechanics is
     deterministic at the level of pure state evolution (Schrödinger equation).
-*)
-(* AXIOM: unitary_preserves_entropy; Quantum statmech postulate (von Neumann
-   entropy invariant under unitary). Duplicate of QuantumCNO:372 (see
-   follow-up 2 in docs/proof-debt-triage.md).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom unitary_preserves_entropy :
-  forall (n : nat) (U : QuantumGate n) (ψ : QuantumState n),
-    is_unitary U ->
-    is_normalized ψ ->
-    von_neumann_entropy (U ψ) = von_neumann_entropy ψ.
+
+    Canonical declaration: see `unitary_preserves_entropy` in
+    `proofs/coq/quantum/QuantumCNO.v` (Follow-up 2 of
+    `docs/proof-debt-triage.md`). The QuantumMechanicsExact.v duplicate
+    was dead code (no in-file usage) and has been removed to reduce
+    the trust base; downstream callers in this file's namespace use the
+    QuantumCNO version (with the unindexed `QuantumGate` type). *)
 
 (** ** Quantum CNO Definition (Exact) *)
 
@@ -396,16 +393,13 @@ Qed.
 
     The no-cloning theorem is a direct consequence of the linearity of quantum
     mechanics and is empirically confirmed through countless quantum experiments.
-*)
-(* AXIOM: no_cloning; Fundamental quantum theorem; standardly taken as
-   physical postulate in this style of axiomatisation. Duplicate of
-   QuantumCNO:391 (see follow-up 2 in docs/proof-debt-triage.md).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom no_cloning :
-  ~ exists (U : QuantumGate 2),
-      forall (ψ : QuantumState 1),
-        (* Cannot clone arbitrary quantum states *)
-        False.  (* Simplified statement *)
+
+    Canonical declaration: see `no_cloning` in
+    `proofs/coq/quantum/QuantumCNO.v` (Follow-up 2 of
+    `docs/proof-debt-triage.md`). The QuantumMechanicsExact.v duplicate
+    was dead code (no in-file usage, and the previous statement
+    [`forall ψ, False`] was trivially equivalent to [True]) and has
+    been removed to reduce the trust base. *)
 
 (** ** Summary: What is Exact vs. Axiomatized *)
 

@@ -18,6 +18,11 @@ Require Import CNO.CNO.
    temperature_positive. See proofs/coq/common/PhysicsConstants.v
    (consolidated by Follow-up 1 of docs/proof-debt-triage.md). *)
 Require Import CNO.PhysicsConstants.
+(* Shared statmech basis — StateDistribution, prob_nonneg, prob_normalized,
+   state_dec, point_dist, shannon_entropy, shannon_entropy_nonneg,
+   shannon_entropy_point_zero. See proofs/coq/common/StatMechBasis.v
+   (consolidated by Follow-up 3 of docs/proof-debt-triage.md). *)
+Require Import CNO.StatMechBasis.
 Import ListNotations.
 
 Open Scope R_scope.
@@ -28,64 +33,12 @@ Open Scope R_scope.
     imported from [CNO.PhysicsConstants] (consolidated by Follow-up 1).
     In SI units: [kB ≈ 1.380649×10⁻²³ J/K]; room temperature ≈ 300 K. *)
 
-(** ** Probability Distributions *)
+(** ** Probability Distributions, Entropy
 
-(** A probability distribution over program states *)
-Definition StateDistribution : Type := ProgramState -> R.
-
-(** Axiom: Probabilities are non-negative *)
-(* AXIOM: prob_nonneg; Kolmogorov probability axiom (non-negativity).
-   Duplicate of LandauerDerivation.v:40 (see follow-up 3).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom prob_nonneg :
-  forall (P : StateDistribution) (s : ProgramState),
-    P s >= 0.
-
-(** Axiom: Probabilities sum to 1 (normalization) *)
-(** Note: Proper formalization requires measure theory *)
-(* AXIOM: prob_normalized; Kolmogorov probability axiom (Σp = 1).
-   Duplicate of LandauerDerivation.v:43 (see follow-up 3).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom prob_normalized :
-  forall (P : StateDistribution),
-    exists (states : list ProgramState),
-      fold_right Rplus 0 (map P states) = 1.
-
-(** State decidability *)
-(* AXIOM: state_dec; Decidable equality over opaque `ProgramState`; needs
-   oracle or §(b) refutation budget. Duplicate of LandauerDerivation.v:48
-   `state_eq_dec` (see follow-up 3). PROPERTY-TEST (§(b)) — treated as
-   §(c) until a property-test budget is attached. *)
-Axiom state_dec :
-  forall s1 s2 : ProgramState, {s1 = s2} + {s1 <> s2}.
-
-(** Point distribution (all probability on one state) *)
-Definition point_dist (s0 : ProgramState) : StateDistribution :=
-  fun s => if state_dec s s0 then 1 else 0.
-
-(** ** Information-Theoretic Entropy *)
-
-(** Shannon entropy: H(P) = -Σ p(s) log₂ p(s)
-
-    Measured in bits (using log base 2)
-*)
-Parameter shannon_entropy : StateDistribution -> R.
-
-(** Axiom: Shannon entropy is non-negative *)
-(* AXIOM: shannon_entropy_nonneg; Shannon entropy core inequality. Duplicate
-   of LandauerDerivation.v:63 (see follow-up 3).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom shannon_entropy_nonneg :
-  forall P : StateDistribution,
-    shannon_entropy P >= 0.
-
-(** Axiom: Point distributions have zero entropy *)
-(* AXIOM: shannon_entropy_point_zero; H(δ_x) = 0. Duplicate of
-   LandauerDerivation.v:67 (see follow-up 3).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom shannon_entropy_point_zero :
-  forall s : ProgramState,
-    shannon_entropy (point_dist s) = 0.
+    [StateDistribution], [prob_nonneg], [prob_normalized], [state_dec],
+    [point_dist], [shannon_entropy], [shannon_entropy_nonneg], and
+    [shannon_entropy_point_zero] are imported from [CNO.StatMechBasis]
+    (consolidated by Follow-up 3 of [docs/proof-debt-triage.md]). *)
 
 (** Axiom: Entropy is maximized for uniform distribution *)
 (* AXIOM: shannon_entropy_maximum; H ≤ log n (Gibbs inequality).

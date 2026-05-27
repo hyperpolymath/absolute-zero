@@ -167,13 +167,27 @@ triage PR.
    consolidated in `proofs/coq/common/PhysicsConstants.v` and imported
    via `Require Import CNO.PhysicsConstants`. Net: 129 → 125 markers
    (−4: removed 6 sites, added 2 canonical sites).
-2. **De-duplicate quantum laws.** `unitary_preserves_entropy` and
-   `no_cloning` appear in both `QuantumMechanicsExact.v` and
-   `QuantumCNO.v` with the same name. Pick one as canonical.
+2. **De-duplicate quantum laws.** ✅ DONE 2026-05-27.
+   `unitary_preserves_entropy` and `no_cloning` previously appeared in
+   both `QuantumMechanicsExact.v` and `QuantumCNO.v` with the same
+   name. The `QuantumMechanicsExact.v` copies were dead code (no
+   in-file usage; `no_cloning`'s statement was trivially `True`-equivalent)
+   so they were removed. `QuantumCNO.v` is the canonical declaration
+   for both. Net: −2 markers in `QuantumMechanicsExact.v`. The
+   `X_gate_unitary` name-shadow noted in the per-axiom table refers to
+   axiomatisations of two distinct gate definitions (indexed vs
+   unindexed `QuantumGate`); not consolidated here.
 3. **De-duplicate decidability + probability + Shannon axioms.**
-   `prob_nonneg`, `prob_normalized`, `state_eq_dec`/`state_dec`,
-   `shannon_entropy_nonneg`, `shannon_entropy_point_zero` are
-   duplicated between `StatMech.v` and `LandauerDerivation.v`.
+   ✅ DONE 2026-05-27. `prob_nonneg`, `prob_normalized`, `state_dec`
+   (canonical name; subsumes `state_eq_dec`), `shannon_entropy`
+   (parameter), `shannon_entropy_nonneg`, `shannon_entropy_point_zero`,
+   and the `point_dist` definition are now in
+   `proofs/coq/common/StatMechBasis.v` and imported by both
+   `StatMech.v` and `LandauerDerivation.v` via
+   `Require Import CNO.StatMechBasis`. Net: 125 → 118 markers (−7:
+   removed 12 sites incl. the `shannon_entropy` parameter duplicate,
+   added 5 canonical axiom sites; `state_eq_dec` aliased to canonical
+   `state_dec`).
 4. **Constructively define `Cexp` in `Complex.v`.** `Complex.v` has
    zero axioms today; if it defines `Cexp` from a power series (or
    imports from a Coq reals/complex stdlib), the four `Cexp_*` axioms
