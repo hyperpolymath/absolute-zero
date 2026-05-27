@@ -52,61 +52,77 @@ abbrev Filesystem : Type := List FileEntry
 /-! ## Filesystem Operations -/
 
 /-- Create directory -/
+-- AXIOM: mkdir; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom mkdir : Path → Filesystem → Filesystem
 
 /-- Remove directory -/
+-- AXIOM: rmdir; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom rmdir : Path → Filesystem → Filesystem
 
 /-- Create file -/
+-- AXIOM: create; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom create : Path → Filesystem → Filesystem
 
 /-- Delete file -/
+-- AXIOM: unlink; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom unlink : Path → Filesystem → Filesystem
 
 /-- Read file content -/
+-- AXIOM: readFile; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom readFile : Path → Filesystem → Option FileContent
 
 /-- Write file content -/
+-- AXIOM: writeFile; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom writeFile : Path → FileContent → Filesystem → Filesystem
 
 /-- Get file metadata -/
+-- AXIOM: stat; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom stat : Path → Filesystem → Option FileMetadata
 
 /-- Change permissions -/
+-- AXIOM: chmod; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom chmod : Path → PermSet → Filesystem → Filesystem
 
 /-- Change owner -/
+-- AXIOM: chown; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom chown : Path → Nat → Filesystem → Filesystem
 
 /-- Rename/move file -/
+-- AXIOM: rename; opaque POSIX primitive op; §(c) per docs/proof-debt.md.
 axiom rename : Path → Path → Filesystem → Filesystem
 
 /-! ## Operation Axioms -/
 
 /-- mkdir followed by rmdir is identity -/
+-- AXIOM: mkdir_rmdir_inverse; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
 axiom mkdir_rmdir_inverse (p : Path) (fs : Filesystem) :
   -- Precondition: p doesn't exist
   rmdir p (mkdir p fs) = fs
 
 /-- create followed by unlink is identity -/
+-- AXIOM: create_unlink_inverse; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
 axiom create_unlink_inverse (p : Path) (fs : Filesystem) :
   unlink p (create p fs) = fs
 
 /-- read followed by write is identity -/
+-- AXIOM: read_write_identity; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
 axiom read_write_identity (p : Path) (fs : Filesystem) (content : FileContent) :
   readFile p fs = some content →
   writeFile p content fs = fs
 
 /-- chmod to current permissions is identity -/
+-- AXIOM: chmod_identity; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
 axiom chmod_identity (p : Path) (fs : Filesystem) (meta : FileMetadata) :
   stat p fs = some meta →
   chmod p meta.permissions fs = fs
 
 /-- rename to same path is identity -/
+-- AXIOM: rename_identity; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
 axiom rename_identity (p : Path) (fs : Filesystem) :
   rename p p fs = fs
 
 /-- rename A to B followed by rename B to A is identity -/
+-- AXIOM: rename_inverse; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
 axiom rename_inverse (p1 p2 : Path) (fs : Filesystem) :
   p1 ≠ p2 →
   rename p2 p1 (rename p1 p2 fs) = fs
@@ -261,9 +277,11 @@ example (p : Path) :
 /-! ## Snapshot and Restore -/
 
 /-- Snapshot operation -/
+-- AXIOM: snapshot; opaque snapshot primitive; §(c) per docs/proof-debt.md.
 axiom snapshot : Filesystem → Filesystem
 
 /-- Restore from snapshot -/
+-- AXIOM: restore; opaque restore primitive; §(c) per docs/proof-debt.md.
 axiom restore : Filesystem → Filesystem → Filesystem
 
 /-- snapshot followed by restore is identity -/
