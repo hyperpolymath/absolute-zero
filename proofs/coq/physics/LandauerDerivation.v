@@ -25,10 +25,16 @@ Open Scope R_scope.
 (** Boltzmann constant: k_B = 1.380649 × 10^-23 J/K *)
 (** This is a measured physical constant, grounded in experiment *)
 Parameter kB : R.
+(* AXIOM: kB_positive; Boltzmann constant — physical constant. Duplicate of
+   StatMech.v:25 + QuantumCNO.v:31 (see follow-up 1 in docs/proof-debt-triage.md).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom kB_positive : kB > 0.
 
 (** Temperature in Kelvin (must be positive) *)
 Parameter temperature : R.
+(* AXIOM: temperature_positive; Temperature scalar — physical precondition.
+   Duplicate of StatMech.v:30 + QuantumCNO.v:35 (see follow-up 1).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom temperature_positive : temperature > 0.
 
 (** ** Foundation: Probability Theory *)
@@ -37,14 +43,24 @@ Axiom temperature_positive : temperature > 0.
 Definition StateDistribution : Type := ProgramState -> R.
 
 (** Probability axioms (Kolmogorov) *)
+(* AXIOM: prob_nonneg; Kolmogorov probability axiom (non-negativity).
+   Duplicate of StatMech.v:39 (see follow-up 3 in docs/proof-debt-triage.md).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom prob_nonneg :
   forall (P : StateDistribution) (s : ProgramState), P s >= 0.
 
+(* AXIOM: prob_normalized; Kolmogorov probability axiom (Σp = 1).
+   Duplicate of StatMech.v:45 (see follow-up 3).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom prob_normalized :
   forall (P : StateDistribution),
     exists (states : list ProgramState),
       fold_right (fun s acc => acc + P s) 0 states = 1.
 
+(* AXIOM: state_eq_dec; Decidable equality over opaque `ProgramState`;
+   needs oracle or §(b) refutation budget. Duplicate of StatMech.v:51
+   `state_dec` (see follow-up 3). PROPERTY-TEST (§(b)) — treated as §(c)
+   until a property-test budget is attached. *)
 Axiom state_eq_dec : forall s1 s2 : ProgramState, {s1 = s2} + {s1 <> s2}.
 
 (** Point distribution (Dirac delta) *)
@@ -60,14 +76,22 @@ Parameter shannon_entropy : StateDistribution -> R.
 Definition log2 (x : R) : R := ln x / ln 2.
 
 (** Shannon entropy axioms (from information theory) *)
+(* AXIOM: shannon_entropy_nonneg; Shannon entropy core inequality.
+   Duplicate of StatMech.v:67 (see follow-up 3).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom shannon_entropy_nonneg :
   forall P : StateDistribution, shannon_entropy P >= 0.
 
 (** Point distributions have zero entropy (no uncertainty) *)
+(* AXIOM: shannon_entropy_point_zero; H(δ_x) = 0. Duplicate of
+   StatMech.v:72 (see follow-up 3).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom shannon_entropy_point_zero :
   forall s : ProgramState, shannon_entropy (point_dist s) = 0.
 
 (** Entropy is maximized for uniform distribution *)
+(* AXIOM: shannon_entropy_uniform_max; Variant of Gibbs inequality for
+   uniform distributions. §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom shannon_entropy_uniform_max :
   forall (P : StateDistribution) (n : nat) (states : list ProgramState),
     length states = n ->
@@ -78,6 +102,9 @@ Axiom shannon_entropy_uniform_max :
 Parameter product_dist : StateDistribution -> StateDistribution -> StateDistribution.
 
 (** Entropy is additive for independent distributions *)
+(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
+   in docs/proof-debt.md (Phase 2e) — chain rule of entropy, provable from
+   the definition of `H(X,Y)` given independence hypothesis. *)
 Axiom shannon_entropy_additive :
   forall P Q : StateDistribution,
     (* For independent P and Q *)
@@ -123,6 +150,8 @@ Qed.
     ΔS ≥ 0 for irreversible processes
     ΔS = 0 for reversible processes *)
 
+(* AXIOM: second_law; Physical postulate (second law of thermodynamics).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom second_law :
   forall (P_initial P_final : StateDistribution),
     (* For any physical process *)
@@ -178,6 +207,8 @@ Definition erasure_final (s_final : ProgramState) : StateDistribution :=
 
     This is a fundamental result from information theory.
 *)
+(* AXIOM: entropy_change_erasure; Landauer–Bennett result.
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom entropy_change_erasure :
   forall (n : nat) (s_final : ProgramState),
     (n > 0)%nat ->
@@ -194,6 +225,8 @@ Axiom entropy_change_erasure :
     This is the minimum work that must be dissipated as heat.
 *)
 
+(* AXIOM: isothermal_work_bound; Thermodynamic bound (Helmholtz free energy).
+   §(c) per docs/proof-debt.md (Phase 2e triage). *)
 Axiom isothermal_work_bound :
   forall (P_initial P_final : StateDistribution),
     work_dissipated P_initial P_final >=
@@ -274,6 +307,9 @@ Definition post_execution_dist (p : Program) (P : StateDistribution) : StateDist
     and μ is a probability measure, then H(μ) = H(T_*μ) where T_*μ is the
     pushforward measure. For the identity map, T_*μ = μ.
 *)
+(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
+   in docs/proof-debt.md (Phase 2e) — should follow from the CNO definition
+   (state in = state out) + functional Shannon entropy. *)
 Axiom cno_preserves_shannon_entropy :
   forall (p : Program) (P : StateDistribution),
     is_CNO p ->
@@ -323,6 +359,9 @@ Qed.
     and is safely axiomatized given the complexity of the thermodynamic machinery
     required for a complete proof.
 *)
+(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
+   in docs/proof-debt.md (Phase 2e) — name literally says `_derived`; this
+   file appears to admit the result rather than discharge it. *)
 Axiom cno_zero_energy_dissipation_derived :
   forall (p : Program) (P : StateDistribution),
     is_CNO p ->
