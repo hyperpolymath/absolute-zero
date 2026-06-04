@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: MPL-2.0
+-- Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 ||| Foreign Function Interface Declarations
 |||
 ||| This module declares all C-compatible functions that will be
@@ -6,7 +8,6 @@
 ||| All functions are declared here with type signatures and safety proofs.
 ||| Implementations live in ffi/zig/
 
--- SPDX-License-Identifier: MPL-2.0
 
 module AbsoluteZero.ABI.Foreign
 

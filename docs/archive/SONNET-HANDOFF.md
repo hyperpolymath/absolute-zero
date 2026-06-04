@@ -1,3 +1,7 @@
+<!--
+SPDX-License-Identifier: MPL-2.0
+Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
 # Sonnet Handoff: Continuing the Absolute Zero + ECHIDNA Work
 
 **From**: Claude Opus 4.5 session (2026-02-05)

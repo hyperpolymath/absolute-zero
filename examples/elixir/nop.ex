@@ -1,5 +1,6 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 # nop.ex - Computing No Output in Elixir
-# Copyright: Absolute Zero Project
 # License: AGPL-3.0 / PALIMPS
 #
 # ELIXIR CNO: FUNCTIONAL ELEGANCE ON THE ERLANG VM

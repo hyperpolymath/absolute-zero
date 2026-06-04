@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: MPL-2.0
+-- Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 ||| Div/mod lemma library for ABI alignment proofs.
 |||
 ||| Consolidates the trusted base of number-theoretic lemmas used by ABI
@@ -25,7 +27,6 @@
 |||
 ||| @see https://github.com/hyperpolymath/absolute-zero/issues/27
 
--- SPDX-License-Identifier: MPL-2.0
 
 module AbsoluteZero.ABI.Proofs.DivMod
 
