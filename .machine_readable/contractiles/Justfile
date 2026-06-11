@@ -410,3 +410,6 @@ echidna-check:
         echo "   cd ~/Documents/hyperpolymath-repos/echidna && cargo build --release"; \
     fi
 
+
+secret-scan-trufflehog:
+    @command -v trufflehog >/dev/null && trufflehog filesystem . --only-verified || true

@@ -10,14 +10,11 @@ stages:
   - verify
   - test
   - deploy
-
 variables:
   DEBIAN_FRONTEND: noninteractive
-
 # ============================================================================
 # Build Stage
 # ============================================================================
-
 build:typescript:
   stage: build
   image: node:18
@@ -29,7 +26,6 @@ build:typescript:
       - dist/
       - node_modules/
     expire_in: 1 hour
-
 build:rescript:
   stage: build
   image: node:18
@@ -41,11 +37,9 @@ build:rescript:
     paths:
       - interpreters/rescript/lib/
     expire_in: 1 hour
-
 # ============================================================================
 # Verification Stage
 # ============================================================================
-
 verify:coq:
   stage: verify
   image: coqorg/coq:latest
@@ -59,7 +53,6 @@ verify:coq:
       - proofs/coq/**/*.vo
     expire_in: 1 day
   allow_failure: false
-
 verify:z3:
   stage: verify
   image: ubuntu:22.04
@@ -69,7 +62,6 @@ verify:z3:
     - cd proofs/z3
     - z3 cno_properties.smt2
   allow_failure: false
-
 verify:lean4:
   stage: verify
   image: leanprover/lean4:latest
@@ -80,19 +72,16 @@ verify:lean4:
     paths:
       - proofs/lean4/.lake/
     expire_in: 1 day
-  allow_failure: true  # Lean 4 may not be fully set up
-
+  allow_failure: true # Lean 4 may not be fully set up
 verify:isabelle:
   stage: verify
   image: makarius/isabelle:latest
   script:
     - isabelle build -D proofs/isabelle
-  allow_failure: true  # Isabelle setup may vary
-
+  allow_failure: true # Isabelle setup may vary
 # ============================================================================
 # Test Stage
 # ============================================================================
-
 test:interpreters:
   stage: test
   image: python:3.10
@@ -100,7 +89,6 @@ test:interpreters:
     - python3 interpreters/brainfuck/brainfuck.py
     - python3 interpreters/whitespace/whitespace.py
   allow_failure: false
-
 test:typescript:
   stage: test
   image: node:18
@@ -109,11 +97,9 @@ test:typescript:
   script:
     - npm test || echo "No tests configured yet"
   allow_failure: true
-
 # ============================================================================
 # Documentation
 # ============================================================================
-
 pages:
   stage: deploy
   image: node:18
@@ -128,11 +114,9 @@ pages:
       - public
   only:
     - main
-
 # ============================================================================
 # Multi-Prover Verification Summary
 # ============================================================================
-
 verify:summary:
   stage: verify
   image: ubuntu:22.04
@@ -140,18 +124,16 @@ verify:summary:
     - echo "=========================================="
     - echo "Multi-Prover Verification Summary"
     - echo "=========================================="
-    - echo "Coq:      ✓ (if verify:coq passed)"
-    - echo "Z3:       ✓ (if verify:z3 passed)"
-    - echo "Lean 4:   ⚠ (if verify:lean4 passed, else optional)"
+    - echo "Coq: ✓ (if verify:coq passed)"
+    - echo "Z3: ✓ (if verify:z3 passed)"
+    - echo "Lean 4: ⚠ (if verify:lean4 passed, else optional)"
     - echo "Isabelle: ⚠ (if verify:isabelle passed, else optional)"
     - echo ""
     - echo "Multi-prover agreement increases confidence!"
   when: always
-
 # ============================================================================
 # Performance Benchmarks
 # ============================================================================
-
 benchmark:interpreters:
   stage: test
   image: python:3.10
@@ -160,11 +142,9 @@ benchmark:interpreters:
     - time python3 interpreters/brainfuck/brainfuck.py
     - time python3 interpreters/whitespace/whitespace.py
   allow_failure: true
-
 # ============================================================================
 # Code Quality
 # ============================================================================
-
 lint:typescript:
   stage: build
   image: node:18
@@ -172,22 +152,18 @@ lint:typescript:
     - npm install
     - npm run lint || echo "No linting configured"
   allow_failure: true
-
 # ============================================================================
 # Security Scanning
 # ============================================================================
-
 security:dependencies:
   stage: build
   image: node:18
   script:
     - npm audit || echo "Dependency audit complete"
   allow_failure: true
-
 # ============================================================================
 # Release
 # ============================================================================
-
 release:tag:
   stage: deploy
   image: alpine:latest
@@ -197,3 +173,8 @@ release:tag:
   only:
     - tags
   when: manual
+trufflehog:
+  stage: security
+  image: trufflesecurity/trufflehog:latest
+  script:
+    - trufflehog git file://. --only-verified --fail
