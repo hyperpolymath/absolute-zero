@@ -1,0 +1,28 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+#
+# ANCHOR.a2ml — realignment record for absolute-zero
+# Shape: [metadata] + dated [[realignments]] entries (what changed, why, evidence).
+# Spec: https://github.com/hyperpolymath/standards/tree/main/anchor-a2ml
+
+[metadata]
+repo = "absolute-zero"
+owner = "hyperpolymath"
+id = "org.hyperpolymath.absolute-zero"
+created = "2026-06-12"
+last-updated = "2026-06-12"
+
+[[realignments]]
+date = "2026-06-12"
+title = "Estate standardization + governance checkpoint"
+what-changed = [
+  "Merged origin/estate-standardization-20260607: flat .machine_readable/contractiles/ layout, svc/k9 → self-validating/ rename, GOVERNANCE.adoc + MAINTAINERS.adoc + .github/CODEOWNERS, Guix manifest.scm, 6a2 0-AI-MANIFEST.a2ml + README.adoc + anchor/, removal of the duplicate root .machine_readable/*.scm set and the root contractiles/ template dir, SPDX header normalization",
+  "Conflict resolution: .github/workflows/rust-ci.yml kept at origin/main's version; .claude/CLAUDE.md kept identical to origin/main",
+  "Governance checkpoint layer: bot_directives/ (README.adoc, hypatia.a2ml, gitbot-fleet.a2ml, git-private-farm.a2ml); flat contractiles fully populated with repo-true content (template stubs replaced; old nested bust/trust content ported; new Dustfile.a2ml + Bustfile.a2ml); 6a2/STATE.a2ml light-bump to 2026-06-12 with [recent-work]; README.md pointer-ized to canonical README.adoc; docs/archive/ index README; wiki Home.md currency fixes (license MPL-2.0, axiom count 72, status note)",
+]
+why = "Per-repo governance refresh aligning absolute-zero with the estate standard fully landed in echo-types (PR #185 there); checkpoint of 2026-06-12"
+evidence = [
+  "Merge of origin/estate-standardization-20260607 on branch claude/confident-shannon-xf0Td",
+  "Upstream PRs since 2026-05-27: #68 (scorecard job-level permissions), #69 (reusable SHA repins), #71 (CodeQL cron monthly), #72 (actions bumps)",
+  "Proof-track anchor unchanged: Phase-1 axiom triage PR #58 (2026-05-27), docs/proof-debt-triage.md",
+]

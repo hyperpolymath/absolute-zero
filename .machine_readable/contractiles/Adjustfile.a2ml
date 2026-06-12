@@ -1,0 +1,67 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+#
+# Adjustfile — Drift-tolerance contract for absolute-zero.
+# Cumulative-drift catchment: tolerance bands + corrective actions.
+# Authority: advisory (Yard) — continue-with-warnings; auto_fix where deterministic.
+#   Run with: adjust check
+#   Fix with: adjust fix (applies deterministic patches; advisory otherwise)
+#
+# Populated 2026-06-12 (governance checkpoint): replaces the
+# rsr-template-repo stub with repo-true drift bands. Unlike MUST (hard gate),
+# ADJUST warns and trends — it does not block. A2ML here is TOML-flavoured.
+
+[metadata]
+repo = "absolute-zero"
+contractile-verb = "adjust"
+last-updated = "2026-06-12"
+abstract = "Drift tolerances for absolute-zero's proof-debt figures, language-policy surface, and documentation sync. Advisory only."
+
+[[tolerances]]
+id = "coq-axiom-count"
+description = "Coq Axiom count must not exceed the Phase-1 triage baseline"
+tolerance = "<= 72 Axioms (counting method = docs/proof-debt-triage.md, PR #58, 2026-05-27)"
+corrective = "Any NEW axiom requires a triage entry (TRUSTED-BASE / DISCHARGE / PROPERTY-TEST) in docs/proof-debt-triage.md before merge; trend the count DOWN by discharging the 17-item DISCHARGE backlog"
+severity = "advisory"
+
+[[tolerances]]
+id = "coq-parameter-count"
+description = "Coq Parameter count stays at the model-layer baseline"
+tolerance = "<= 42 Parameters (baseline of 2026-05-27)"
+corrective = "New Parameters need the same triage discipline as Axioms"
+severity = "advisory"
+
+[[tolerances]]
+id = "escape-hatch-total"
+description = "Total escape hatches across all proof languages must not increase"
+tolerance = "<= 124 (canonical figure per the standards#195 counting method; was 129, reduced to 124 as of the 2026-05-27 STATE entry)"
+corrective = "Decrement by discharge; any increment needs a documented rationale in docs/proof-debt-triage.md"
+severity = "advisory"
+
+[[tolerances]]
+id = "physics-constant-duplication"
+description = "Physics constants should be declared once, not per-file"
+tolerance = "Known duplication: kB_positive/temperature_positive declared 3x across QuantumCNO/StatMech/LandauerDerivation (surfaced by the Phase-1 triage)"
+corrective = "Deduplicate into a shared constants module — already on STATE this-week actions"
+severity = "advisory"
+
+[[tolerances]]
+id = "banned-language-surface"
+description = "Banned-language files stay confined to the demonstration surface"
+tolerance = "Banned-language files only under examples/ or enumerated in .hypatia-ignore; zero NEW banned-language files elsewhere"
+corrective = "Move demonstration files under examples/; anything load-bearing gets rewritten per the language policy (Python -> Julia/Rust, etc.)"
+severity = "advisory"
+
+[[tolerances]]
+id = "wiki-sync-drift"
+description = "docs/wiki/ (canonical, in-repo) vs the GitHub Wiki copy"
+tolerance = "GitHub Wiki may lag docs/wiki/ between manual syncs (sync is a manual cp + push, see docs/wiki/README.md)"
+corrective = "Run the sync procedure in docs/wiki/README.md; automation (just wiki-sync + workflow) is a tracked TODO"
+severity = "advisory"
+
+[[tolerances]]
+id = "stale-dated-docs"
+description = "Dated snapshots belong in docs/archive/"
+tolerance = "0 dated status/roadmap snapshots outside docs/archive/"
+corrective = "Move superseded dated documents into docs/archive/ and add them to docs/archive/README.adoc"
+severity = "advisory"

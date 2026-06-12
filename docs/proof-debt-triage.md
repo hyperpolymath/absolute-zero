@@ -1,8 +1,7 @@
 <!--
 SPDX-License-Identifier: MPL-2.0
-SPDX-FileCopyrightText: 2026 Jonathan D.A. Jewell (hyperpolymath)
+Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 -->
-
 # Proof Debt — Per-Marker Triage (Coq Axioms)
 
 Companion to [`docs/proof-debt.md`](./proof-debt.md) (the standards#203

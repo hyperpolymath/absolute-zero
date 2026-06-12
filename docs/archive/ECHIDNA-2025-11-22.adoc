@@ -1,3 +1,5 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = Echidna Integration for Absolute Zero
 Jonathan D. A. Jewell <jonathan@metadatastician.art>
 v1.0, 2025-11-22

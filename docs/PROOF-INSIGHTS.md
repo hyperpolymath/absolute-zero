@@ -1,3 +1,7 @@
+<!--
+SPDX-License-Identifier: MPL-2.0
+Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
 # Proof Insights: Opus-Level Knowledge for CNO Proof Engineering
 
 **Author**: Claude Opus 4.5 (AI pair programmer)

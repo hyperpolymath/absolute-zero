@@ -1,0 +1,136 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+#
+# Trustfile — Trust boundaries and integrity invariants for absolute-zero.
+#
+# Populated 2026-06-12 (governance checkpoint): replaces the
+# rsr-template-repo stub with the repo-true content ported from the old
+# nested .machine_readable/contractiles/trust/Trustfile.a2ml (removed by the
+# estate flat-layout migration), with stale proof-debt baselines refreshed
+# against verified current counts. A2ML here is TOML-flavoured.
+
+[metadata]
+repo = "absolute-zero"
+contractile-verb = "trust"
+last-updated = "2026-06-12"
+ported-from = ".machine_readable/contractiles/trust/Trustfile.a2ml (nested layout, pre-estate)"
+abstract = "Trust boundaries for AI agents plus integrity invariants: no committed secrets, traceable provenance, and dangerous proof patterns held at the verified baselines."
+
+[runner]
+# Ported as-is from the nested Trustfile: SCAFFOLD ONLY — the contractile
+# runner is NOT enabled. Do not activate until the maintainer has reviewed.
+# When activating: set enabled = true, wire `just trust-check`, test locally first.
+enabled = false
+command = "just trust-check"
+on-push = false
+on-pr = false
+
+[trust]
+# Estate trust-level scale: maximal | standard | restricted | minimal.
+level = "maximal"
+definition = "Agents may read, build, test, lint and format freely. Destructive or external actions, and edits to the protected paths below, require maintainer approval."
+protected-paths = [
+  ".claude/CLAUDE.md",
+  ".github/workflows/",
+  "proofs/",
+  "src/abi/",
+  "LICENSE",
+]
+
+# ---------------------------------------------------------------- secrets --
+
+[[checks]]
+id = "no-secrets-committed"
+section = "secrets"
+description = "No credential files in repo"
+run = "test ! -f .env && test ! -f credentials.json && test ! -f .env.local && test ! -f .env.production"
+severity = "critical"
+
+[[checks]]
+id = "no-private-keys"
+section = "secrets"
+description = "No private key files committed"
+run = "! find . -name '*.pem' -o -name '*.key' -o -name 'id_rsa' -o -name 'id_ed25519' 2>/dev/null | grep -v node_modules | head -1 | grep -q ."
+severity = "critical"
+
+[[checks]]
+id = "no-tokens-in-source"
+section = "secrets"
+description = "No hardcoded API tokens in source files"
+run = "! grep -rE '(api[_-]?key|secret|token|password)[[:space:]]*[:=][[:space:]]*[\"'\\''][A-Za-z0-9]{16,}' --include='*.js' --include='*.res' --include='*.py' --include='*.rs' . 2>/dev/null | grep -v node_modules | head -1 | grep -q ."
+severity = "critical"
+
+# ------------------------------------------------------------- provenance --
+
+[[checks]]
+id = "author-correct"
+section = "provenance"
+description = "Git author matches expected identity"
+run = "git log -1 --format='%ae' | grep -qE '(hyperpolymath|j\\.d\\.a\\.jewell)'"
+severity = "warning"
+
+[[checks]]
+id = "license-content"
+section = "provenance"
+description = "LICENSE contains the MPL identifier (repo policy: MPL-2.0 only, PMPL banned)"
+run = "grep -q 'Mozilla Public License' LICENSE"
+severity = "warning"
+
+# ------------------------------------------------------ container security --
+
+[[checks]]
+id = "container-images-pinned"
+section = "container-security"
+description = "Containerfile uses pinned/Chainguard base images"
+run = "test ! -f Containerfile || grep -q 'cgr.dev\\|@sha256:' Containerfile"
+severity = "warning"
+
+[[checks]]
+id = "no-dockerfile"
+section = "container-security"
+description = "No Dockerfile (use Containerfile)"
+run = "test ! -f Dockerfile"
+severity = "warning"
+
+# ------------------------------------------------------- dangerous patterns --
+
+[[checks]]
+id = "no-dangerous-proof-patterns"
+section = "dangerous-patterns"
+description = "No believe_me, assert_total, unsafeCoerce, Obj.magic in non-proof source"
+run = "! grep -rE 'believe_me|assert_total|unsafeCoerce|Obj\\.magic' --include='*.idr' --include='*.ml' --include='*.hs' --include='*.rs' . 2>/dev/null | head -1 | grep -q ."
+severity = "critical"
+
+[[checks]]
+id = "lean4-sorry-bounded"
+section = "dangerous-patterns"
+description = "Lean 4 sorry count does not exceed baseline (0)"
+run = "count=$(grep -rn 'sorry' proofs/lean4/ 2>/dev/null | grep -v '^[[:space:]]*--' | wc -l); test \"$count\" -le 0"
+severity = "high"
+baseline = 0
+baseline-note = "Refreshed 2026-06-12 from a verified grep (0 hits). The old nested baseline of 18 (2026-04-17, blocked on mathlib build) is obsolete: the 2026-05-27 STATE investigation traced the phantom Lean-sorry figures to a metric mismatch — actual local user-sorry count is 0; the canonical escape-hatch figure across all proof languages is tracked per standards#195."
+
+[[checks]]
+id = "coq-admitted-bounded"
+section = "dangerous-patterns"
+description = "Coq Admitted count does not exceed baseline (0)"
+run = "count=$(grep -rn 'Admitted' proofs/coq/ 2>/dev/null | wc -l); test \"$count\" -le 0"
+severity = "high"
+baseline = 0
+baseline-note = "Refreshed 2026-06-12 from a verified grep (0 hits). The old nested baseline of 19 (2026-02-05) is obsolete: 0 Admitted since the Tier-0 rescue of 2026-05-18. Never increment without documented rationale."
+
+[[checks]]
+id = "no-unsafe-rust-without-comment"
+section = "dangerous-patterns"
+description = "All unsafe blocks in Rust must have SAFETY comments"
+run = "! grep -B1 'unsafe {' --include='*.rs' -r . 2>/dev/null | grep -v SAFETY | grep 'unsafe {' | head -1 | grep -q ."
+severity = "warning"
+
+# -------------------------------------------------------- service security --
+
+[[checks]]
+id = "localhost-only-bindings"
+section = "service-security"
+description = "No wildcard service bindings in source (n/a — research repo; kept for estate consistency)"
+run = "! grep -rE 'bind\\(\"0\\.0\\.0\\.0' --include='*.rs' --include='*.ex' --include='*.res' . 2>/dev/null | head -1 | grep -q ."
+severity = "critical"

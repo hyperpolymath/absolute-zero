@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= docs/archive — Historical snapshots (ARCHIVE)
+:toc:
+
+*This directory is an archive.* Every file here is a dated, point-in-time
+snapshot kept for historical traceability. Nothing in this directory is
+current; do not update these files — supersede them by writing new dated
+snapshots or by updating the live documents listed below.
+
+Authoritative live sources:
+
+* Project state — `.machine_readable/6a2/STATE.a2ml`
+* Roadmap — `ROADMAP.adoc` (repo root)
+* Proof-debt disposition — `docs/proof-debt-triage.md` and `docs/proof-debt.md`
+* Audit findings — `AUDIT.adoc` (repo root)
+* ECHIDNA integration — `ECHIDNA.adoc` (repo root)
+
+== Index
+
+|===
+| File | Date | What it was | Superseded by
+
+| `CURRENT-STATUS-2026-02-05.md` | 2026-02-05 | Point-in-time project status | `.machine_readable/6a2/STATE.a2ml`
+| `ECHIDNA-2025-11-22.adoc` | 2025-11-22 | Early ECHIDNA integration notes | `ECHIDNA.adoc`
+| `INTEGRATION-STATUS-2026-02-05.adoc` | 2026-02-05 | Integration status snapshot | `.machine_readable/6a2/STATE.a2ml`
+| `LICENSE-AUDIT-2026-02-05.adoc` | 2026-02-05 | License audit snapshot | `LICENSE` (MPL-2.0)
+| `PROOF-COMPLETION-2026-02-06.md` | 2026-02-06 | Proof-completion plan snapshot | `docs/PROOF-COMPLETION-PLAN.adoc`
+| `PROOF-STATUS-2026-05-18.md` | 2026-05-18 | Tier-0 rescue proof-status ledger | `docs/proof-debt-triage.md`, `AUDIT.adoc`
+| `ROADMAP-2026-02-05.adoc` | 2026-02-05 | Roadmap snapshot | `ROADMAP.adoc`
+| `ROADMAP-UPDATED-2026-02-05.adoc` | 2026-02-05 | Roadmap snapshot (revision) | `ROADMAP.adoc`
+| `SESSION-2026-05-25-HANDOFF.adoc` | 2026-05-25 | Session handoff record | historical record (no live counterpart)
+| `SESSION-COMPLETE-2026-02-05.adoc` | 2026-02-05 | Session completion record | historical record (no live counterpart)
+| `SONNET-HANDOFF.md` | undated | Session handoff record | historical record (no live counterpart)
+| `STACK_AUDIT-2026-02-05.txt` | 2026-02-05 | Stack audit snapshot | `RSR_COMPLIANCE.adoc`
+|===
+
+(Index added 2026-06-12 as part of the governance checkpoint.)

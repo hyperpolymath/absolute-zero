@@ -1,4 +1,7 @@
-<!-- SPDX-License-Identifier: MPL-2.0 -->
+<!--
+SPDX-License-Identifier: MPL-2.0
+Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
 # Proof Systems
 
 ## Why six?
@@ -33,8 +36,10 @@ flags a foundational dependency worth understanding.
 * `filesystem/FilesystemCNO.v` — filesystem CNOs
 
 Status: 11/11 files compile, 0 Admitted (post 2026-05-18 rescue).
-73 Axioms + 42 Parameters, all owner-classified as legitimate
-model-layer assumptions. See [`docs/PROOF-CLASSIFICATION.adoc`](../PROOF-CLASSIFICATION.adoc).
+72 Axioms + 42 Parameters, Phase-1-triaged (PR #58, 2026-05-27):
+52 trusted-base, 17 discharge-backlog, 3 property-test. See
+[`docs/proof-debt-triage.md`](../proof-debt-triage.md) and
+[`docs/PROOF-CLASSIFICATION.adoc`](../PROOF-CLASSIFICATION.adoc).
 
 ### `proofs/lean4/`
 * `CNO.lean`, `StatMech.lean`, `CNOCategory.lean`, `LambdaCNO.lean`,
