@@ -1,0 +1,38 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= bot_directives — per-repo directives for automated agents
+:toc:
+
+== Purpose
+
+This directory holds the per-repo directives for automated agents operating on
+`absolute-zero`: the hypatia security scanner, the gitbot fleet (rhodibot,
+echidnabot, sustainabot, glambot, seambot, finishbot), and the
+`.git-private-farm` propagation machinery.
+
+== Precedence
+
+. Maintainer instruction (explicit, in-issue/in-PR or out-of-band)
+. These directives
+. Bot defaults
+
+A bot encountering a conflict between its defaults and a file here follows the
+file. A bot encountering a conflict between a file here and a maintainer
+instruction follows the maintainer.
+
+== Scope
+
+[cols="1,2"]
+|===
+| File | Governs
+
+| `hypatia.a2ml` | The hypatia scanner: ignore-file location, accepted findings, prohibited actions
+| `gitbot-fleet.a2ml` | The six-bot gitbot fleet: roles, branch policy, never-touch paths, per-bot allow/deny
+| `git-private-farm.a2ml` | Propagation to `hyperpolymath/.git-private-farm`: enablement, never-propagate list, token rotation
+|===
+
+== Hard rules (all bots)
+
+* Never modify `.claude/CLAUDE.md`, `proofs/`, `src/abi/`, or `.github/workflows/`.
+* Draft PRs only; never auto-merge; CI must be green before any merge a human approves.
+* Escalation channel is a GitHub issue — do not spam PR comment threads.

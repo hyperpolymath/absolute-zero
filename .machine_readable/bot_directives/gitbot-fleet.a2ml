@@ -1,0 +1,49 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+#
+# gitbot-fleet.a2ml — directives for the gitbot fleet on absolute-zero.
+
+[metadata]
+repo = "absolute-zero"
+last-updated = "2026-06-12"
+owner = "hyperpolymath"
+
+[fleet]
+bots = ["rhodibot", "echidnabot", "sustainabot", "glambot", "seambot", "finishbot"]
+
+[fleet.roles]
+rhodibot = "git operations"
+echidnabot = "code quality"
+sustainabot = "dependency updates"
+glambot = "documentation"
+seambot = "integration"
+finishbot = "task completion"
+
+[branch-policy]
+working-branch-pattern = "bot/<botname>/<topic>"
+draft-PRs-only = true
+ci-green-before-merge = true
+never-touch = [
+  ".claude/CLAUDE.md",
+  "proofs/",
+  "src/abi/",
+  ".github/workflows/",
+  "LICENSE",
+]
+# proofs/ spans six proof systems (coq, lean4, z3, agda, isabelle, mizar) and
+# src/abi/ is the Idris2 ABI proof surface — proof semantics are
+# maintainer-gated; bots must not edit them.
+
+[per-bot.echidnabot]
+deny = ["proofs/", "src/abi/"]
+note = "Quality findings on proof code go to an issue, never an automated edit; proof-debt disposition is canonical in docs/proof-debt-triage.md."
+
+[per-bot.sustainabot]
+allow = ["Cargo.toml", "Cargo.lock", "deno.json", "elm.json"]
+deny = [".github/workflows/"]
+note = "Workflow action pins are repinned by maintainer-reviewed PRs (cf. PR #69); dependency bumps for the actions group arrive via the existing dependabot grouping (cf. PR #72)."
+
+[per-bot.glambot]
+allow = ["docs/", "docs/wiki/", "README.adoc"]
+deny = ["docs/archive/"]
+note = "docs/archive/ is append-only historical snapshots (see docs/archive/README.adoc); do not refresh archived files."

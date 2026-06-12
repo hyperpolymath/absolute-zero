@@ -34,8 +34,9 @@ Zig shim. See [ABI](ABI.md).
 * **Admitted** (Coq) / `sorry` (Lean) / `?hole` (Idris2): a placeholder
   in a proof, marking incomplete work. Should not ship.
 
-absolute-zero core: **0 Admitted**, 73 Axioms + 42 Parameters, all
-owner-classified.
+absolute-zero core: **0 Admitted**, 72 Axioms + 42 Parameters, triaged
+per [`docs/proof-debt-triage.md`](../proof-debt-triage.md) (Phase-1
+triage, PR #58: 52 trusted-base, 17 discharge-backlog, 3 property-test).
 
 ### Why is `examples/python` / `examples/go` / `examples/java` missing?
 

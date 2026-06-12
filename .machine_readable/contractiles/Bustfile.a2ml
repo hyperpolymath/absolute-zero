@@ -1,0 +1,85 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+#
+# Bustfile — breakage / failure-recovery contractile for absolute-zero.
+# Verb: bust. Semantics (ported from the old paired runner spec
+# contractiles/bust/bust.ncl, removed by the estate flat-layout migration):
+# every declared failure mode must have a recovery path that has been
+# exercised; the runner injects declared failures and verifies recovery;
+# hard gate on any failure mode with missing or broken recovery.
+#   CLI: `contractile bust check` -> list failure modes + recovery status
+#        `contractile bust drill` -> inject declared failures, verify recovery
+#
+# Created 2026-06-12 (governance checkpoint). Content ported from the old
+# nested .machine_readable/contractiles/bust/Bustfile.a2ml (curly-brace
+# A2ML, meta-repo-flavoured); repo-applicable scenarios kept, submodule
+# scenarios preserved as not-applicable (this repo has no submodules).
+# A2ML here is TOML-flavoured.
+
+[metadata]
+repo = "absolute-zero"
+contractile-verb = "bust"
+version = "1.1.0"
+last-updated = "2026-06-12"
+ported-from = ".machine_readable/contractiles/bust/{Bustfile.a2ml, bust.ncl} (nested layout, pre-estate)"
+abstract = "Rollback procedures when something breaks: revert-first escalation, secret-leak response, proof-suite breakage recovery."
+
+[runner-semantics]
+# Ported from bust.ncl (the runner itself was never enabled here; its
+# referenced ../_base.ncl never existed in this repo).
+enabled = false
+verb = "bust"
+gate = "hard gate on any failure mode with missing or broken recovery"
+injection-scope = "system-under-test-only"
+allow-network = false
+record-recovery-times = true
+
+[[scenarios]]
+id = "bad-merge-or-bump"
+description = "A bad commit (merge, pointer/pin bump, metadata sweep) lands on main"
+recovery = "git revert <commit> — reversible, low blast radius; child/upstream repos untouched"
+status = "verified"
+notes = "Generalised from the ported 'bad-pointer-bump' scenario; exercised routinely via PR reverts."
+
+[[scenarios]]
+id = "secret-leaked-to-public-history"
+description = "Secret or private content committed to public history"
+recovery = "Hard-rotate the leaked secret IMMEDIATELY; then git-filter-repo or BFG on the affected history; public re-publication only after rotation completes"
+status = "declared"
+notes = "Ported verbatim in substance from the nested Bustfile ('accidental-private-repo-content-leaked-to-public-submodule'), generalised from submodule to any public history. Rotation before rewrite, always."
+
+[[scenarios]]
+id = "proof-suite-breakage"
+description = "Proof suite goes red systemically (toolchain or keystone regression)"
+recovery = "Revert to last CI-green; for keystone damage use the rescue-branch pattern (re-prove on a branch, land via reviewed PR)"
+status = "verified"
+notes = "Exercised: Tier-0 rescue 2026-05-18 (docs/archive/PROOF-STATUS-2026-05-18.md); rescue branch rebased + landed 2026-05-20 (PR #24)."
+
+[[scenarios]]
+id = "submodule-pointer-points-at-missing-sha"
+description = "Submodule pointer references a SHA missing from the child remote"
+recovery = "git submodule update --init --checkout <path>; or revert the stale bump commit"
+status = "not-applicable"
+reason = "absolute-zero has no git submodules (no .gitmodules). Preserved from the ported meta-repo-flavoured Bustfile so its content is not lost."
+
+[[scenarios]]
+id = "submodule-orphan-after-local-only-commit"
+description = "Local-only submodule commit stranded after parent reset"
+recovery = "git reset to before the stranded commit; fix the remote situation before re-attempting"
+status = "not-applicable"
+reason = "absolute-zero has no git submodules (no .gitmodules). Preserved from the ported meta-repo-flavoured Bustfile so its content is not lost."
+
+[escalation-ladder]
+rungs = [
+  "1. revert the offending commit (reversible, low blast radius)",
+  "2. reset the local clone / working tree (affects only local workspace)",
+  "3. force-push to main — PROHIBITED without explicit user confirmation (violates branch protection)",
+  "4. registry-level action (delete/archive the GitHub repo) — human-only, never by AI",
+]
+
+[backup-points]
+points = [
+  "GitHub (origin) serves as the durable backup for the full history",
+  "CI-green commits on origin/main are the durable rollback targets for the proof suite",
+  "Local backup tags (backup/pre-<operation>-<date>) retained on risky rewrites",
+]

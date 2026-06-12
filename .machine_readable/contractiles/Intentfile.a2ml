@@ -1,99 +1,100 @@
 # SPDX-License-Identifier: MPL-2.0
-# Intentfile (A2ML Canonical) — north-star contractile for rsr-template-repo
-# Author: Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 #
-# Paired runner: intend.ncl
-# Verb:          intend
+# Intentfile — north-star contractile for absolute-zero.
+# Verb: intend. Non-gating — this is a report, not a gate (see Mustfile for
+# hard gates).
+#   [[intents]] — "we WILL do this; track progress"
+#                 status: declared -> in_progress -> done | deferred | retired
+#   [[wishes]]  — "we WISH this were true; revisit later"
+#                 status: declared -> in_progress -> achieved | abandoned
+#                 horizon: near / mid / far
 #
-# Semantics: North-star contractile. Declares BOTH concrete committed
-#            next-actions AND horizon aspirations the project wishes to
-#            become. Two sections share one file because they answer
-#            the same question at different ranges:
-#              [[intents]] — "we WILL do this; track progress"
-#                            status: declared → in_progress → done |
-#                                    deferred | retired
-#              [[wishes]]  — "we WISH this were true; revisit later"
-#                            status: declared → in_progress → achieved |
-#                                    abandoned
-#                            grouped by horizon: near / mid / far.
-#            Non-gating — this is a report, not a gate. See the `must`
-#            contractile for hard gates.
+# Populated 2026-06-12 (governance checkpoint): replaces the
+# rsr-template-repo stub. Sources: README.adoc, ROADMAP.adoc,
+# 6a2/STATE.a2ml ([route-to-mvp], [critical-next-actions], [blockers-and-issues]).
+# A2ML here is TOML-flavoured.
 
-@abstract:
-North-star contractile for rsr-template-repo. This repository is the
-canonical template for Rhodium Standard Repository compliance. It provides
-the scaffold that all hyperpolymath repos should copy and customize.
-@end
+[metadata]
+repo = "absolute-zero"
+contractile-verb = "intend"
+last-updated = "2026-06-12"
+abstract = "North star for absolute-zero: machine-checked proofs that Certified Null Operations (CNOs) do nothing, across six proof systems, en route to a publication release."
 
-## Purpose
+[purpose]
+statement = "Formal verification of Certified Null Operations — programs provably having zero net computational effect — formalised across Coq, Lean 4, Z3, Agda, Isabelle and Mizar, with an Idris2-proved ABI and cross-language demonstration examples."
 
-The rsr-template-repo serves as the master template for all hyperpolymath
-repositories. It contains the complete set of contractile files, machine-readable
-specifications, and governance documentation that define the Rhodium Standard.
+[anti-purpose]
+not = [
+  "A production runtime or deployed service (research repo; service-security checks are kept only for estate consistency)",
+  "A general-purpose proof framework — the subject is CNOs and their thermodynamic/categorical meaning",
+  "A language-advocacy showcase — banned-language files under examples/ exist to demonstrate cross-language nop semantics, not to endorse those languages",
+]
 
-Every new repository in the hyperpolymath estate should be initialized by
-copying this template and substituting the placeholder values with
-repo-specific content.
+[if-in-doubt]
+sensitive-areas = ["proofs/", "src/abi/", ".github/workflows/", ".claude/CLAUDE.md", "LICENSE"]
+guidance = "Proof semantics and licensing are maintainer-gated; ask before touching."
 
-## Anti-Purpose
+# ------------------------------------------------------------- intents --
 
-This repository is NOT:
-- A general-purpose project scaffold for external use (hyperpolymath-only)
-- A replacement for per-repo customization (all files must be bespoke)
-- A static template that never changes (evolves with RSR spec)
-- A runtime library or framework (build-time only)
+[[intents]]
+id = "phase-2-triage"
+description = "Phase 2 proof-debt triage: 52 Lean axioms + 7 Idris2 postulates (#27), following the Phase-1 Coq triage discipline (PR #58)"
+status = "declared"
 
-## If In Doubt
+[[intents]]
+id = "discharge-coq-backlog"
+description = "Discharge the 17 DISCHARGE-class Coq axioms from the Phase-1 triage (lowest-hanging: cno_zero_energy_dissipation_derived, fidelity_bound, unitary_inverse_property, *_not_identity existence pair)"
+status = "declared"
 
-If you are unsure whether a change is in scope, ask. Sensitive areas:
-- .machine_readable/ contractile definitions
-- RSR specification files
-- Governance templates
-- License policy documents
+[[intents]]
+id = "physics-constant-dedup"
+description = "Deduplicate kB_positive/temperature_positive (declared 3x across QuantumCNO/StatMech/LandauerDerivation)"
+status = "declared"
 
-## Committed Next-Actions
+[[intents]]
+id = "migrate-python-to-rust"
+description = "Migrate Python interpreters to Rust (RSR language-policy blocker recorded in STATE)"
+status = "declared"
 
-### repo-initialization
-- description: Provide just copy-and-substitute template for new repos
-- probe: test -f scripts/init-repo.sh
-- status: done
-- notes: Run with source scripts/init-repo.sh <new-repo-name>
+[[intents]]
+id = "v0-8-compliance-sprint"
+description = "v0.8 milestone: compliance sprint (RSR/estate alignment)"
+status = "in_progress"
+progress = "estate-standardization merged + governance checkpoint 2026-06-12; STATE put route-to-mvp completion at 40 as of 2026-05-27"
 
-### contractile-completeness
-- description: Every RSR contractile has an a2ml and ncl implementation
-- probe: ls .machine_readable/contractiles/*.a2ml | wc -l | grep -q "^6$"
-- status: in_progress
-- notes: Currently 6 contractile verbs: intend, must, trust, adjust, bust, dust
+[[intents]]
+id = "v0-9-container-verification"
+description = "v0.9 milestone: container verification pipeline"
+status = "declared"
 
-### automation-scripts
-- description: All repetitive tasks have just recipes
-- probe: grep -c "^# " Justfile | grep -q "^[6-9][0-9]*$"
-- status: in_progress
+[[intents]]
+id = "v1-0-publication-release"
+description = "v1.0 milestone: publication release + paper draft"
+status = "declared"
 
-## Wishes
+# -------------------------------------------------------------- wishes --
 
-### Near Horizon
+[[wishes]]
+id = "wiki-sync-automation"
+horizon = "near"
+description = "Automated docs/wiki -> GitHub Wiki sync (just wiki-sync recipe + push workflow), replacing the manual procedure in docs/wiki/README.md"
+status = "declared"
 
-#### cross-repo-validation
-- description: Tooling to validate all repos against RSR spec
-- horizon: near
-- status: declared
+[[wishes]]
+id = "landauer-measure-theory"
+horizon = "mid"
+description = "LandauerDerivation.v upgraded with real measure theory (current blocker recorded in STATE)"
+status = "declared"
 
-#### automated-substitution
-- description: Script to automate repo-specific substitution in template
-- horizon: near
-- status: declared
+[[wishes]]
+id = "mizar-beyond-stub"
+horizon = "far"
+description = "Mizar track beyond stub (10% — needs installation per STATE components)"
+status = "declared"
 
-### Mid Horizon
-
-#### formal-verification
-- description: Idris2 proofs for all critical contractile invariants
-- horizon: mid
-- status: declared
-
-### Far Horizon
-
-#### ecosystem-visualization
-- description: Interactive graph of all hyperpolymath repos and dependencies
-- horizon: far
-- status: declared
+[[wishes]]
+id = "y-not-cno-nontermination"
+horizon = "far"
+description = "y_not_cno non-termination proof (low-priority blocker in STATE)"
+status = "declared"

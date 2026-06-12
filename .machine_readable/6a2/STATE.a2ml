@@ -11,7 +11,7 @@ repo = "github.com/hyperpolymath/absolute-zero"
 version = "1.0.0-alpha"
 schema-version = "1.0"
 created = "2026-01-03"
-last-updated = "2026-05-27"
+last-updated = "2026-06-12"
 status = "active"
 
 [project-context]
@@ -23,6 +23,21 @@ tech-stack = ["Coq", "Lean 4", "Z3", "Agda", "Isabelle", "ReScript", "Rust"]
 phase = "proof-completion"
 completion-percentage = 65
 maturity = "experimental"
+
+[recent-work]
+# Delta since the previous STATE update (2026-05-27), from
+# `git log --since=2026-05-27 --oneline origin/main`.
+since = "2026-05-27"
+summary = "CI/governance work only — no proof-track changes since the Phase-1 axiom triage (PR #58)"
+items = [
+  "PR #68 — ci(scorecard): add job-level permissions for reusable workflow",
+  "PR #69 — ci: repin orphan reusable SHAs (97df7621/4fdf4314 → live)",
+  "PR #71 — ci(codeql): cron weekly→monthly (cut 3, standards#233 Option B)",
+  "PR #72 — chore(deps): bump the actions group with 2 updates",
+  "README sponsor badge added (commit 4867f1f)",
+  "2026-06-12 — estate-standardization-20260607 merged on the governance-checkpoint branch: flat .machine_readable/contractiles/, svc/k9 → self-validating/ rename, GOVERNANCE.adoc + MAINTAINERS.adoc + .github/CODEOWNERS, Guix manifest.scm, 6a2 manifest/README + anchor/, removal of the duplicate root .machine_readable/*.scm set and the root contractiles/ template dir, SPDX header normalization",
+  "2026-06-12 — governance checkpoint: bot_directives/ trio, fully-populated flat contractiles (incl. new Dustfile/Bustfile), 6a2/anchor/ANCHOR.a2ml, README dedup (README.md → pointer), docs/archive/ index, wiki currency fixes",
+]
 
 [components]
 # Format: name = [percentage, "notes"]

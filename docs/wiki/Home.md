@@ -39,10 +39,18 @@ of 23+ languages.
 ## Status (live)
 
 * **Phase**: proof-completion (~65%)
-* **Coq**: 11/11 files compile, 0 Admitted, 73 Axioms + 42 Parameters (model-layer)
+* **Coq**: 11/11 files compile, 0 Admitted, 72 Axioms + 42 Parameters (model-layer; Phase-1 per-axiom triage 2026-05-27, PR #58 — see `docs/proof-debt-triage.md`)
 * **Lean 4**: `lake build` 1631/1632 green
 * **Idris2 ABI**: typechecks under 0.8.0; `Proofs/DivMod.idr` consolidates the trusted div/mod base
 * For the authoritative live state, read [`.machine_readable/6a2/STATE.a2ml`](../../.machine_readable/6a2/STATE.a2ml)
+
+**Status note (2026-06-12)** — work landed since 2026-05-27 is CI/governance only:
+scorecard job-level permissions (#68), reusable-workflow SHA repins (#69), CodeQL
+cron weekly→monthly (#71), actions-group dependency bumps (#72), README sponsor
+badge; plus the estate-standardization wave (flat `.machine_readable/contractiles/`,
+`self-validating/` rename, `GOVERNANCE.adoc`/`MAINTAINERS.adoc`/`CODEOWNERS`,
+`manifest.scm`, `bot_directives/`). Proof tracks unchanged since the Phase-1
+axiom triage (PR #58).
 
 ## Project layout (RSR-aligned)
 
@@ -56,8 +64,7 @@ absolute-zero/
 ├── ECHIDNA.adoc            ← integration with the prover gateway
 ├── docs/                   ← evergreen topical docs; wiki/ subdir
 ├── proofs/                 ← coq, lean4, z3, agda, isabelle, mizar
-├── src/                    ← Idris2 ABI + Rust core
-├── interpreters/           ← language interpreters (ReScript)
+├── src/                    ← Idris2 ABI + Rust core (incl. brainfuck/whitespace interpreter crates)
 ├── examples/               ← CNOs in 23+ languages
 ├── verification/           ← top-level verify scripts
 ├── tests/, tools/          ← RSR-conventional placeholders
@@ -67,4 +74,4 @@ absolute-zero/
 
 ## License
 
-PMPL-1.0-or-later (Palimpsest-MPL 1.0). MPL-2.0 fallback where platform requires OSI-approved licence.
+MPL-2.0 (Mozilla Public License 2.0). See [`LICENSE`](../../LICENSE).

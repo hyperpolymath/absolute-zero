@@ -1,102 +1,110 @@
 # SPDX-License-Identifier: MPL-2.0
-# Mustfile — Physical state contract for rsr-template-repo
-# Author: Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 #
-# What MUST be true about this repository. Hard requirements.
-# Run with: must check
-# Fix with: must fix (where a deterministic fix exists)
+# Mustfile — Physical state contract for absolute-zero.
+# What MUST be true about this repository. Hard requirements: CI and
+# pre-commit hooks fail if any check fails.
+#   Run with: must check
+#   Fix with: must fix (where a deterministic fix exists)
+#
+# Populated 2026-06-12 (governance checkpoint): replaces the
+# rsr-template-repo stub supplied by the estate-standardization branch with
+# repo-true invariants. The repo-root Mustfile (just lint / just test /
+# just fmt) remains the build-gate contract; this file is the
+# repository-structure contract. A2ML here is TOML-flavoured.
 
-@abstract:
-Physical-state invariants for rsr-template-repo. This is the canonical
-RSR template repository. These are hard requirements — CI and pre-commit
-hooks fail if any check fails.
-@end
+[metadata]
+repo = "absolute-zero"
+contractile-verb = "must"
+last-updated = "2026-06-12"
+abstract = "Physical-state invariants for absolute-zero: required governance files, the flat contractile set, the 6a2 metadata set, and the absence of superseded duplicate metadata."
 
-## File Presence
+[[checks]]
+id = "license-present"
+description = "LICENSE file must exist (MPL-2.0)"
+run = "test -f LICENSE && grep -q 'Mozilla Public License' LICENSE"
+severity = "critical"
 
-### license-present
-- description: LICENSE file must exist
-- run: test -f LICENSE
-- severity: critical
+[[checks]]
+id = "readme-canonical"
+description = "README.adoc (canonical) must exist; README.md is a pointer only"
+run = "test -f README.adoc"
+severity = "critical"
 
-### readme-present
-- description: README.adoc must exist
-- run: test -f README.adoc
-- severity: critical
+[[checks]]
+id = "security-policy"
+description = "SECURITY.md must exist"
+run = "test -f SECURITY.md"
+severity = "critical"
 
-### security-policy
-- description: SECURITY.md must exist
-- run: test -f SECURITY.md
-- severity: critical
+[[checks]]
+id = "ai-manifest"
+description = "0-AI-MANIFEST.a2ml must exist at repo root"
+run = "test -f 0-AI-MANIFEST.a2ml"
+severity = "critical"
 
-### ai-manifest
-- description: 0-AI-MANIFEST.a2ml must exist
-- run: test -f 0-AI-MANIFEST.a2ml
-- severity: critical
+[[checks]]
+id = "governance-docs"
+description = "GOVERNANCE.adoc, MAINTAINERS.adoc, .github/CODEOWNERS must exist (estate wave 2026-06)"
+run = "test -f GOVERNANCE.adoc && test -f MAINTAINERS.adoc && test -f .github/CODEOWNERS"
+severity = "critical"
 
-### governance-docs
-- description: GOVERNANCE.adoc, MAINTAINERS.adoc, CODEOWNERS must exist
-- run: test -f GOVERNANCE.adoc && test -f MAINTAINERS.adoc && test -f .github/CODEOWNERS
-- severity: critical
+[[checks]]
+id = "contractiles-flat-complete"
+description = "All six flat contractile files exist (flat layout — no nested must/trust/dust/bust dirs)"
+run = "test -f .machine_readable/contractiles/Mustfile.a2ml && test -f .machine_readable/contractiles/Trustfile.a2ml && test -f .machine_readable/contractiles/Adjustfile.a2ml && test -f .machine_readable/contractiles/Intentfile.a2ml && test -f .machine_readable/contractiles/Dustfile.a2ml && test -f .machine_readable/contractiles/Bustfile.a2ml"
+severity = "critical"
 
-### machine-readable-dir
-- description: .machine_readable/ directory must exist
-- run: test -d .machine_readable
-- severity: critical
+[[checks]]
+id = "six-a2ml-present"
+description = "6a2 directory has all six A2ML files plus manifest and README"
+run = "test -f .machine_readable/6a2/STATE.a2ml && test -f .machine_readable/6a2/META.a2ml && test -f .machine_readable/6a2/ECOSYSTEM.a2ml && test -f .machine_readable/6a2/AGENTIC.a2ml && test -f .machine_readable/6a2/NEUROSYM.a2ml && test -f .machine_readable/6a2/PLAYBOOK.a2ml && test -f .machine_readable/6a2/0-AI-MANIFEST.a2ml"
+severity = "critical"
 
-## Directory Structure
+[[checks]]
+id = "anchor-directory"
+description = "6a2/anchor/ exists with ANCHOR.a2ml (realignment record)"
+run = "test -d .machine_readable/6a2/anchor && test -f .machine_readable/6a2/anchor/ANCHOR.a2ml"
+severity = "warning"
 
-### contractiles-complete
-- description: All required contractile directories exist
-- run: test -d .machine_readable/contractiles && test -d .machine_readable/contractiles/bust && test -d .machine_readable/contractiles/dust
-- severity: critical
+[[checks]]
+id = "bot-directives-present"
+description = "bot_directives/ holds the agent-directive trio + README"
+run = "test -f .machine_readable/bot_directives/README.adoc && test -f .machine_readable/bot_directives/hypatia.a2ml && test -f .machine_readable/bot_directives/gitbot-fleet.a2ml && test -f .machine_readable/bot_directives/git-private-farm.a2ml"
+severity = "warning"
 
-### contractiles-files-present
-- description: All four primary contractile files exist
-- run: test -f .machine_readable/contractiles/Intentfile.a2ml && test -f .machine_readable/contractiles/Mustfile.a2ml && test -f .machine_readable/contractiles/Trustfile.a2ml && test -f .machine_readable/contractiles/Adjustfile.a2ml
-- severity: critical
+[[checks]]
+id = "self-validating-present"
+description = "self-validating/ (renamed from svc/k9) exists with the k9 template set"
+run = "test -d .machine_readable/self-validating && test -f .machine_readable/self-validating/template-kennel.k9.ncl"
+severity = "warning"
 
-### bust-dust-files-present
-- description: Bustfile and Dustfile exist in their directories
-- run: test -f .machine_readable/contractiles/bust/Bustfile.a2ml && test -f .machine_readable/contractiles/dust/Dustfile.a2ml
-- severity: critical
+[[checks]]
+id = "no-duplicate-root-scm"
+description = "No duplicate root .machine_readable/*.scm set (removed by estate wave 2026-06; 6a2/*.a2ml is canonical)"
+run = "test -z \"$(ls .machine_readable/*.scm 2>/dev/null)\""
+severity = "critical"
 
-### six-directory-present
-- description: 6a2 directory exists with required files
-- run: test -d .machine_readable/6a2 && test -f .machine_readable/6a2/META.a2ml && test -f .machine_readable/6a2/ECOSYSTEM.a2ml && test -f .machine_readable/6a2/STATE.a2ml && test -f .machine_readable/6a2/PLAYBOOK.a2ml && test -f .machine_readable/6a2/AGENTIC.a2ml && test -f .machine_readable/6a2/NEUROSYM.a2ml
-- severity: critical
+[[checks]]
+id = "a2ml-parses-as-toml"
+description = "Every 6a2 A2ML file parses as TOML"
+run = "for f in .machine_readable/6a2/STATE.a2ml .machine_readable/6a2/META.a2ml .machine_readable/6a2/ECOSYSTEM.a2ml .machine_readable/6a2/AGENTIC.a2ml .machine_readable/6a2/NEUROSYM.a2ml .machine_readable/6a2/PLAYBOOK.a2ml; do python3 -c \"import tomllib;tomllib.load(open('$f','rb'))\" || exit 1; done"
+severity = "critical"
 
-### anchors-directory
-- description: anchors directory exists in 6a2
-- run: test -d .machine_readable/6a2/anchors
-- severity: warning
+[[checks]]
+id = "proofs-tree-present"
+description = "The six proof-system directories exist"
+run = "test -d proofs/coq && test -d proofs/lean4 && test -d proofs/z3 && test -d proofs/agda && test -d proofs/isabelle && test -d proofs/mizar"
+severity = "critical"
 
-### self-validating-structure
-- description: self-validating directory has k9-svc and examples
-- run: test -d .machine_readable/self-validating && test -d .machine_readable/self-validating/k9-svc && test -d .machine_readable/self-validating/examples
-- severity: warning
+[[checks]]
+id = "root-mustfile-buildgate"
+description = "Repo-root Mustfile (build-gate: just lint/test/fmt) and Justfile exist"
+run = "test -f Mustfile && test -f Justfile"
+severity = "warning"
 
-## Template Integrity
-
-### no-placeholder-values
-- description: No placeholder values remain in template files
-- run: test -z "$(grep -r '{{' .machine_readable/contractiles/ 2>/dev/null)"
-- severity: critical
-- notes: All placeholders must be substituted when copying this template
-
-### template-readonly
-- description: Template marker files are not modified
-- run: grep -q 'RSR_TEMPLATE_DO_NOT_EDIT' .machine_readable/0.1-AI-MANIFEST.a2ml
-- severity: warning
-
-## Git State
-
-### no-untracked-contractiles
-- description: All contractile files are tracked in git
-- run: test -z "$(git ls-files -o --exclude-standard .machine_readable/contractiles/ 2>/dev/null)"
-- severity: critical
-
-### signed-commits
-- description: All commits must be signed
-- run: git verify-commit HEAD
-- severity: critical
+[[checks]]
+id = "no-dockerfile"
+description = "No Dockerfile (use Containerfile)"
+run = "test ! -f Dockerfile"
+severity = "warning"

@@ -23,13 +23,14 @@ properties from different angles:
 Multi-prover is intentional: each catches what the others miss. See
 [Proof Systems](Proof-Systems.md) for the choice rationale.
 
-## 2. Interpreter + ABI layer (`src/`, `interpreters/`, `ffi/`)
+## 2. Interpreter + ABI layer (`src/`, `ffi/`)
 
 * **`src/abi/`** — Idris2 type declarations for the C ABI, with formal
   alignment + size proofs. See [ABI](ABI.md).
-* **`interpreters/rescript/`** — Malbolge interpreter in ReScript with
-  CNO detection. ReScript is the project's primary application
-  language (per [`docs/CLAUDE.adoc`](../CLAUDE.adoc) language policy).
+* **`src/brainfuck/`, `src/whitespace/`** — interpreter crates in Rust.
+  The former `interpreters/rescript/` Malbolge interpreter (ReScript) was
+  removed in the estate-policy sweep (PR #42); ReScript was banned by the
+  language policy on 2026-04-30.
 * **`ffi/zig/`** — Zig FFI shim that the Idris2 ABI binds to.
 
 ## 3. Examples + tooling (`examples/`, `verification/`, `Justfile`)
@@ -54,7 +55,7 @@ absolute-zero calls into it via the `echidna-llm-mcp` BoJ cartridge —
 │   absolute-zero          │ calls   │   ECHIDNA (separate)     │
 │   - proofs/              ├────────►│   - neural tactics       │
 │   - src/                 │ via BoJ │   - 105 prover backends  │
-│   - interpreters/        │         │   - 66,674-proof corpus  │
+│   - examples/            │         │   - 66,674-proof corpus  │
 └──────────────────────────┘         └──────────────────────────┘
 ```
 

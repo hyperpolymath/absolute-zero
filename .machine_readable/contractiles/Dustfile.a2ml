@@ -1,0 +1,70 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+#
+# Dustfile — recovery and rollback semantics for absolute-zero.
+# Verb: dust. Every asset that can degrade declares a reversible recovery
+# path; recovery paths should be exercisable, not aspirational.
+#
+# Created 2026-06-12 (governance checkpoint). Provenance: the pre-estate
+# repo had NO nested dust contractile under .machine_readable/; the only
+# prior Dustfile was the generic fill-in template at contractiles/dust/Dustfile
+# (repo root, removed by the estate flat-layout migration). Its SEMANTICS
+# (declare per-asset reversible recovery handlers) are retained below; its
+# specifics (decision-log replay, kubectl rollout undo, gateway deploys) were
+# template placeholders that never applied to this repo and are recorded as
+# not-applicable rather than silently dropped. A2ML here is TOML-flavoured.
+
+[metadata]
+repo = "absolute-zero"
+contractile-verb = "dust"
+last-updated = "2026-06-12"
+abstract = "Reversible recovery paths for absolute-zero: git-revert-first discipline, proof-suite rescue precedent, append-only archives, and pinned-workflow rollback."
+
+[[recovery]]
+id = "bad-commit-on-main"
+asset = "main branch history"
+reversible = true
+handler = "git revert <sha> — origin/main on GitHub is the durable history; never force-push main"
+notes = "First rung for any regression: revert, do not rewrite."
+
+[[recovery]]
+id = "proof-suite-regression"
+asset = "proofs/ (coq, lean4, z3, agda, isabelle, mizar) + src/abi/"
+reversible = true
+handler = "Revert the offending commit to the last CI-green state; for systemic breakage follow the rescue-branch pattern"
+notes = "Exercised precedent: Tier-0 rescue of 2026-05-18 (CNO.v keystone re-proved; ledger archived at docs/archive/PROOF-STATUS-2026-05-18.md)."
+
+[[recovery]]
+id = "ci-workflow-regression"
+asset = ".github/workflows/ (thin wrappers over hyperpolymath/standards reusables)"
+reversible = true
+handler = "Revert the pin bump; workflows are SHA-pinned to the standards reusables, so rollback = restoring the previous pinned SHA"
+notes = "Exercised precedent: PR #69 repinned orphan reusable SHAs (97df7621/4fdf4314 -> live)."
+
+[[recovery]]
+id = "stale-machine-metadata"
+asset = ".machine_readable/ (6a2, contractiles, bot_directives)"
+reversible = true
+handler = "Regenerate from repo facts: git log since the last STATE date + repo docs, per the governance-checkpoint discipline; prior states recoverable from git history"
+notes = "STATE refreshes are additive light-bumps; never invent facts — omit unknown keys."
+
+[[recovery]]
+id = "dated-doc-supersession"
+asset = "docs/archive/"
+reversible = true
+handler = "Append-only: supersede by adding a new dated snapshot; consult docs/archive/README.adoc for the live counterpart of each archived file"
+notes = "Do not edit archived snapshots in place."
+
+[[recovery]]
+id = "github-wiki-divergence"
+asset = "GitHub Wiki (mirror of docs/wiki/)"
+reversible = true
+handler = "docs/wiki/ in-repo is canonical; re-run the sync procedure in docs/wiki/README.md to overwrite the wiki copy"
+notes = "Wiki divergence is always resolvable in favour of the in-repo source."
+
+[[recovery]]
+id = "template-dust-handlers"
+asset = "decision-log replay / policy rollback / gateway deployment undo (from the removed root template)"
+reversible = false
+status = "not-applicable"
+reason = "Template placeholders from contractiles/dust/Dustfile (generic gateway repo shape: logs/decisions.json, policy/policy.ncl, kubectl rollout undo). absolute-zero has no such gateway, deployment, or decision-log assets; recorded here so the removed template's content is accounted for rather than lost."

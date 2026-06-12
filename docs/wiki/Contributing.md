@@ -11,9 +11,10 @@ Short summary; the authoritative version is [`CONTRIBUTING.adoc`](../../CONTRIBU
 Read [`docs/CLAUDE.adoc`](../CLAUDE.adoc) Language Policy section first.
 TL;DR:
 
-* **Allowed**: ReScript, Deno, Rust, Tauri, Dioxus, Gleam, Bash, JavaScript
-  (where ReScript cannot reach), Nickel, Guile Scheme, Julia, OCaml, Ada, Idris2
-* **Banned**: TypeScript, Node.js, npm/Bun/pnpm/yarn, Go, Python, Java/Kotlin,
+* **Allowed**: AffineScript, Deno, Rust, Tauri, Dioxus, Gleam, Bash, JavaScript
+  (where AffineScript cannot reach), Nickel, Guile Scheme, Julia, OCaml, Ada, Idris2
+* **Banned**: TypeScript, ReScript (banned 2026-04-30 — replaced by
+  AffineScript), Node.js, npm/Bun/pnpm/yarn, Go, Python, Java/Kotlin,
   Swift, React Native, Flutter/Dart, Ruby, Perl
 
 `.github/workflows/language-policy.yml` blocks new banned-language files at CI.
@@ -26,7 +27,7 @@ Conventional commits. Examples:
 proof(coq): discharge eval_deterministic via step_deterministic_strong
 proof(idris2/abi): port to Idris2 0.8.0 syntax (#27)
 chore(docs): reconcile and tidy root
-fix(licence): canonicalise to PMPL-1.0-or-later (#133)
+ci(codeql): cron weekly→monthly (cut 3, standards#233 Option B) (#71)
 ```
 
 * Never amend published commits.
@@ -43,14 +44,14 @@ just fmt
 ## ADR / Audit trail
 
 * If your change is an **architectural decision** going forward, add an ADR
-  entry to [`.machine_readable/META.scm`](../../.machine_readable/META.scm)
+  entry to [`.machine_readable/6a2/META.a2ml`](../../.machine_readable/6a2/META.a2ml)
   (next ADR-NNN).
 * If your change **discharges a postulate / deletes unsound code**, add an
   AUDIT entry to [`AUDIT.adoc`](../../AUDIT.adoc).
 
 ## PR checklist
 
-* [ ] SPDX-License-Identifier on all new files (`PMPL-1.0-or-later` unless reason otherwise)
+* [ ] SPDX-License-Identifier on all new files (`MPL-2.0` — PMPL identifiers are banned by repo policy)
 * [ ] No new banned-language files
 * [ ] Tests / proofs updated where relevant
 * [ ] If you touched workflows, all `uses:` references pinned to commit SHAs

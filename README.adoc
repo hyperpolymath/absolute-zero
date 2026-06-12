@@ -5,6 +5,7 @@
 **Formal Verification of Certified Null Operations: When Doing Nothing Is Everything**
 
 image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[MPL-2.0]
+image:https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github[Sponsor,link="https://github.com/sponsors/hyperpolymath"]
 
 == License
 image:https://img.shields.io/badge/OpenSSF-Best_Practices-green?logo=openssourcesecurity[OpenSSF Best Practices,link="https://www.bestpractices.dev/en/projects/new?repo_url=https://github.com/hyperpolymath/absolute-zero"]
