@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = License Audit: Absolute Zero & ECHIDNA
 :toc:
 :sectnums:
@@ -79,9 +80,6 @@ license = "MIT OR Palimpsest-0.6"  ❌ OUTDATED
 
 **Source files** (mixed):
 ```rust
-// SPDX-License-Identifier: MIT OR Palimpsest-0.6  ❌ OUTDATED (some files)
-// SPDX-License-Identifier: MPL-2.0              ✅ CORRECT (other files)
-// SPDX-License-Identifier: MPL-2.0    ✅ CORRECT (LICENSE)
 ```
 
 === Required Actions

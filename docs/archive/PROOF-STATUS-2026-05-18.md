@@ -1,3 +1,7 @@
+<!--
+SPDX-License-Identifier: MPL-2.0
+Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+-->
 # Proof Status — 2026-05-18 (Review & Repair)
 
 **Author of this analysis:** Claude (review session, 2026-05-18)

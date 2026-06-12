@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: MPL-2.0
+-- Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 ||| ABI Type Definitions for Absolute Zero
 |||
 ||| This module defines the Application Binary Interface (ABI) for the
@@ -6,7 +8,6 @@
 |||
 ||| @see https://github.com/hyperpolymath/absolute-zero
 
--- SPDX-License-Identifier: MPL-2.0
 
 module AbsoluteZero.ABI.Types
 

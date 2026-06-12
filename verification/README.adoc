@@ -1,4 +1,5 @@
 // SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = verification/ — Formal verification entry points
 
 RSR-conventional location for verification scripts. These wrap the

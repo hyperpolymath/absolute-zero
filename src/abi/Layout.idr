@@ -1,3 +1,5 @@
+-- SPDX-License-Identifier: MPL-2.0
+-- Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 ||| ABI Memory Layout Verification
 |||
 ||| This module provides compile-time verification of memory layouts
@@ -6,7 +8,6 @@
 |||
 ||| @see https://github.com/hyperpolymath/absolute-zero
 
--- SPDX-License-Identifier: MPL-2.0
 
 module AbsoluteZero.ABI.Layout
 
