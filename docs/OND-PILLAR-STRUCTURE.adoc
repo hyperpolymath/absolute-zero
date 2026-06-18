@@ -1,0 +1,171 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= OND Pillar Structure: Directory and Module Layout
+:toc:
+:sectnums:
+
+[abstract]
+This document specifies the directory and module layout for the *Observational
+Null Operations (OND)* pillar. It mirrors the existing CNO multi-prover layout
+as closely as the conceptual differences allow, and adds the two OND-specific
+artifacts CNO does not need: *declared observation models* and *residue lists*.
+*No proof files are created by this design* — the per-prover OND modules below
+are specified for a dedicated proof effort to author (see `OND-ROADMAP.adoc`).
+The OND-specific *artifact* directories and their templates *are* created, since
+they are documentation inputs/outputs, not proofs.
+
+== Co-equality principle
+
+OND modules are *siblings* of the CNO modules, not children. Wherever CNO has
+`CNO.<ext>` in a prover directory, OND has `OND.<ext>` *alongside* it in the
+same directory — same prover, same build, same composition-theorem discipline,
+same decidable-for-bounded-programs caveat. Neither pillar is nested under the
+other. The only structural *addition* for OND is the pair of artifact trees
+(`proofs/observation-models/`, `proofs/residue/`), because an OND claim has two
+extra parts — a declared `O` (input) and a residue list (output) — that have no
+CNO analogue.
+
+== Per-prover module layout (mirrors CNO — TO BE AUTHORED)
+
+Each OND module sits beside its CNO counterpart. These files are *specified
+here, to be created by the proof effort* — they are not created by this design.
+
+[cols="1,2,2,3",options="header"]
+|===
+| Prover | CNO (exists) | OND (to author) | Obligations (see OND-ROADMAP)
+
+| *Coq*
+| `proofs/coq/common/CNO.v`
+| `proofs/coq/observational/OND.v`
+| OND-1 definition
+| *Coq*
+| `proofs/coq/category/CNOCategory.v`
+| `proofs/coq/observational/ONDIndependence.v`
+| OND-3 independence (needs `is_CNO` + `is_OND`)
+| *Coq*
+| `proofs/coq/lambda/LambdaCNO.v`
+| `proofs/coq/observational/ONDComposition.v`
+| OND-5 non-composition, OND-6 conditional composition
+
+| *Lean 4*
+| `proofs/lean4/CNO.lean`
+| `proofs/lean4/OND.lean`
+| OND-1, OND-2
+| *Lean 4*
+| `proofs/lean4/CNOCategory.lean`
+| `proofs/lean4/ONDIndependence.lean`
+| OND-3
+| *Lean 4*
+| `proofs/lean4/LambdaCNO.lean`
+| `proofs/lean4/ONDComposition.lean`
+| OND-5, OND-6
+
+| *Agda*
+| `proofs/agda/CNO.agda`
+| `proofs/agda/OND.agda`
+| OND-1 (dependent-typed presentation)
+
+| *Z3*
+| `proofs/z3/verify.sh`
+| `proofs/z3/ond_verify.sh`
+| OND-2, OND-3, OND-4, OND-5 (bounded/finite instances)
+
+| *Isabelle/HOL*
+| `proofs/isabelle/CNO.thy`
+| `proofs/isabelle/OND.thy`
+| OND-6 (heavier metatheory)
+
+| *Mizar*
+| `proofs/mizar/CNO.miz`
+| `proofs/mizar/OND.miz`
+| OND-1, OND-3 (mathematical-library presentation)
+|===
+
+[NOTE]
+====
+The Coq tree introduces one new subdirectory, `proofs/coq/observational/`,
+parallel to the existing `common/`, `category/`, `lambda/`, `physics/`,
+`quantum/`, `filesystem/`, `malbolge/`. This keeps the OND Coq modules grouped
+without nesting them under CNO. Lean 4, Agda, Isabelle, and Mizar keep their
+flat per-file layout, so OND files sit directly beside the CNO files.
+====
+
+== OND-specific artifact trees (CREATED by this design)
+
+These two directories *are* created now, with `README.adoc` and a `TEMPLATE`,
+because they hold documentation artifacts (proof inputs/outputs), not proofs.
+
+[source]
+----
+proofs/
+├── observation-models/        # declared observation models O (proof INPUTS)
+│   ├── README.adoc            # what an observation model is + how to declare one
+│   └── TEMPLATE.adoc         # copy-per-claim skeleton for a declared O
+└── residue/                   # residue lists (proof OUTPUTS / the metal gap)
+    ├── README.adoc            # what a residue list is + the discipline
+    └── TEMPLATE.adoc         # copy-per-claim skeleton for a residue list
+----
+
+* *`proofs/observation-models/`* — one declared `O` per OND claim (or per
+  platform/operation family). A declared `O` is the *required input* to every
+  OND proof: the explicit, enumerated list of what the observer is assumed to
+  see (e.g. wall-clock time, output length, allocation-size sequence, branch
+  pattern). The proof's *consequent* ("constant over the secret") is proved
+  relative to this `O`.
+
+* *`proofs/residue/`* — one residue list per OND claim: the observables
+  *deliberately out of scope* of that claim's `O` (e.g. power analysis,
+  speculative-execution channels, DRAM row-buffer timing, EM emanation). The
+  residue list is the *formal specification of the gap between the proof and
+  physical reality* — the standing record (OND-7) an engineer reads to learn
+  which channels they still own.
+
+== Where each roadmap obligation lives
+
+[cols="1,3",options="header"]
+|===
+| Obligation | Home
+
+| OND-1 definition | `proofs/{coq/observational,lean4,agda,mizar}/OND*` + the
+  `O` parameterisation pattern documented in `observation-models/README.adoc`
+| OND-2 trivial case | `proofs/lean4/OND.lean`, `proofs/coq/observational/OND.v`,
+  `proofs/z3/ond_verify.sh`
+| OND-3 independence | `proofs/{coq/observational,lean4}/ONDIndependence.*`,
+  witnesses checked in `proofs/z3/ond_verify.sh`
+| OND-4 conditional template | `proofs/{coq/observational,lean4}/OND*` for the
+  conditional, with a declared `O` in `observation-models/` and a residue list
+  in `residue/`
+| OND-5 non-composition | `proofs/{coq/observational,lean4}/ONDComposition.*`,
+  joint-observable check in `proofs/z3/ond_verify.sh`
+| OND-6 conditional composition | `proofs/{coq/observational,lean4}/ONDComposition.*`,
+  `proofs/isabelle/OND.thy`
+| OND-7 residue register | `proofs/residue/` (ongoing)
+|===
+
+== Documentation and governance touch-points
+
+* `docs/TWO-PILLARS.adoc` — the narrative spine (CNO + OND co-equal).
+* `docs/OND-ROADMAP.adoc` — the prioritised obligations.
+* `docs/PROOF-CLASSIFICATION.adoc` — the CNO honesty template OND mirrors; when
+  OND proofs begin, add an OND section (or a sibling `OND-CLASSIFICATION.adoc`)
+  using the same per-obligation format.
+* `README.adoc` — presents the two pillars co-equally (see its "Two Pillars"
+  section).
+* `proofs/<prover>/README.adoc` — when OND modules land, list them beside the
+  CNO modules so the co-equality is visible in each prover directory.
+
+== Build and CI
+
+OND modules join the *same* build as CNO in each prover (no separate
+toolchain): the Lean `lakefile`/`lake-manifest`, the Coq `_CoqProject`, the
+Agda/Isabelle/Mizar invocations, and `proofs/z3/ond_verify.sh` beside
+`verify.sh`. When the OND modules are authored, register them in the existing
+per-prover build manifests so `just`/CI cover both pillars identically.
+
+[IMPORTANT]
+====
+This document creates *only* the two artifact trees (`observation-models/`,
+`residue/`) with their READMEs and templates. The per-prover `OND*` proof
+modules above are *specified, not created* — authoring them is the proof effort
+described in `OND-ROADMAP.adoc`, explicitly deferred.
+====

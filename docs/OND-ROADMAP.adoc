@@ -1,0 +1,299 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= OND Roadmap: Bringing the Disclosure Pillar to Parity with CNO
+:toc:
+:sectnums:
+
+[abstract]
+This is the prioritised proof roadmap for *Observational Null Operations
+(OND)*, the second pillar of Absolute Zero (see `TWO-PILLARS.adoc`). It mirrors
+the per-obligation format of `PROOF-CLASSIFICATION.adoc`. Every obligation
+states what it claims, which proof system(s) suit it, its honesty *label*
+(framing / conditional / metal-discharged / proof-target), and its priority.
+*No proofs are started here* — this is the specification of the work; the
+proofs themselves are deferred to a dedicated effort.
+
+== Classification principle
+
+*Priority*: establish the OND *definition* and its *honest boundary* first,
+prove *satisfiability* and *independence from CNO* early (these justify the
+pillar's existence), and treat *composition* as the hard, surprising core —
+split into a cheap negative result and a hard conditional positive.
+
+*Honesty labels* (per `TWO-PILLARS.adoc` §"Status honesty"):
+
+* *proof-target* — a consequent dischargeable inside a proof assistant,
+  relative to a declared `O`.
+* *framing* — organising narrative; proves nothing.
+* *conditional* — proved relative to a declared `O`; carries a residue list.
+* *metal-discharged* — owed to constant-time engineering / compilation /
+  hardware measurement, *not* to the proof assistant.
+
+*Decidability caveat (inherited from CNO).* As with CNO, observational nullity
+is *decidable for bounded programs under a finite observation model `O`*
+(enumerate the secret domain, compare traces) and *undecidable in general*.
+Z3 is the right tool for the bounded/finite instances; Coq/Lean/Isabelle/Agda
+carry the general, parameterised statements.
+
+== Critique of the proposed ordering
+
+The owner's proposed order was: *(i)* OND definition; *(ii)* CNO/OND
+independence; *(iii)* OND composition; *(iv)* trivial-case proofs; *(v)*
+conditional-proof template; *(vi)* metal-discharge statement. Three changes,
+all defended below:
+
+1. *Move the trivial case up, from (iv) to #2.* "The empty operation is OND in
+   any `O`" is the *satisfiability smoke-test* for the definition: a definition
+   that nothing satisfies is malformed. It is the cheapest possible de-risk and
+   must come *before* independence and composition, right after the definition.
+
+2. *Fold the structural half of (vi) into the definition (#1); split the rest.*
+   The declared observation model (an input) and the residue list (an output)
+   are *part of an honest OND definition*, not a final step — you cannot state
+   `is_OND` honestly without `O` as a parameter and a residue obligation. So
+   (vi) is not "last". Its *structural* half belongs in #1; its *per-claim*
+   half rides with the conditional template (#4); its *ongoing* half is a
+   living register (#7).
+
+3. *Split composition (iii) into a cheap negative (#5) and a hard conditional
+   positive (#6), and do the template (v) before both.* Composition is the
+   place this most likely surprises us (see <<composition>>). The *negative*
+   result — a counterexample where two ONDs compose to a leak — is cheap,
+   honest, and high-value, so it comes early. The *positive* result is
+   research-grade and comes last. The conditional template (#4) is moved ahead
+   of composition because it exercises the whole `O`+residue machinery on one
+   real operation, which you want validated before generalising.
+
+Net order: *definition(+O+residue) → trivial case → independence →
+conditional template(+per-claim metal) → non-composition counterexample →
+conditional composition theorem → ongoing residue register.*
+
+== 🎯 OND-1 — The OND definition, formalised ⭐⭐⭐
+
+*Label*: proof-target (the definition itself) + framing scaffolding for `O`.
+
+*Statement (shape)*:
+[source]
+----
+ObservationModel : Type                       -- a trace the observer can see
+O : Execution -> ObservationModel
+is_OND (O : Execution -> Obs) (p : Program) : Prop :=
+  forall (s1 s2 : Secret) (pub : Public),
+    O (run p (s1, pub)) = O (run p (s2, pub))
+----
+
+*What it claims*: defines observational nullity *parameterised by an
+observation model `O`*, with the secret/public split explicit, and requires
+every instance to carry (a) a declared `O` and (b) a residue list.
+
+*Provers*: *Coq* and *Lean 4* first (where `is_CNO` already lives, so
+independence and composition can be stated in the same context); *Agda* for the
+dependent-typed presentation. The residue list and `O` declarations live as
+artifacts (see `OND-PILLAR-STRUCTURE.adoc`), not as prover code.
+
+*Difficulty*: 🟡 Medium — the definition is short, but getting the secret/public
+split and the `O` parameterisation right (so independence and composition are
+even *statable*) is the load-bearing design decision.
+
+*Priority*: ⭐⭐⭐ HIGHEST. Everything else depends on it.
+
+*Dependencies*: none. *This is the keystone.*
+
+== 🎯 OND-2 — Trivial-case satisfiability ⭐⭐⭐
+
+*Label*: proof-target (conditional on the trivial `O`).
+
+*Statement*: the empty/skip operation is OND under *any* observation model:
+`forall O, is_OND O skip`. (Its trace is independent of the secret because it
+does not depend on the secret at all.)
+
+*What it claims*: the definition is *non-vacuous* — at least one operation
+satisfies it, in every model. This is the smoke-test that `is_OND` is
+well-formed.
+
+*Provers*: *Coq*/*Lean 4* (trivial once OND-1 lands); *Z3* to confirm the
+finite instance automatically.
+
+*Difficulty*: 🟢 Easy.
+
+*Priority*: ⭐⭐⭐ HIGHEST — cheapest possible validation of OND-1; do it
+*immediately* after the definition.
+
+*Dependencies*: OND-1.
+
+== 🔥 OND-3 — CNO ⊥ OND independence theorem ⭐⭐⭐
+
+*Label*: proof-target (two existence witnesses + two refutations).
+
+*Statement*: `is_CNO` and `is_OND O` are logically independent —
+`(exists p, is_CNO p /\ ~ is_OND O p) /\ (exists q, is_OND O q /\ ~ is_CNO q)`.
+
+*What it claims*: neither pillar entails the other; this is what earns the
+two-pillar split. Witnesses (see `TWO-PILLARS.adoc` §Independence):
+
+* *CNO ∧ ¬OND*: a constant-result early-exit comparison — unchanged state
+  (CNO), but data-dependent timing in `O` (¬OND).
+* *OND ∧ ¬CNO*: a constant-time fixed-value write — constant trace (OND), but
+  changed state (¬CNO).
+
+*Provers*: *Coq*/*Lean 4* (needs both `is_CNO` and `is_OND` in scope). *Z3*
+discharges the two concrete witnesses against a finite timing/state model
+automatically — a good "decidable for bounded programs" demonstration.
+
+*Difficulty*: 🟡 Medium — the witnesses are simple, but `O` must include timing
+for the first witness to refute OND, which forces an early, honest choice of
+observation model.
+
+*Priority*: ⭐⭐⭐ HIGHEST — the headline theorem distinguishing the pillars.
+
+*Dependencies*: OND-1, and the existing `is_CNO`.
+
+== 📐 OND-4 — Conditional-proof template for one real operation ⭐⭐
+
+*Label*: conditional (+ a per-claim *metal-discharged* statement).
+
+*Statement*: for one concrete constant-time operation (e.g. constant-time
+select / fixed-value write), prove `is_OND O p` for an explicitly declared `O`,
+and emit its residue list.
+
+*What it claims*: the full `O`+residue machinery works end-to-end on a real,
+metal-facing operation — the reusable template every later OND claim follows.
+The *conditional* (consequent) is proved; the *antecedent* ("the metal really
+exposes only `O`") is written down explicitly as the operation's
+*metal-discharged* obligation and its residue list, *not* proved here.
+
+*Provers*: *Coq*/*Lean 4* for the conditional; *Z3* for the bounded
+constant-trace check; the declared `O` and residue list as artifacts.
+
+*Difficulty*: 🟡 Medium.
+
+*Priority*: ⭐⭐ HIGH — validates the framework before generalisation, and is
+the pattern all real OND claims reuse.
+
+*Dependencies*: OND-1, OND-2.
+
+[[composition]]
+== 🔬 OND-5 — Non-composition counterexample ⭐⭐
+
+*Label*: proof-target (a *negative* result — first-class).
+
+*Statement*: there exist operations `p`, `q` and models `O_p`, `O_q` with
+`is_OND O_p p` and `is_OND O_q q`, yet the sequential composite `p ; q` is
+*not* OND under the naive combined model `O_p ∪ O_q` —
+`~ is_OND (O_p `union` O_q) (p ; q)`.
+
+*Why this is the crux (investigated, not assumed).* CNOs compose cleanly:
+`id ∘ id = id`, trivially closed. ONDs do *not*, for two independent reasons:
+
+1. *State-chaining.* An OND *may change state* (it is not a CNO). So `q` runs
+   on `p`'s secret-dependent *output*. "`q`'s trace is constant over `q`'s
+   input secret" does *not* imply "constant over the *original* secret", once
+   `p` has folded the secret into what `q` sees as public. The leak is created
+   by the hand-off, not by either operation alone.
+
+2. *Emergent / boundary observables.* The composite's true observation model is
+   *not* `O_p ∪ O_q`. Composition creates observables present in *neither*
+   part: the relative ordering and inter-operation timing, the memory
+   high-water-mark across the boundary, cross-operation cache residency. Each
+   part can be null with respect to its own model while the *pair* leaks
+   through an observable nobody declared.
+
+This is the same shape as *differential privacy's sequential composition*
+(privacy budgets *accumulate* under composition — they do not stay flat) and
+the *"max-composition is unsound for quasi-identifiers"* worry from the
+echo/residue work: two views each individually non-disclosing can jointly
+disclose. *If a future effort reports that ONDs compose as cleanly as CNOs,
+that is the claim to check hardest* — it almost certainly dropped either the
+state-chaining or the boundary-observable term.
+
+*Provers*: *Coq*/*Lean 4* to exhibit the witnesses; *Z3* to confirm the joint
+observable distinguishes the secrets on a bounded instance.
+
+*Difficulty*: 🟡 Medium — constructing one honest counterexample is far easier
+than the general positive theorem, which is exactly why it comes first.
+
+*Priority*: ⭐⭐ HIGH — the honest, load-bearing surprise of the pillar.
+
+*Dependencies*: OND-1, OND-4 (the template surfaces the boundary observables).
+
+== 🔬 OND-6 — Conditional composition theorem ⭐
+
+*Label*: conditional (a *positive* result, heavily qualified).
+
+*Statement (shape)*: `p ; q` is OND under a combined model `O_{pq}` *iff*
+`O_{pq}` subsumes `O_p ∪ O_q` *plus* the boundary/interaction observables,
+*and* each operation is null with respect to its slice of `O_{pq}` *given the
+other's public outputs*. Naive union-composition is explicitly unsound (that is
+OND-5).
+
+*What it claims*: the precise side-conditions under which observational nullity
+*is* preserved by composition — the constructive analogue of DP's
+composition-with-budget theorems.
+
+*Provers*: *Coq*/*Lean 4*, with *Isabelle/HOL* a good fit for the heavier
+metatheory (it carries the production-grade CNO entropy work already).
+
+*Difficulty*: 🔴 HARD — research-grade; the correct statement of `O_{pq}` and
+the "given the other's public outputs" condition is itself a contribution.
+
+*Priority*: ⭐ MEDIUM — the capstone; do *last*. A pillar with OND-1..5 landed
+and OND-6 openly `Admitted` is in honest, publishable shape.
+
+*Dependencies*: OND-1..5.
+
+== 📋 OND-7 — Ongoing residue register ⭐
+
+*Label*: metal-discharged (a living artifact, not a prover obligation).
+
+*Statement*: maintain, per OND claim, the declared `O` and the enumerated
+residue list, as the running specification of the proof↔reality gap.
+
+*What it claims*: nothing new — it is the *discipline* that keeps every OND
+claim honest. The register is the single place an engineer reads to learn which
+channels the proofs do *not* cover (power, EM, speculative execution, DRAM
+row-buffer timing, …).
+
+*Provers*: none. Artifacts under `proofs/observation-models/` and
+`proofs/residue/` (see `OND-PILLAR-STRUCTURE.adoc`).
+
+*Difficulty*: 🟢 Easy (ongoing).
+
+*Priority*: ⭐ continuous from OND-4 onward.
+
+*Dependencies*: OND-4.
+
+== 📊 Summary by priority
+
+[cols="1,4,1,2,1",options="header"]
+|===
+| # | Obligation | Label | Provers | Difficulty
+
+| OND-1 | OND definition (+ `O` + residue) | proof-target / framing | Coq, Lean 4, Agda | 🟡
+| OND-2 | Trivial-case satisfiability | proof-target | Coq, Lean 4, Z3 | 🟢
+| OND-3 | CNO ⊥ OND independence | proof-target | Coq, Lean 4, Z3 | 🟡
+| OND-4 | Conditional template (one real op) | conditional + metal | Coq, Lean 4, Z3 | 🟡
+| OND-5 | Non-composition counterexample | proof-target (negative) | Coq, Lean 4, Z3 | 🟡
+| OND-6 | Conditional composition theorem | conditional | Coq, Lean 4, Isabelle | 🔴
+| OND-7 | Ongoing residue register | metal-discharged | (artifacts) | 🟢
+|===
+
+== Parity scorecard (OND vs CNO)
+
+To reach *parity with CNO*, the OND pillar wants, per the CNO precedent: a core
+definition in ≥2 provers, an identity/trivial case, a composition story
+(here: negative + conditional positive), at least one worked real-operation
+proof, and an honest open-obligations ledger. OND-1..4 give the credible core;
+OND-5 gives the honest composition surprise; OND-6 is the research capstone;
+OND-7 is the standing discipline. Until the proofs land, *every* OND obligation
+is `Admitted` — which, given how many CNO obligations are themselves openly
+`Admitted` (see `PROOF-CLASSIFICATION.adoc`), is the normal, honest starting
+state, not a regression.
+
+== Explicitly out of scope of this roadmap
+
+* *Writing any proof.* This document specifies the work; it does not start it.
+* *Discharging any antecedent.* Establishing that real hardware exposes only a
+  declared `O` is constant-time engineering / measurement (OND-7), never a
+  proof-assistant obligation.
+* *Using the coupling dial as a warrant.* The dial (see `TWO-PILLARS.adoc`) is
+  framing; no obligation above is justified by it.

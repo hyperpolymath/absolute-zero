@@ -1,0 +1,29 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= Residue List: <OPERATION NAME>
+// Copy this file to <operation-name>.adoc (same base name as the matching
+// observation model at ../observation-models/<operation-name>.adoc).
+
+== Claim this residue belongs to
+<Which OND claim? Link the observation model and the prover module.>
+
+== Observables OUT OF SCOPE of this claim's `O`
+Everything the real machine may leak that the proof does NOT cover.
+
+[cols="2,2,2",options="header"]
+|===
+| Channel (residue) | Why out of scope | Who discharges it (if anyone)
+| <e.g. power analysis>        | not in `O`; below formalism layer | hardware countermeasure
+| <e.g. speculative execution> | out of threat model                | compiler / mitigations
+| <e.g. EM emanation>          | physical layer                     | shielding
+| <e.g. DRAM row-buffer timing>| microarchitectural                 | (open / unowned)
+| ...                          | ...                                | ...
+|===
+
+== Honest summary
+<One or two sentences an engineer can act on: "This proof guarantees X
+relative to O. It says NOTHING about <residue>. To rely on it physically you
+must additionally close <residue> by <means>.">
+
+== Status
+<one of: current | needs-review (O changed) | draft>

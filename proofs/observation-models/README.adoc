@@ -1,0 +1,43 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= Observation Models (OND proof INPUTS)
+:toc:
+
+An *observation model* `O` is the *required input* to every Observational Null
+Operation (OND) claim. It is the explicit, enumerated specification of *what an
+observer is assumed to be able to see* of an execution. The OND proof then
+shows that this observable trace is *constant over the secret* — i.e. the
+operation discloses nothing about its secret input *through `O`*.
+
+See `docs/TWO-PILLARS.adoc` and `docs/OND-ROADMAP.adoc` for the theory.
+
+== Why this is an input, not a derived fact
+
+An OND theorem is a *conditional*: "IF the real execution exposes only the
+observables in `O`, THEN no secret leaks through `O`." The proof assistant
+discharges the *consequent*; the *antecedent* — that the metal really exposes
+only `O` — is owed to constant-time engineering, compilation, and hardware
+measurement (see `../residue/`). So `O` must be *declared up front*, not
+discovered: it fixes exactly what the proof is, and is not, about.
+
+== What goes in an observation model
+
+* The *observer's view*: each channel the observer is assumed to see (e.g.
+  total wall-clock time, output length, the sequence of allocation sizes, the
+  branch-outcome pattern, syscall trace).
+* The *secret / public split*: which inputs are secret (the proof quantifies
+  over them) and which are public (held fixed).
+* The *granularity*: e.g. "time to instruction-count resolution", "length in
+  bytes", so the trace equality is unambiguous.
+* *Explicitly excluded* channels are NOT listed here — they go in the matching
+  residue list under `../residue/`.
+
+== Conventions
+
+* One file per OND claim (or per operation/platform family), named for the
+  operation, e.g. `constant-time-select.adoc`, `wasm32-timing.adoc`.
+* Copy `TEMPLATE.adoc` to start.
+* Each declared `O` must have a *matching residue list* in `../residue/` with
+  the same base name.
+* `O` is referenced by name from the prover module that proves the claim (see
+  `docs/OND-PILLAR-STRUCTURE.adoc`).
