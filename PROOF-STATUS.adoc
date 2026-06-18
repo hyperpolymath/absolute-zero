@@ -1,0 +1,67 @@
+// SPDX-License-Identifier: MPL-2.0
+= absolute-zero — Proof Status
+:toc:
+
+[abstract]
+absolute-zero formalises the CNO (Conservation-of-Negative-information / "absolute
+zero") principle across several domains and provers. This records the *actually
+reproduced* verification state in this environment, prover by prover, and is
+explicit about what was NOT re-verified here.
+
+== Coq — VERIFIED (this environment)
+
+* `coqc` **8.18.0**; clean build from scratch (all `.vo`/`.glob` deleted first),
+  via a `coq_makefile` project over every theory with `-R common CNO -R malbolge Malbolge`.
+* Result: **13/13 theories compile, zero errors.**
+
+[cols="1,3",options="header"]
+|===
+| Area | Theory
+| common    | `CNO.v`, `Complex.v`, `PhysicsConstants.v`, `StatMechBasis.v`
+| category  | `CNOCategory.v`
+| quantum   | `QuantumCNO.v`, `QuantumMechanicsExact.v`
+| lambda    | `LambdaCNO.v`
+| filesystem| `FilesystemCNO.v`
+| physics   | `StatMech.v`, `StatMech_helpers.v`, `LandauerDerivation.v`
+| malbolge  | `MalbolgeCore.v`
+|===
+
+Imports are Coq stdlib only (`Reals`, `micromega`/`Lra`/`Psatz`, `Lia`,
+`FunctionalExtensionality`, `ProofIrrelevance`, …) — no external library (no
+Coquelicot/MathComp). Reproduce: `cd proofs/coq && make -f Makefile.coq` (the
+repo build) covers `common` + `malbolge`; the full set builds with the per-area
+`coqc -R common CNO` invocations in the Justfile `build-coq` recipe.
+
+== Agda — VERIFIED (this environment)
+
+* `agda` 2.6.3; `agda -i proofs/agda <module>` → **3/3 type-check**:
+  `CNO.agda`, `EchoBridgeCNO.agda`, `EchoBridgeScaffold.agda`.
+* The EchoBridge modules take **funext as an explicit hypothesis**
+  (`Axiom.Extensionality.Propositional`) — a hypothesised parameter, not a global
+  `postulate`. (`EchoBridgeScaffold` is, as named, a scaffold.)
+
+== Idris — NOT verified here (packaging is template-derived / inconsistent)
+
+`absolute-zero-abi.ipkg` declares `sourcedir = "src/abi"` with modules
+`AbsoluteZero.ABI.{Types,Layout,Proofs.DivMod}`, but the files are laid out flat
+(`src/abi/Types.idr`, …) and module names are inconsistent (some flat, some
+`AbsoluteZero.ABI.*`). `idris2 --build` fails (`AbsoluteZero.ABI.Types not found`);
+`Layout.idr`/`Foreign.idr` `--check` individually but `Types.idr`/`Proofs/DivMod.idr`
+report module-name/file-path mismatches. This is the same template-scaffold issue
+as `typell`; fixing it is a package-restructuring task (align module names ↔ paths ↔
+`sourcedir`), deferred. *Also flagged: the `.ipkg` SPDX is `PMPL-1.0-or-later`,
+which is a licence-policy item for the owner (sole-owner repos use MPL-2.0).*
+
+== Lean — NOT verified here (requires Mathlib)
+
+`proofs/lean4/` pins `leanprover/lean4:v4.16.0` and **`require mathlib … @ v4.16.0`**.
+Building it needs the full Mathlib (multi-GB, long compile) and the matching
+toolchain; that was out of scope for this environment. Stated honestly rather than
+asserted — the Coq and Agda sides above *were* reproduced.
+
+== Honest scope
+
+* The CNO development is genuinely multi-prover; this document does not claim
+  cross-prover *equivalence* — each prover checks its own formalisation.
+* "Verified here" = a reproduced compiler/checker run in this environment, not a
+  reading of in-file comments.
