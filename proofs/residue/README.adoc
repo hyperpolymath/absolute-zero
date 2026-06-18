@@ -1,0 +1,45 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= Residue Lists (OND proof OUTPUTS / the model-vs-metal gap)
+:toc:
+
+A *residue list* is the *required output* of every Observational Null
+Operation (OND) claim: the enumerated set of observables that are
+*deliberately out of scope* of that claim's observation model `O`. It is the
+*formal specification of the gap between the proof and physical reality*.
+
+See `docs/TWO-PILLARS.adoc` §"model-vs-metal boundary" and `docs/OND-ROADMAP.adoc`
+obligation OND-7.
+
+== Why every OND claim must ship one
+
+An OND proof certifies "constant over the secret *relative to `O`*". Anything
+the real machine leaks that is *not* in `O` is, by construction, *not* covered.
+The residue list makes that uncovered surface *explicit and auditable* rather
+than silent. It is not an apology — it is the deliverable that tells an
+engineer exactly which channels they still own and must close on the metal.
+
+An OND claim *without* a residue list is not an OND claim.
+
+== What goes in a residue list
+
+For each out-of-scope channel:
+
+* *Channel* — the observable not covered (e.g. power draw, EM emanation,
+  speculative-execution / Spectre-class channels, DRAM row-buffer timing,
+  cache-line eviction patterns, microarchitectural port contention).
+* *Why excluded* — not in `O`; below the formalism's layer; platform-specific;
+  out of threat model.
+* *Who discharges it* — which engineering / measurement activity owns closing
+  it (constant-time codegen, hardware countermeasure, physical shielding), if
+  any.
+
+== Conventions
+
+* One file per OND claim, same base name as its observation model in
+  `../observation-models/`.
+* Copy `TEMPLATE.adoc` to start.
+* The residue list is a *living* document (OND-7): update it whenever `O`
+  changes or a new channel is recognised.
+* Collectively, the files here are the project's standing register of the
+  proof↔reality gap across all OND claims.

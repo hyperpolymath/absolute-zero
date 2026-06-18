@@ -2,7 +2,7 @@
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 # Absolute Zero
 
-**Formal Verification of Certified Null Operations: When Doing Nothing Is Everything**
+**Formal Verification of Null Operations — two co-equal pillars: Certified Null _Effect_ (CNO) and Certified Null _Disclosure_ (OND)**
 
 image:https://img.shields.io/badge/License-MPL_2.0-blue.svg[MPL-2.0]
 image:https://img.shields.io/badge/Sponsor-%E2%9D%A4-pink?logo=github[Sponsor,link="https://github.com/sponsors/hyperpolymath"]
@@ -29,6 +29,17 @@ This seemingly trivial question leads to deep insights in:
 - **Reversible Computing**: Programs preserving thermodynamic reversibility
 - **Esoteric Languages**: Using Malbolge as proof-of-concept
 
+## The Two Pillars
+
+Absolute Zero rests on **two co-equal pillars** — siblings of equal weight, not parent and extension:
+
+- **CNO — Certified Null _Effect_.** Certifies that an operation does *nothing to the world*: it terminates, maps input state to identical output state, is functionally pure, and is thermodynamically reversible (Landauer/Bennett). The conserved quantity is **state**.
+- **OND — Observational Null Operations / Certified Null _Disclosure_.** Certifies that an operation *reveals nothing about its secret input* to a declared observer: its observable trace (timing, size, …) is constant over the secret, **relative to a declared observation model `O`**. The conserved quantity is the **secret→observable channel**.
+
+The two are **logically independent** (neither entails the other — a proved theorem, with witnesses), connected by a single *coupling dial* between a thing and the trace it casts to an observer: CNO witnesses the emptiness of the **effect** channel; OND certifies the emptiness of the **disclosure** channel (this dial is *framing, not theorem*). Unlike CNO — which lives entirely inside the formal model — every OND claim is **conditional on its declared `O`** and ships a **residue list** of out-of-scope observables: the honest, explicit boundary between the proof and the physical metal.
+
+See **`docs/TWO-PILLARS.adoc`** (narrative), **`docs/OND-ROADMAP.adoc`** (prioritised obligations), and **`docs/OND-PILLAR-STRUCTURE.adoc`** (module layout). The OND pillar is at the design/roadmap stage: its obligations are currently `Admitted` (specified, not yet proved) — the normal honest starting state, mirroring CNO's own open obligations.
+
 ## Project Structure
 
 ```
@@ -54,7 +65,10 @@ absolute-zero/
 │   ├── z3/                  # Z3 SMT verification (automated)
 │   ├── agda/                # Agda proofs (dependent types)
 │   ├── isabelle/            # Isabelle/HOL (production-grade)
-│   └── mizar/               # Mizar proofs (mathematical library)
+│   ├── mizar/               # Mizar proofs (mathematical library)
+│   ├── observation-models/  # OND: declared observation models O (proof inputs)
+│   └── residue/             # OND: residue lists (the model-vs-metal gap)
+│   # Each prover dir hosts CNO.* and (to author) co-equal OND.* modules
 │
 ├── interpreters/            # Language interpreters with CNO detection
 │   ├── rescript/            # Malbolge (ReScript)

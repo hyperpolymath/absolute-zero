@@ -1,0 +1,42 @@
+// SPDX-License-Identifier: MPL-2.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= Observation Model: <OPERATION NAME>
+// Copy this file to <operation-name>.adoc and fill every field.
+// There MUST be a matching residue list at ../residue/<operation-name>.adoc.
+
+== Operation under claim
+<What operation is this `O` for? One sentence. Link the prover module that
+proves `is_OND O <op>`.>
+
+== Secret / public split
+* *Secret* (proof quantifies over these): <e.g. the comparison key, the
+  branch condition>
+* *Public* (held fixed): <e.g. buffer length, alignment>
+
+== Observer's view (the channels in `O`)
+List every channel the observer is assumed to see, with granularity. The OND
+proof shows the trace over THESE channels is constant over the secret.
+
+[cols="2,3",options="header"]
+|===
+| Channel | Granularity / definition
+| <e.g. wall-clock time>     | <e.g. instruction-count resolution>
+| <e.g. output length>       | <e.g. bytes>
+| <e.g. allocation sizes>    | <e.g. ordered list of malloc sizes>
+| ...                        | ...
+|===
+
+== Trace equality obligation (the consequent the proof discharges)
+For all secrets `s1, s2` (with the public inputs fixed):
+`O(run <op> (s1, pub)) = O(run <op> (s2, pub))`.
+
+== Antecedent (owed to the metal — NOT proved here)
+State what must hold of the real execution for this `O` to be faithful (e.g.
+"the compiler emits branch-free code for the secret-dependent select", "no
+secret-dependent memory access"). This is discharged by engineering, not the
+proof assistant. The out-of-scope channels are enumerated in the matching
+residue list at `../residue/<operation-name>.adoc`.
+
+== Status
+<one of: proven (conditional on O) | Admitted (obligation outstanding) |
+draft>

@@ -17,6 +17,51 @@ This roadmap charts Absolute Zero's evolution from a research prototype (current
 
 ---
 
+== The Second Pillar: Observational Null Operations (OND)
+
+Absolute Zero is now a **two-pillar** project. Alongside **CNO** (Certified
+Null _Effect_ — "does nothing to the world"), the **OND** pillar (Certified
+Null _Disclosure_ — "reveals nothing about its secret input, relative to a
+declared observation model `O`") is added as a **co-equal sibling**, not an
+extension. The two are logically independent (a proved theorem, with
+witnesses) and connected by a *coupling-dial* frame (framing, not theorem).
+The honest edge of OND is the **model-vs-metal boundary**: every OND claim is
+*conditional* on its declared `O` and ships a **residue list** of out-of-scope
+observables.
+
+**OND obligations** (prioritised; full detail in `docs/OND-ROADMAP.adoc`):
+
+1. *OND-1* — the OND definition, formalised (parameterised by `O`, emitting a
+   residue list). **Keystone.**
+2. *OND-2* — trivial-case satisfiability (skip is OND in any `O`) — the
+   definition's smoke-test.
+3. *OND-3* — the CNO ⊥ OND **independence theorem** (the result that earns the
+   two-pillar split).
+4. *OND-4* — a conditional-proof **template** for one real constant-time
+   operation (+ its metal-discharge statement and residue list).
+5. *OND-5* — the **non-composition** counterexample (ONDs do *not* compose
+   cleanly — state-chaining + emergent boundary observables; the DP-budget /
+   quasi-identifier shape).
+6. *OND-6* — the **conditional composition** theorem (the heavily-qualified
+   positive result; research-grade; last).
+7. *OND-7* — the ongoing **residue register** (the standing proof↔reality gap).
+
+**Status**: design/roadmap stage. All OND obligations are currently `Admitted`
+(specified, not yet proved) — the normal honest starting state, mirroring
+CNO's own open obligations (see `docs/PROOF-CLASSIFICATION.adoc`). Authoring
+the OND proofs is deferred; this roadmap and `docs/OND-ROADMAP.adoc` /
+`docs/TWO-PILLARS.adoc` / `docs/OND-PILLAR-STRUCTURE.adoc` specify the work.
+
+[NOTE]
+====
+The proof effort must investigate OND-5/OND-6 (composition) most carefully: if
+it concludes ONDs compose as cleanly as CNOs, that conclusion is almost
+certainly wrong (it has dropped either the state-chaining or the
+boundary-observable term) and must be re-checked.
+====
+
+---
+
 == Current State (v1.0.0-alpha, 50%)
 
 === Completed ✅
