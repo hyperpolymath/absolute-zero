@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = License Audit: Absolute Zero & ECHIDNA
 :toc:
@@ -20,7 +20,7 @@
 
 **Checkpoint files** (STATE.scm, ECOSYSTEM.scm, META.scm):
 ```scheme
-;; SPDX-License-Identifier: MPL-2.0  ⚠️ Should be MPL-2.0
+;; SPDX-License-Identifier: CC-BY-SA-4.0  ⚠️ Should be MPL-2.0
 ```
 
 **Expected**: MPL-2.0 (primary), MPL-2.0 (fallback)
@@ -40,7 +40,7 @@ sed -i 's/MPL-2.0/MPL-2.0/' STATE.scm ECOSYSTEM.scm META.scm
 
 # Add to all source files
 find proofs -name "*.v" -o -name "*.lean" | while read f; do
-  echo "// SPDX-License-Identifier: MPL-2.0" | cat - "$f" > temp && mv temp "$f"
+  echo "// SPDX-License-Identifier: CC-BY-SA-4.0" | cat - "$f" > temp && mv temp "$f"
 done
 ```
 
@@ -48,7 +48,7 @@ done
 ```adoc
 == License
 
-SPDX-License-Identifier: MPL-2.0
+SPDX-License-Identifier: CC-BY-SA-4.0
 
 Primary License: Palimpsest-MPL License 1.0 or later (MPL-2.0)
 
@@ -70,7 +70,7 @@ rm LICENSE-PALIMPS.md  # 0 bytes, not useful
 
 **LICENSE file** (line 1):
 ```
-SPDX-License-Identifier: MPL-2.0  ✅ CORRECT
+SPDX-License-Identifier: CC-BY-SA-4.0  ✅ CORRECT
 ```
 
 **Cargo.toml** (line 4):

@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: MPL-2.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 # Thin wrapper around the estate-wide reusable Deno CI bundle.
 # See: hyperpolymath/standards/.github/workflows/deno-ci-reusable.yml
 name: Deno CI
