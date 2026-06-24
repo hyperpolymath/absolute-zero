@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = Session Complete: All Three Tasks
 :toc:
@@ -56,10 +56,10 @@ Successfully completed all three requested tasks:
 ```bash
 # absolute-zero
 $ grep "SPDX-License-Identifier" LICENSE
-SPDX-License-Identifier: MPL-2.0
+SPDX-License-Identifier: CC-BY-SA-4.0
 
 $ head -1 STATE.scm
-;; SPDX-License-Identifier: MPL-2.0
+;; SPDX-License-Identifier: CC-BY-SA-4.0
 
 # echidna
 $ grep "license =" Cargo.toml

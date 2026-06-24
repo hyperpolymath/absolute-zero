@@ -1,4 +1,4 @@
-# SPDX-License-Identifier: PMPL-1.0-or-later
+# SPDX-License-Identifier: MPL-2.0
 Contact: https://github.com/hyperpolymath/absolute-zero/security/advisories/new
 Expires: 2027-05-25T00:00:00Z
 Preferred-Languages: en

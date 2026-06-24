@@ -1,4 +1,4 @@
-// SPDX-License-Identifier: MPL-2.0
+// SPDX-License-Identifier: CC-BY-SA-4.0
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = Session Handoff — 2026-05-25 Repo Tidy
 Claude (session 7927557c-2938-4d53-b987-a6f8ebc44611)
