@@ -49,8 +49,8 @@ repo build) covers `common` + `malbolge`; the full set builds with the per-area
 `Layout.idr`/`Foreign.idr` `--check` individually but `Types.idr`/`Proofs/DivMod.idr`
 report module-name/file-path mismatches. This is the same template-scaffold issue
 as `typell`; fixing it is a package-restructuring task (align module names ↔ paths ↔
-`sourcedir`), deferred. *Also flagged: the `.ipkg` SPDX is `PMPL-1.0-or-later`,
-which is a licence-policy item for the owner (sole-owner repos use MPL-2.0).*
+`sourcedir`), deferred. *(The `.ipkg` `license` field — previously
+`PMPL-1.0-or-later` — has been corrected to `MPL-2.0` per the sole-owner policy.)*
 
 == Lean — NOT verified here (requires Mathlib)
 
