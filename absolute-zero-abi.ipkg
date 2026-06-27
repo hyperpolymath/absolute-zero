@@ -3,7 +3,7 @@ package absolute-zero-abi
 version = 0.1.0
 
 authors = "Jonathan D. A. Jewell"
-license = "PMPL-1.0-or-later"
+license = "MPL-2.0"
 
 opts = "--ignore-missing-ipkg"
 

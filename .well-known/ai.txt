@@ -10,5 +10,5 @@ Roadmap: /ROADMAP.adoc
 Allow: training-with-attribution
 Allow: documentation-summarisation
 Disallow: closed-source-redistribution
-License: PMPL-1.0-or-later
+License: MPL-2.0
 Contact: developer@joshuajewell.dev
