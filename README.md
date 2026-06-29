@@ -257,12 +257,19 @@ See \[VERIFICATION.md\](VERIFICATION.md) for detailed status and
 \[PROOF-INSIGHTS.md\](PROOF-INSIGHTS.md) for proof engineering
 knowledge.
 
-**Coq Proof Status** (2026-02-05): 81 Qed / 19 Admitted / 6 Defined / 63
-Axioms across 10 files. 4 files fully complete (CNO.v, CNOCategory.v,
-StatMech.v, StatMech_helpers.v).
+**Coq Proof Status** (2026-06-29): 115 Qed / 0 Admitted / 61 Axioms across
+13 files — every theorem is discharged (no `Admitted`), but the development
+*rests on 61 Coq + 52 Lean axioms* (unproven assumptions, not theorems: e.g.
+quantum-gate unitarity, complex-analysis identities, Shannon-entropy
+non-negativity, filesystem inverse laws). "Machine-checked" here means checked
+*relative to those axioms* — not an axiom-free proof. (The status table above is
+pre-conversion and stale; these are the current figures.)
 
-**Next Step**: Complete remaining 19 Admitted proofs, then build
-container for machine verification.
+**Verification scope**: Coq, Lean 4 and Agda are machine-checkable in-tree; the
+Z3, Isabelle and Mizar artefacts are *generated but not yet run* — not evidence.
+
+**Next Step**: Discharge (or justify) the axioms — especially the domain-specific
+ones (gate unitarity, filesystem inverse laws) — and machine-run Z3/Isabelle/Mizar.
 
 # Research Contributions
 
