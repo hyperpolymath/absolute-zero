@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: CC-BY-SA-4.0
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
-= Absolute Zero: Roadmap to v12.0
+= Absolute Zero: Roadmap
 Jonathan D. A. Jewell <jonathan.jewell@open.ac.uk>
 :toc: left
 :toclevels: 3
@@ -9,48 +9,95 @@ Jonathan D. A. Jewell <jonathan.jewell@open.ac.uk>
 
 == Executive Summary
 
-This roadmap charts Absolute Zero's evolution from a research prototype (current v1.0.0-alpha at 50%) through v1.0 release to v12.0 — a comprehensive formal verification platform for computational nullity.
+Absolute Zero is a solo-maintained formal-methods research project that
+mechanises *null operations* — programs proven to do nothing — across proof
+assistants. It rests on two co-equal pillars: *CNO* (Certified Null _Effect_)
+and *OND* (Observational Null / Certified Null _Disclosure_).
 
-**Timeline**: 18 months (v1.0) → 7 years (v12.0)
+This roadmap is deliberately scoped to what one maintainer can credibly ship.
+The honest near-term goal is a *publishable CNO result with a truthful proof
+ledger* and the *first three OND obligations landed* — not a funded platform.
+The long-horizon vision (a universal CNO standard) is preserved, clearly
+labelled as aspirational and unfunded, in the appendix; it is a direction of
+travel, not a commitment with a date.
 
-**Vision**: Transform from academic proof-of-concept to production-ready verification infrastructure used by compiler writers, security researchers, and formal methods practitioners worldwide.
+[NOTE]
+====
+*Status honesty.* Completion figures here describe what a checker actually
+reproduces (see `PROOF-STATUS.adoc`), not aspirations. "Verified" means a
+prover run in a known environment, not a reading of in-file comments.
+====
 
----
+== Honest Current State
+
+=== What genuinely verifies
+
+* *Coq (reproduced):* 13 theories compile from scratch under
+  `coqc 8.18.0` (`PROOF-STATUS.adoc`) — `common`, `category`, `quantum`,
+  `lambda`, `filesystem`, `physics`, `malbolge`.
+* *Agda (reproduced):* 3 modules type-check under `agda 2.6.3`
+  (`CNO.agda`, `EchoBridgeCNO.agda`, `EchoBridgeScaffold.agda`), with
+  functional extensionality taken as an *explicit hypothesis*, not a global
+  postulate.
+* *Rust interpreters:* the Brainfuck and Whitespace interpreters are real
+  (`src/brainfuck/`, `src/whitespace/`) — the Python→Rust migration landed.
+
+=== What is honestly incomplete
+
+[cols="1,1,3",options="header"]
+|===
+| Area | State | Note
+
+| Axiom base | ~61 Coq + ~52 Lean axioms | The "0 Admitted" claim is true only
+  because obligations are stated as axioms. `docs/proof-debt.md` /
+  `proof-debt-triage.md` triage which are *provable debt* (dischargeable) vs
+  *foundational* (kept deliberately). Discharging the provable set is core work.
+| Lean 4 | Not built here | Requires the full Mathlib @ v4.16.0 (multi-GB); not
+  reproduced in this environment. Either CI-check it or descope the claim.
+| Z3 | No artifact | `proofs/z3/` holds only `verify.sh`; the referenced
+  `cno_properties.smt2` does not exist. The "90% / 10 theorems" claim is unbacked.
+| Isabelle / Mizar | Stubs | Generated, not run.
+| OND pillar | Docs only | `docs/TWO-PILLARS.adoc` + `docs/OND-ROADMAP.adoc`
+  specify the work; `proofs/observation-models/` and `proofs/residue/` contain
+  only README/TEMPLATE. No OND proof module exists yet.
+| Idris2 ABI | Does not build | Module-name ↔ path ↔ `sourcedir` mismatch
+  (`AUDIT.adoc` item AUDIT-2026-05-20-A); a packaging-restructure task.
+| Paper | Draft stub | `papers/.latex/main.tex` is a lone draft.
+| Tests | Empty placeholder | `tests/` holds a README only.
+|===
 
 == The Second Pillar: Observational Null Operations (OND)
 
-Absolute Zero is now a **two-pillar** project. Alongside **CNO** (Certified
-Null _Effect_ — "does nothing to the world"), the **OND** pillar (Certified
+Absolute Zero is a *two-pillar* project. Alongside *CNO* (Certified
+Null _Effect_ — "does nothing to the world"), the *OND* pillar (Certified
 Null _Disclosure_ — "reveals nothing about its secret input, relative to a
-declared observation model `O`") is added as a **co-equal sibling**, not an
+declared observation model `O`") is a *co-equal sibling*, not an
 extension. The two are logically independent (a proved theorem, with
 witnesses) and connected by a *coupling-dial* frame (framing, not theorem).
-The honest edge of OND is the **model-vs-metal boundary**: every OND claim is
-*conditional* on its declared `O` and ships a **residue list** of out-of-scope
+The honest edge of OND is the *model-vs-metal boundary*: every OND claim is
+*conditional* on its declared `O` and ships a *residue list* of out-of-scope
 observables.
 
-**OND obligations** (prioritised; full detail in `docs/OND-ROADMAP.adoc`):
+*OND obligations* (prioritised; full detail in `docs/OND-ROADMAP.adoc`):
 
 1. *OND-1* — the OND definition, formalised (parameterised by `O`, emitting a
-   residue list). **Keystone.**
+   residue list). *Keystone.*
 2. *OND-2* — trivial-case satisfiability (skip is OND in any `O`) — the
    definition's smoke-test.
-3. *OND-3* — the CNO ⊥ OND **independence theorem** (the result that earns the
+3. *OND-3* — the CNO ⊥ OND *independence theorem* (the result that earns the
    two-pillar split).
-4. *OND-4* — a conditional-proof **template** for one real constant-time
+4. *OND-4* — a conditional-proof *template* for one real constant-time
    operation (+ its metal-discharge statement and residue list).
-5. *OND-5* — the **non-composition** counterexample (ONDs do *not* compose
+5. *OND-5* — the *non-composition* counterexample (ONDs do *not* compose
    cleanly — state-chaining + emergent boundary observables; the DP-budget /
    quasi-identifier shape).
-6. *OND-6* — the **conditional composition** theorem (the heavily-qualified
+6. *OND-6* — the *conditional composition* theorem (the heavily-qualified
    positive result; research-grade; last).
-7. *OND-7* — the ongoing **residue register** (the standing proof↔reality gap).
+7. *OND-7* — the ongoing *residue register* (the standing proof↔reality gap).
 
-**Status**: design/roadmap stage. All OND obligations are currently `Admitted`
+*Status*: design/roadmap stage. All OND obligations are currently `Admitted`
 (specified, not yet proved) — the normal honest starting state, mirroring
-CNO's own open obligations (see `docs/PROOF-CLASSIFICATION.adoc`). Authoring
-the OND proofs is deferred; this roadmap and `docs/OND-ROADMAP.adoc` /
-`docs/TWO-PILLARS.adoc` / `docs/OND-PILLAR-STRUCTURE.adoc` specify the work.
+CNO's own open obligations (see `docs/PROOF-CLASSIFICATION.adoc`).
 
 [NOTE]
 ====
@@ -60,714 +107,97 @@ certainly wrong (it has dropped either the state-chaining or the
 boundary-observable term) and must be re-checked.
 ====
 
----
-
-== Current State (v1.0.0-alpha, 50%)
-
-=== Completed ✅
-* **Core Theory**: 6 proof systems, 22 theorems, ~7000 lines of proof code
-* **Multi-Prover Verification**: Coq, Lean 4, Z3, Agda, Isabelle, (Mizar pending)
-* **Advanced Modules**: Statistical mechanics, category theory, lambda calculus, quantum, filesystem
-* **Research Foundation**: Paper drafts, examples, documentation
-
-=== Technical Debt ⚠️
-* Python interpreters (violates RSR language policy → migrate to Julia/Rust)
-* npm/package.json (violates Deno-only policy)
-* License inconsistencies (AGPL references → PMPL-1.0-or-later)
-* Incomplete checkpoint files (ECOSYSTEM.scm needs detail)
-* Container verification not validated
-
-=== Gaps for v1.0
-* No publication-ready paper
-* Missing industrial applications
-* No GUI/visualization tools
-* Limited language coverage (only esoteric languages)
-* No integration with existing verification ecosystems
-
----
-
-== Phase 1: Road to v1.0 (MVP) — 6 Months
-
-**Goal**: Production-ready research artifact with published paper
-
-=== v1.0 Milestone Requirements
-
-[cols="1,2,1"]
-|===
-|Category |Deliverable |Status
-
-|**Theory**
-|All 6 proof systems verified in containers
-|🟡 90%
-
-|**Implementation**
-|Python → Rust migration complete
-|🔴 0%
-
-|**Documentation**
-|Peer-reviewed paper accepted
-|🔴 0%
-
-|**Standards**
-|Full RSR compliance (PMPL, Deno, no Python)
-|🔴 30%
-
-|**Infrastructure**
-|CI/CD with all proof systems
-|🟡 70%
-
-|**Applications**
-|3 real-world CNO examples
-|🟡 50%
-
-|===
-
-=== v0.8.0: Compliance Sprint (Month 1)
-
-**Focus**: Fix technical debt, achieve RSR compliance
-
-==== Critical Tasks
-* [ ] **License Migration**
-  - Replace all AGPL-3.0 references with PMPL-1.0-or-later
-  - Update SPDX headers in all 500+ files
-  - Create LICENSE and LICENSE-MPL-2.0 files
-  - Remove LICENSE-PALIMPS.md stub
-
-* [ ] **Language Policy Enforcement**
-  - Migrate Brainfuck interpreter: Python → Rust
-  - Migrate Whitespace interpreter: Python → Rust
-  - Remove package.json, npm dependencies
-  - Add deno.json for JS runtime needs
-  - Add Cargo.toml for Rust interpreters
-
-* [ ] **Checkpoint File Completion**
-  - Complete ECOSYSTEM.scm with proper descriptions
-  - Update STATE.scm with recent progress
-  - Add detailed related-projects section
-
-* [ ] **Repository Hygiene**
-  - Remove duplicate TypeScript code (use ReScript only)
-  - Clean up Elm playground (assess if needed)
-  - Consolidate documentation
-
-**Deliverable**: Clean, compliant codebase ready for publication
-
----
-
-=== v0.9.0: Container & Verification (Month 2)
-
-**Focus**: Bulletproof verification infrastructure
-
-==== Tasks
-* [ ] **Container Validation**
-  - Build Containerfile with all 6 proof systems
-  - Verify all proofs run in container
-  - Add container publish workflow
-  - Test on multiple architectures (amd64, arm64)
-
-* [ ] **Proof System Integration**
-  - Mizar installation automation
-  - Cross-system theorem synchronization
-  - Automated proof checking in CI
-  - Proof coverage reporting
-
-* [ ] **Performance Optimization**
-  - Parallel proof verification
-  - Cached proof artifacts
-  - Incremental verification
-
-**Deliverable**: One-command verification (`podman run absolute-zero verify-all`)
-
----
-
-=== v0.10.0: Real-World Applications (Month 3)
-
-**Focus**: Demonstrate practical utility
-
-==== CNO Examples
-* [ ] **Compiler Optimization**
-  - Dead code elimination example
-  - LLVM IR CNO detection
-  - Benchmark performance gains
-
-* [ ] **Database Transactions**
-  - Prove rollback is CNO
-  - PostgreSQL integration example
-  - Transaction safety verification
-
-* [ ] **Secure Sandboxing**
-  - Untrusted code safety proof
-  - WebAssembly CNO validator
-  - Docker/Podman sandbox
-
-==== Implementation
-* [ ] Rust CNO library (`crates.io` package)
-* [ ] CLI tool: `cno-verify <program>`
-* [ ] Integration tests with real codebases
-
-**Deliverable**: 3 working industrial examples with performance data
-
----
-
-=== v0.11.0: Visualization & Accessibility (Month 4)
-
-**Focus**: Make theory accessible to non-experts
-
-==== GUI Development
-* [ ] **Web-Based Proof Explorer** (ReScript + Deno)
-  - Interactive proof tree visualization
-  - Step-through proof execution
-  - Theorem dependency graphs
-  - Mobile-responsive design
-
-* [ ] **CNO Playground** (Tauri 2.0)
-  - Write/test programs in browser
-  - Real-time CNO verification
-  - Visual state transition diagrams
-  - Share proof URLs
-
-==== Educational Materials
-* [ ] Tutorial series (6 modules)
-* [ ] Video lectures on theory
-* [ ] Jupyter notebooks for experimentation
-* [ ] Coq/Lean proof walkthroughs
-
-**Deliverable**: Interactive demo accessible to undergraduates
-
----
-
-=== v0.12.0: Publication Sprint (Month 5)
-
-**Focus**: Research paper finalization
-
-==== Paper Sections
-* [ ] Abstract & introduction
-* [ ] Formal CNO definition (all 6 systems)
-* [ ] Composition theorems with proofs
-* [ ] Thermodynamic foundations (Landauer, Bennett)
-* [ ] Complexity analysis (undecidability proof)
-* [ ] Industrial applications & benchmarks
-* [ ] Related work comparison
-* [ ] Future research directions
-
-==== Submission Targets
-* **Tier 1**: POPL, PLDI, ICFP, OOPSLA
-* **Tier 2**: ITP, CPP, VSTTE
-* **Journals**: TOPLAS, JFP, PACMPL
-
-==== Supporting Materials
-* [ ] Artifact evaluation package
-* [ ] Benchmark suite
-* [ ] Proof mechanization guide
-* [ ] GitHub Pages documentation site
-
-**Deliverable**: Submission-ready paper + artifact
-
----
-
-=== v1.0.0: Official Release (Month 6)
-
-**Focus**: Stable, documented, published
-
-==== Release Criteria
-* ✅ All 6 proof systems verified
-* ✅ Zero `Admitted` or `sorry` in core proofs
-* ✅ Full RSR compliance
-* ✅ Paper accepted (or in revision)
-* ✅ 3 industrial examples working
-* ✅ Container verified on 2+ architectures
-* ✅ Documentation complete
-* ✅ GUI functional
-
-==== Release Artifacts
-* [ ] Git tag: `v1.0.0`
-* [ ] GitHub/GitLab release notes
-* [ ] DOI via Zenodo
-* [ ] crates.io package: `absolute-zero`
-* [ ] Announcement blog post
-* [ ] Social media campaign
-
-==== Post-Release
-* [ ] Present at workshop/conference
-* [ ] Engage with proof assistant communities
-* [ ] Monitor issue tracker
-* [ ] Begin v2 planning
-
-**Deliverable**: Stable release with DOI, ready for citation
-
----
-
-== Phase 2: Expansion (v2-v4) — 12 Months
-
-=== v2.0: Language Expansion (Months 7-9)
-
-**Goal**: Extend beyond esoteric languages
-
-==== New Language Support
-* [ ] **C**: Prove `return;` is CNO
-* [ ] **Rust**: Verify `()` and no-op functions
-* [ ] **Python**: Detect CNO patterns via AST
-* [ ] **JavaScript**: ReScript-based CNO linter
-* [ ] **SQL**: Transaction rollback verification
-* [ ] **Assembly**: x86-64 `nop` instruction proof
-
-==== Infrastructure
-* [ ] Universal CNO specification format
-* [ ] Language-agnostic verification engine
-* [ ] Plugin architecture for new languages
-
-==== Applications
-* [ ] Static analysis tool integration
-* [ ] IDE plugins (VS Code, Emacs, Vim)
-* [ ] Compiler plugin for GCC/Clang
-
-**Deliverable**: CNO verification for 10+ mainstream languages
-
----
-
-=== v3.0: Automated Proof Generation (Months 10-12)
-
-**Goal**: AI-assisted proof discovery
-
-==== Features
-* [ ] **Machine Learning Models**
-  - Train on existing proofs
-  - Suggest proof strategies
-  - Auto-complete proof sketches
-
-* [ ] **Proof Search**
-  - Automated theorem proving
-  - SMT solver integration
-  - Sledgehammer-style tactics
-
-* [ ] **Proof Refactoring**
-  - Simplify complex proofs
-  - Detect proof duplication
-  - Suggest lemmas
-
-==== Research Integration
-* [ ] Collaborate with AI4Formal Methods community
-* [ ] Benchmark against Lean GPT-f
-* [ ] Contribute to mathlib/Lean proof corpus
-
-**Deliverable**: AI copilot for CNO proof engineering
-
----
-
-=== v4.0: Production Hardening (Months 13-18)
-
-**Goal**: Enterprise-ready verification platform
-
-==== Features
-* [ ] **Performance**
-  - Parallel proof checking
-  - Distributed verification
-  - GPU-accelerated SMT solving
-
-* [ ] **Scalability**
-  - Verify large codebases (1M+ LOC)
-  - Incremental verification
-  - Proof caching & memoization
-
-* [ ] **Security**
-  - Proof auditing & provenance
-  - Cryptographic proof commitments
-  - Supply chain verification
-
-==== Enterprise Adoption
-* [ ] Docker Hub official image
-* [ ] Kubernetes operator
-* [ ] Cloud service (SaaS offering)
-* [ ] Enterprise support contracts
-
-**Deliverable**: Production SLA-ready verification service
-
----
-
-== Phase 3: Ecosystem Integration (v5-v8) — 24 Months
-
-=== v5.0: Compiler Integration (Months 19-24)
-
-**Goal**: Seamless integration with existing toolchains
-
-==== Compiler Backends
-* [ ] **LLVM Plugin**
-  - CNO detection pass
-  - Dead code elimination
-  - Optimization hints
-
-* [ ] **GCC Plugin**
-  - Similar to LLVM
-  - GCC-specific optimizations
-
-* [ ] **Rust Compiler (rustc)**
-  - Macro for CNO annotation
-  - Compile-time verification
-  - Zero-cost abstractions
-
-==== Build System Integration
-* [ ] Cargo plugin: `cargo cno-verify`
-* [ ] CMake module
-* [ ] Meson integration
-* [ ] Bazel rules
-
-**Deliverable**: CNO verification in every major compiler
-
----
-
-=== v6.0: Formal Methods Ecosystem (Months 25-30)
-
-**Goal**: Bridge to existing verification tools
-
-==== Tool Integration
-* [ ] **Frama-C**: C verification
-* [ ] **Why3**: Multi-prover integration
-* [ ] **Dafny**: Program verification
-* [ ] **F***: Dependent types
-* [ ] **TLA+**: Temporal logic
-
-==== Standard Formats
-* [ ] SMT-LIB 2.6 output
-* [ ] TPTP problem format
-* [ ] Proof certificates (LFSC, Dedukti)
-
-==== Ecosystem Position
-* [ ] Present at FM conferences
-* [ ] Contribute to Proof Market
-* [ ] Integration with Coq Platform
-
-**Deliverable**: Universal CNO verification format
-
----
-
-=== v7.0: Quantum Computing (Months 31-36)
-
-**Goal**: Extend CNO theory to quantum realm
-
-==== Quantum CNOs
-* [ ] **Formal Definition**
-  - Quantum state preservation
-  - Unitary operation verification
-  - Entanglement preservation
-
-* [ ] **Proof Systems**
-  - QPL (Quantum Programming Language) integration
-  - Qiskit circuit verification
-  - Cirq CNO detection
-
-* [ ] **Applications**
-  - Quantum algorithm optimization
-  - Error correction verification
-  - Noise mitigation
-
-==== Research
-* [ ] Quantum CNO paper (QIP, QPL conference)
-* [ ] Collaboration with quantum computing labs
-* [ ] Open-source quantum simulator
-
-**Deliverable**: World's first quantum CNO verifier
-
----
-
-=== v8.0: Hardware Verification (Months 37-42)
-
-**Goal**: Extend to hardware design
-
-==== HDL Support
-* [ ] **Verilog**: RTL CNO detection
-* [ ] **VHDL**: Hardware CNO verification
-* [ ] **Chisel**: Scala-based HDL
-* [ ] **Bluespec**: Formal hardware design
-
-==== Applications
-* [ ] CPU design verification
-* [ ] FPGA optimization
-* [ ] ASIC power analysis
-
-==== Industry Partnership
-* [ ] Collaborate with chip designers
-* [ ] RISC-V CNO instruction verification
-* [ ] Open-source hardware projects
-
-**Deliverable**: Hardware CNO verification suite
-
----
-
-== Phase 4: AI & Automation (v9-v10) — 18 Months
-
-=== v9.0: Neural Theorem Proving (Months 43-51)
-
-**Goal**: State-of-the-art AI-assisted proving
-
-==== Deep Learning Models
-* [ ] **Transformer-based Prover**
-  - Train on 1M+ proofs
-  - Beat human experts on benchmarks
-  - Transfer learning across systems
-
-* [ ] **Reinforcement Learning**
-  - Learn proof strategies
-  - Optimize proof length
-  - Discover novel theorems
-
-* [ ] **Neuro-Symbolic Methods**
-  - Combine neural nets with symbolic reasoning
-  - Explainable AI proofs
-  - Human-readable justifications
-
-==== Research Impact
-* [ ] NeurIPS/ICML paper on CNO proving
-* [ ] Open-source model weights
-* [ ] Integration with AlphaProof successor
-
-**Deliverable**: AI that discovers CNO theorems autonomously
-
----
-
-=== v10.0: Autonomous Verification (Months 52-60)
-
-**Goal**: Zero-human-in-the-loop verification
-
-==== Features
-* [ ] **Auto-Fix**
-  - Detect non-CNO code
-  - Suggest CNO rewrites
-  - Automated refactoring
-
-* [ ] **Continuous Verification**
-  - GitHub Actions integration
-  - Pre-commit hooks
-  - Real-time code review
-
-* [ ] **Proof Repair**
-  - Fix broken proofs automatically
-  - Handle API changes
-  - Maintain proof health
-
-==== Enterprise Features
-* [ ] SLA guarantees (99.9% uptime)
-* [ ] Security compliance (SOC 2)
-* [ ] Multi-tenancy support
-
-**Deliverable**: Fully autonomous CNO verification platform
-
----
-
-== Phase 5: Universal Platform (v11-v12) — 24 Months
-
-=== v11.0: Cross-Domain Verification (Months 61-72)
-
-**Goal**: Verify CNOs in every computational domain
-
-==== New Domains
-* [ ] **Biology**: Protein folding simulations
-* [ ] **Chemistry**: Molecular dynamics
-* [ ] **Physics**: Lattice QCD simulations
-* [ ] **Finance**: Zero-knowledge trading
-* [ ] **Cryptography**: Homomorphic encryption
-
-==== Scientific Computing
-* [ ] Julia integration (native)
-* [ ] NumPy/SciPy CNO detection
-* [ ] BLAS/LAPACK verification
-* [ ] HPC cluster support
-
-==== Research Collaboration
-* [ ] Partner with national labs
-* [ ] NSF grant applications
-* [ ] EU Horizon funding
-
-**Deliverable**: CNO verification for scientific software
-
----
-
-=== v12.0: The Universal CNO Standard (Months 73-84)
-
-**Goal**: Establish CNO as universal computational primitive
-
-==== Standardization
-* [ ] **ISO Standard**: Submit CNO specification
-* [ ] **IEEE Standard**: Formal verification methods
-* [ ] **W3C**: Web platform CNO API
-
-==== Global Adoption
-* [ ] Taught in CS curriculums
-* [ ] Required for safety-critical software
-* [ ] Referenced in regulations (FDA, FAA)
-
-==== Platform Maturity
-* [ ] 10,000+ users
-* [ ] 1,000+ papers citing Absolute Zero
-* [ ] 100+ companies using in production
-* [ ] 50+ programming languages supported
-
-==== Infrastructure
-* [ ] Distributed proof network
-* [ ] Proof marketplace
-* [ ] CNO certification authority
-* [ ] Global verification registry
-
-==== Legacy
-* [ ] Book: "The Absolute Zero Handbook"
-* [ ] Documentary on computational nullity
-* [ ] Hall of Fame for top contributors
-* [ ] Annual Absolute Zero Conference
-
-**Deliverable**: CNO verification as foundational CS infrastructure
-
----
-
-== Resource Requirements
-
-=== Personnel (by Phase)
-
-[cols="1,2,1"]
-|===
-|Phase |Roles |FTE
-
-|**v1.0 (6mo)**
-|Lead researcher, 2 proof engineers
-|2.5
-
-|**v2-v4 (18mo)**
-|+ 2 software engineers, 1 ML researcher
-|5.5
-
-|**v5-v8 (24mo)**
-|+ 2 integration engineers, 1 quantum expert
-|8.5
-
-|**v9-v10 (18mo)**
-|+ 3 AI researchers, 1 DevOps engineer
-|12.5
-
-|**v11-v12 (24mo)**
-|+ 2 domain experts, 1 standards liaison
-|15.5
-|===
-
-=== Funding (Estimated)
-
-[cols="1,1,2"]
-|===
-|Phase |Duration |Budget (USD)
-
-|v1.0
-|6 months
-|$200K (salaries, compute, publication)
-
-|v2-v4
-|18 months
-|$800K (team expansion, cloud infra)
-
-|v5-v8
-|24 months
-|$1.5M (partnerships, hardware)
-
-|v9-v10
-|18 months
-|$2M (AI compute, research)
-
-|v11-v12
-|24 months
-|$3M (global expansion, standards)
-
-|**Total**
-|7 years
-|**$7.5M**
-|===
-
-=== Infrastructure
-
-* **Compute**: 100 CPU cores, 8 GPUs (for AI training)
-* **Storage**: 10 TB (proof artifacts, datasets)
-* **Cloud**: AWS/Azure/GCP multi-cloud
-* **CI/CD**: GitHub Actions, GitLab CI, self-hosted runners
-
----
-
-== Risk Mitigation
-
-=== Technical Risks
-
-[cols="1,2,2"]
-|===
-|Risk |Impact |Mitigation
-
-|Proof complexity explosion
-|HIGH
-|Focus on decidable subsets, use SMT solvers
-
-|AI model hallucinations
-|MEDIUM
-|Formal verification of AI outputs
-
-|Performance bottlenecks
-|MEDIUM
-|Parallel execution, caching, incremental verification
-
-|Quantum CNO undecidability
-|LOW
-|Limit to finite-dimensional systems
-|===
-
-=== Strategic Risks
-
-[cols="1,2,2"]
-|===
-|Risk |Impact |Mitigation
-
-|Competing research
-|MEDIUM
-|Publish early, establish mindshare
-
-|Lack of adoption
-|HIGH
-|Focus on real-world applications first
-
-|Funding gaps
-|HIGH
-|Diversified funding (grants, industry, SaaS)
-
-|Team retention
-|MEDIUM
-|Competitive comp, interesting problems
-|===
-
----
-
-== Success Metrics
-
-=== v1.0 KPIs
-* ✅ Paper accepted at top-tier venue
-* ✅ 500+ GitHub stars
-* ✅ 10+ external contributors
-* ✅ 3 industrial case studies
-
-=== v6.0 KPIs
-* 🎯 50+ languages supported
-* 🎯 1,000+ users
-* 🎯 10 companies in production
-* 🎯 20+ academic citations
-
-=== v12.0 KPIs
-* 🌟 10,000+ users globally
-* 🌟 1,000+ papers citing project
-* 🌟 ISO/IEEE standard approved
-* 🌟 Taught in 100+ universities
-
----
-
-== Conclusion
-
-Absolute Zero has the potential to transform from a research curiosity into foundational computer science infrastructure. By systematically expanding from esoteric languages to mainstream compilers, from manual proofs to AI-assisted proving, and from academic prototypes to industrial platforms, we can establish **Certified Null Operations** as a universal computational primitive.
-
-**The vision**: In 2032, every compiler, every proof assistant, and every verification tool will have CNO detection built-in. Absolute Zero will be the reference implementation, the theoretical foundation, and the community hub for this transformation.
-
-**Next step**: Execute Phase 1 (v1.0) to prove the concept, then secure funding for the 7-year journey to v12.0.
+== Near-Term Roadmap (the actual next steps)
+
+No fixed dates — a solo project proceeds as time allows. Ordered by value.
+
+=== Milestone 1: Truthful ledger + the theorem MAA needs
+
+Absolute Zero is the CNO foundation that `hyperpolymath/maa-framework`
+coordinates as a pinned submodule. The theorem MAA actually cites is the
+*general reversibility biconditional*, which does not yet exist at the general
+level (only a filesystem-specific, axiom-backed instance).
+
+* [ ] Prove `reversible p ↔ ∃ p_inv, is_CNO (p ;; p_inv) ∧ is_CNO (p_inv ;; p)`
+  in `proofs/coq/common/CNO.v` (linking `reversible` to `cno_composition`),
+  with a Lean mirror.
+* [ ] Discharge the filesystem existence axioms in `FilesystemCNO.v` so
+  `valence_reversible_pair_is_cno` becomes axiom-free.
+* [ ] Discharge the "provable debt" axioms triaged in `proof-debt-triage.md`
+  (existence witnesses: `mkdir_not_identity`, `write_different_not_identity`,
+  `X_gate_not_identity`, `H_gate_not_identity`; dedupe triple-declared physics
+  constants).
+* [ ] Repair the Idris2 ABI package (align module names ↔ paths ↔ `sourcedir`;
+  fix the `Types.idr` errors) so `idris2 --build absolute-zero-abi.ipkg` succeeds.
+* [ ] Make CI truthful: run Coq(13) + Agda(3) + Rust; either add a real
+  `cno_properties.smt2` or delete the Z3 job and its "10 theorems" claim; drop
+  ReScript/TS/Python jobs; fix the mangled README table and the CNO-acronym
+  inconsistency.
+
+*Done means:* the proof ledger reflects only what actually checks, the
+reversibility bridge is proved, and MAA can build against a stable surface.
+
+=== Milestone 2: OND minimum viable pillar
+
+* [ ] *OND-1* definition (observation model `O` + residue) in Coq + Lean.
+* [ ] *OND-2* trivial-case satisfiability.
+* [ ] *OND-3* CNO ⊥ OND independence theorem.
+
+*Done means:* OND has a credible, checked core; OND-4..6 remain openly
+`Admitted` — an honest, publishable state.
+
+=== Milestone 3: The paper
+
+* [ ] "Certified Null Operations: machine-checked nothingness across proof
+  assistants" — submission-viable on the CNO pillar alone (13 Coq + 3 Agda +
+  honest axiom disclosure). Target: ITP / CPP / VSTTE, or a PACMPL venue.
+* [ ] Artifact-evaluation package: one-command container verification.
+
+=== Milestone 4: Make it demonstrable
+
+* [ ] `cno-verify` Rust library + CLI as a small, real deliverable.
+* [ ] Coupling-dial demo in the existing Elm playground (`elm/`): toggle the
+  observation model `O`, watch CNO=yes / OND=no flip — the live witness for
+  OND-3 and the paper's best figure.
+* [ ] Populate `tests/` with unit tests for the Rust interpreters and
+  proof-property checks.
+
+[appendix]
+== Long-Horizon Vision (aspirational, unfunded)
+
+[IMPORTANT]
+====
+Everything below is a *direction of travel*, not a plan with dates, staffing,
+or budget. It is retained so the ambition is not lost, but it is explicitly
+*out of scope* for the solo effort described above. Treat the figures as
+illustrative of scale, not as commitments.
+====
+
+The long-term ambition is to establish *Certified Null Operations* as a
+universal computational primitive — CNO detection built into compilers, proof
+assistants, and verification tools; a shared specification; a community around
+computational nullity. Plausible directions, roughly in order:
+
+* *Language expansion* — CNO verification beyond esoteric languages (C, Rust,
+  SQL, assembly `nop`, WebAssembly), via a language-agnostic specification and
+  a plugin architecture.
+* *Tooling integration* — LLVM/GCC/rustc passes, `cargo cno-verify`, IDE
+  plugins; bridges to Frama-C, Why3, Dafny, F*, TLA+; standard proof-certificate
+  output (SMT-LIB, TPTP, LFSC/Dedukti).
+* *Automated proof support* — SMT-backed proof search and ML-assisted proof
+  suggestion for the decidable/bounded fragments.
+* *New domains* — quantum CNOs (unitary/state preservation), hardware
+  (`nop`/RTL), scientific computing (Julia-native).
+* *Standardisation & adoption* — a reference specification others can
+  implement against; curriculum material; long-run community stewardship.
+
+The original multi-year phase/FTE/budget breakdown that once stood in the body
+of this document was disproportionate to a repo still discharging existence
+lemmas, and has been retired. If the project ever attracts funding and
+contributors, a resourced roadmap can be written against reality at that point.
 
 ---
 
 _"From nothing, everything. From zero, infinity."_
 
-— Jonathan D. A. Jewell, 2026
+— Jonathan D. A. Jewell
