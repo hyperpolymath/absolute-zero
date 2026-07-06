@@ -100,6 +100,9 @@ proofs/coq/Makefile.all.conf
 proofs/coq/.Makefile.all.d
 proofs/coq/.*.cache
 
-# Mizar verifier outputs (keep only the .miz source article)
+# Mizar verifier outputs (keep only source: the .miz article + private .voc vocabulary)
 proofs/mizar/*
 !proofs/mizar/*.miz
+!proofs/mizar/dict/
+proofs/mizar/dict/*
+!proofs/mizar/dict/*.voc

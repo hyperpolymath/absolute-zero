@@ -53,6 +53,13 @@ count fell from **98** to a small, classified remainder:
   latent-unsound axioms removed** (`no_cloning` was provably false in the flat
   model; `Cconj_Cexp` false for a genuine phase). Remainder = 2 tagged
   metal-boundary physics postulates + 4 honestly-labelled class-A items (below).
+* `LambdaCNO.v`: `compile_lambda` and `hom_functor` (in `CNOCategory.v`) concretised;
+  **a third latent-unsound axiom corrected** — `eta_equivalence` was *false as
+  stated* (counterexample `f = LVar 5`, a normal form that never β-reduces to `f`;
+  root cause: this file's `subst` does not re-index under binders). It is replaced by
+  the honest, proved theorem `eta_equivalence` guarded by a `no_lambda body`
+  hypothesis (a genuine statement-shape change, disclosed in-file, made to remove an
+  inconsistency risk — not to dodge a proof).
 * Physics (`StatMechBasis.v`, `PhysicsConstants.v`, `StatMech.v`,
   `LandauerDerivation.v`): derivable lemmas discharged; the genuine *physical
   postulates* kept and tagged `METAL-BOUNDARY AXIOM` — Boltzmann constant `kB` and
@@ -128,6 +135,12 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
 
 * Mizar `8.1.15`; `accom CNO && verifier CNO` on `proofs/mizar/CNO.miz` completes
   with an **empty `CNO.err`** (zero errors). `MIZFILES` points at the bundled MML.
+  The original article was machine-generated and unverifiable (277 errors); it was
+  *rewritten* into a genuine article (StateSpace = pair of `Funcs(NAT,NAT)`;
+  state-preserving / pure / reversible / terminating / thermo-reversible attributes;
+  12 proved theorems incl. composition with a real inverse construction). Requires the
+  committed private vocabulary `proofs/mizar/dict/cno.voc` (lowercase filename, needed
+  on Linux). Verifier build artifacts are git-ignored.
 
 == Idris 2 — VERIFIED (this environment), the ABI boundary
 
