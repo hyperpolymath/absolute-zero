@@ -1,0 +1,21 @@
+# OND-7 Residue Register — operation: ct_select
+# Referenced by proofs/coq/ond/OND.v (theorem OND4_ct_select_is_OND_all).
+#
+# Declared observation model O_all = (output-channel value, elapsed time).
+# The Coq theorem proves the CONSEQUENT: under O_all, ct_select's trace is
+# constant over the secret. The ANTECEDENT — that real hardware exposes only
+# O_all — is NOT proved; it is discharged (if at all) by constant-time
+# engineering and measurement. The channels below are OUTSIDE O_all and hence
+# OUTSIDE the proof. Each is a live way the operation could still disclose.
+#
+# channel                         | covered by O_all? | discharge owner
+# --------------------------------|-------------------|--------------------------
+power draw (DVFS, current)        | no                | constant-time HW / measurement
+electromagnetic emanation         | no                | shielding / measurement
+data-cache residency              | no                | cache-oblivious impl
+instruction-cache / branch trace  | no                | branchless impl
+DRAM row-buffer timing            | no                | memory-access hardening
+speculative execution side effects| no                | fencing / audit
+microarch port contention (SMT)   | no                | co-tenancy policy
+#
+# STATUS: consequent proved (Coq, closed under global context); antecedent OPEN.

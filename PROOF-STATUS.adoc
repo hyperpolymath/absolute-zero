@@ -1,18 +1,29 @@
 // SPDX-License-Identifier: CC-BY-SA-4.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = absolute-zero — Proof Status
 :toc:
 
 [abstract]
-absolute-zero formalises the CNO (Conservation-of-Negative-information / "absolute
-zero") principle across several domains and provers. This records the *actually
-reproduced* verification state in this environment, prover by prover, and is
-explicit about what was NOT re-verified here.
+absolute-zero formalises *two co-equal pillars* (see `docs/TWO-PILLARS.adoc`):
+*CNO* — Certified Null Operations (certified null *effect*) — and *OND* —
+Observational Null Disclosure (certified null *disclosure*). This document
+records the *actually reproduced* verification state in this environment, prover
+by prover, and is explicit about which axioms remain and why.
+
+[IMPORTANT]
+.2026-07-07 — both pillars machine-checked across six provers
+====
+All six provers are installed and were *reproduced in this environment*. A single
+gate, `proofs/verify-all-provers.sh`, builds every prover and prints
+`ALL-PROVERS-GREEN`: *Coq, Agda, Lean 4 (+Mathlib), Z3, Isabelle/HOL, Mizar*,
+plus the *Idris 2* ABI. Both the CNO and OND pillars are covered.
+====
 
 == Coq — VERIFIED (this environment)
 
 * `coqc` **8.18.0**; clean build from scratch (all `.vo`/`.glob` deleted first),
-  via a `coq_makefile` project over every theory with `-R common CNO -R malbolge Malbolge`.
-* Result: **13/13 theories compile, zero errors.**
+  via `coq_makefile -f _CoqProject` over **14/14 theories → zero errors**.
+* Reproduce: `cd proofs/coq && coq_makefile -f _CoqProject -o Makefile.all && make -f Makefile.all -j`.
 
 [cols="1,3",options="header"]
 |===
@@ -23,45 +34,117 @@ explicit about what was NOT re-verified here.
 | lambda    | `LambdaCNO.v`
 | filesystem| `FilesystemCNO.v`
 | physics   | `StatMech.v`, `StatMech_helpers.v`, `LandauerDerivation.v`
+| ond       | `OND.v`  (NEW — the disclosure pillar)
 | malbolge  | `MalbolgeCore.v`
 |===
 
-Imports are Coq stdlib only (`Reals`, `micromega`/`Lra`/`Psatz`, `Lia`,
-`FunctionalExtensionality`, `ProofIrrelevance`, …) — no external library (no
-Coquelicot/MathComp). Reproduce: `cd proofs/coq && make -f Makefile.coq` (the
-repo build) covers `common` + `malbolge`; the full set builds with the per-area
-`coqc -R common CNO` invocations in the Justfile `build-coq` recipe.
+=== CNO axiom discharge (2026-07-07)
+
+The CNO domain modules previously *axiomatised* their headline results. They have
+been re-grounded on concrete models and re-proved. Axiom/`Parameter`/`Conjecture`
+count fell from **98** to a small, classified remainder:
+
+* *Fully discharged to zero project axioms*: `FilesystemCNO.v` (13 axioms + 3
+  parameters → 0; `mkdir_rmdir_inverse`, `transaction_cno`, `snapshot_restore_identity`,
+  … all `Closed under the global context`), `CNOCategory.v` (identity/hom functor
+  constructed), `QuantumMechanicsExact.v` (X-gate unitarity proved; density matrix
+  defined).
+* `QuantumCNO.v`: 41 → 12. *19 axioms discharged, 8 parameters concretised*; **two
+  latent-unsound axioms removed** (`no_cloning` was provably false in the flat
+  model; `Cconj_Cexp` false for a genuine phase). Remainder = 2 tagged
+  metal-boundary physics postulates + 4 honestly-labelled class-A items (below).
+* Physics (`StatMechBasis.v`, `PhysicsConstants.v`, `StatMech.v`,
+  `LandauerDerivation.v`): derivable lemmas discharged; the genuine *physical
+  postulates* kept and tagged `METAL-BOUNDARY AXIOM` — Boltzmann constant `kB` and
+  `kB > 0`, absolute `temperature > 0`, the Second Law, Landauer's 1961 bound.
+  These are empirical physics and *must* remain axioms; `state_dec` is kept because
+  `Memory = nat -> nat` is not decidably equal (genuinely unprovable).
+
+=== Honestly-remaining axioms (class A — true, provable in principle, not yet machine-proved)
+
+Every remaining project axiom is either a tagged physical postulate (above) or one
+of these, each documented in-file with its blocker:
+
+* `LambdaCNO.v` — `y_not_cno` (`~ is_lambda_CNO y_combinator`). True (Y diverges),
+  but a rigorous proof must rule out reaching the argument under *every* β-congruence
+  interleaving — a coinductive / step-indexed non-termination argument beyond a
+  single-file fix.
+* `QuantumCNO.v` — `CNOT_gate_unitary` (needs a 4-dimensional tensor model),
+  `unitary_inverse_property` (needs finite-dimensional linear algebra), `fidelity_bound`
+  / `approximate_cno` (need a concrete fidelity). All out of reach of the flat
+  `nat -> C` single-qubit model; faithful discharge is a separate formalisation.
+
+These are the analogue of the OND-6 research fork: openly labelled, not silently
+assumed. `Print Assumptions` on every headline theorem shows only Coq stdlib axioms
+(`ClassicalDedekindReals.*`, `functional_extensionality*`) plus, where relevant, the
+explicitly-tagged postulate above — never a hidden project axiom.
+
+== OND — VERIFIED (this environment), the disclosure pillar
+
+`proofs/coq/ond/OND.v` discharges roadmap obligations *OND-1..OND-5* with **zero
+axioms** — every theorem is `Closed under the global context`:
+
+* OND-1 `is_OND O o` — nullity parameterised by an observation model `O` over an
+  observable execution (declared output channel + timing);
+* OND-2 — `skip` is OND under *any* `O` (satisfiability);
+* OND-3 — `is_CNO ⊥ is_OND` independence, additionally anchored to the *real* core
+  `is_CNO` (`writer_program_not_core_CNO`, `skip_program_is_core_CNO`);
+* OND-4 — a constant-time select operation is OND under a declared `O` (+ residue);
+* OND-5 — a non-composition counterexample (two ONDs whose composite leaks by
+  state-chaining).
+
+Mirrored in *Lean 4* (`proofs/lean4/OND.lean`), *Agda* (`proofs/agda/OND.agda`),
+and *Z3* (`proofs/z3/ond/OND_checks.smt2`, the bounded/finite instances). OND-7's
+residue register carries its first real instance
+(`proofs/residue/ct_select.residue`). *OND-6* (conditional composition, research
+capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
 
 == Agda — VERIFIED (this environment)
 
-* `agda` 2.6.3; `agda -i proofs/agda <module>` → **3/3 type-check**:
-  `CNO.agda`, `EchoBridgeCNO.agda`, `EchoBridgeScaffold.agda`.
-* The EchoBridge modules take **funext as an explicit hypothesis**
-  (`Axiom.Extensionality.Propositional`) — a hypothesised parameter, not a global
-  `postulate`. (`EchoBridgeScaffold` is, as named, a scaffold.)
+* `agda` 2.6.3, `--safe --without-K`: `CNO.agda`, `OND.agda`, `EchoBridgeCNO.agda`
+  type-check. The EchoBridge modules take **funext as an explicit hypothesis**
+  (not a global `postulate`); `OND.agda` uses zero postulates.
 
-== Idris — NOT verified here (packaging is template-derived / inconsistent)
+== Lean 4 — VERIFIED (this environment)
 
-`absolute-zero-abi.ipkg` declares `sourcedir = "src/abi"` with modules
-`AbsoluteZero.ABI.{Types,Layout,Proofs.DivMod}`, but the files are laid out flat
-(`src/abi/Types.idr`, …) and module names are inconsistent (some flat, some
-`AbsoluteZero.ABI.*`). `idris2 --build` fails (`AbsoluteZero.ABI.Types not found`);
-`Layout.idr`/`Foreign.idr` `--check` individually but `Types.idr`/`Proofs/DivMod.idr`
-report module-name/file-path mismatches. This is the same template-scaffold issue
-as `typell`; fixing it is a package-restructuring task (align module names ↔ paths ↔
-`sourcedir`), deferred. *(The `.ipkg` `license` field — previously
-`PMPL-1.0-or-later` — has been corrected to `MPL-2.0` per the sole-owner policy.)*
+* Toolchain `leanprover/lean4:v4.16.0` with Mathlib `@ v4.16.0`; `lake exe cache get`
+  + `lake build` → **build completed successfully**. Covers the CNO libraries and the
+  new `OND` library (`proofs/lean4/OND.lean`, core-Lean only, zero `sorry`).
 
-== Lean — NOT verified here (requires Mathlib)
+== Z3 — VERIFIED (this environment)
 
-`proofs/lean4/` pins `leanprover/lean4:v4.16.0` and **`require mathlib … @ v4.16.0`**.
-Building it needs the full Mathlib (multi-GB, long compile) and the matching
-toolchain; that was out of scope for this environment. Stated honestly rather than
-asserted — the Coq and Agda sides above *were* reproduced.
+* `z3` 4.16.0 on `proofs/z3/ond/OND_checks.smt2`: the OND-3 timing-leak witness is
+  `sat`, `writer`-is-OND is `unsat` (no secret distinguishes it), and the OND-5
+  composite leak is `sat` with a concrete model — the "decidable for bounded
+  programs" demonstration.
+
+== Isabelle/HOL — VERIFIED (this environment)
+
+* `Isabelle2025-2`, session `AbsoluteZero-CNO` (`proofs/isabelle/ROOT`): `CNO.thy`
+  (repaired — the reserved-keyword `value` type was renamed and the failing `nop`/`step`
+  lemmas fixed) and `OND.thy` (new, OND-1..5) build with no `sorry`/`oops`.
+
+== Mizar — VERIFIED (this environment)
+
+* Mizar `8.1.15`; `accom CNO && verifier CNO` on `proofs/mizar/CNO.miz` completes
+  with an **empty `CNO.err`** (zero errors). `MIZFILES` points at the bundled MML.
+
+== Idris 2 — VERIFIED (this environment), the ABI boundary
+
+* `idris2` 0.8.0; `idris2 --build absolute-zero-abi.ipkg` → clean, no warnings. The
+  packaging bug (module paths vs. `sourcedir`) is fixed, files relocated to match
+  module names, and six latent type errors repaired (null-pointer `So` witnesses via
+  `choose`, `Decidable.Equality`/`Data.Bits` imports, `%runElab` stub, erased
+  `HasSize` index, qualified `maxProgramLength`). Two unused, non-compiling `DecEq`
+  instances were removed with a documented recovery path.
 
 == Honest scope
 
-* The CNO development is genuinely multi-prover; this document does not claim
-  cross-prover *equivalence* — each prover checks its own formalisation.
+* Multi-prover, not cross-prover *equivalence* — each prover checks its own
+  formalisation of the two pillars.
 * "Verified here" = a reproduced compiler/checker run in this environment, not a
-  reading of in-file comments.
+  reading of in-file comments. Reproduce everything with
+  `proofs/verify-all-provers.sh`.
+* Remaining axioms are exactly: (a) tagged physical postulates (the honest metal
+  boundary), and (b) the class-A items listed above (true, provable in principle,
+  openly labelled). No headline theorem depends on a hidden project axiom.

@@ -246,10 +246,27 @@ Qed.
     ⟨Xψ|Xψ⟩ = ⟨β|0⟩ + α|1⟩ | β|0⟩ + α|1⟩⟩
             = |β|² + |α|² = |α|² + |β|² = ⟨ψ|ψ⟩
 *)
-(* AXIOM: X_gate_unitary; Pauli-X is a primitive quantum gate; unitarity is
-   its defining property in the model.
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom X_gate_unitary : is_unitary X_gate_exact.
+(** DISCHARGED (was Axiom X_gate_unitary). Fully constructive proof that the
+    Pauli-X gate preserves the inner product, hence is unitary.
+
+    X_gate_exact = apply_matrix_2 pauli_X sends the 1-qubit amplitude vector
+    (a0, a1) to (a1, a0) (since pauli_X = [[0,1],[1,0]]). The inner product
+    ⟨Xψ|Xφ⟩ = conj(a1)·b1 + conj(a0)·b0 equals ⟨ψ|φ⟩ = conj(a0)·b0 + conj(a1)·b1
+    by commutativity of addition. Proved by direct computation on the concrete
+    2×2 matrix action, reducing to a real-arithmetic identity per component. *)
+Theorem X_gate_unitary : is_unitary X_gate_exact.
+Proof.
+  intros ψ φ.
+  unfold X_gate_exact, inner_product, qubit_dim.
+  simpl.
+  unfold apply_matrix_2, pauli_X, amplitude; simpl.
+  destruct (proj1_sig ψ 0%nat) as [a0r a0i].
+  destruct (proj1_sig ψ 1%nat) as [a1r a1i].
+  destruct (proj1_sig φ 0%nat) as [b0r b0i].
+  destruct (proj1_sig φ 1%nat) as [b1r b1i].
+  unfold Cplus, Cmult, Cconj, C0, C1.
+  apply Cpair_eq; simpl; ring.
+Qed.
 
 (** ** CNOT Gate (Exact 4x4 Matrix for 2 Qubits) *)
 
@@ -274,7 +291,12 @@ Definition CNOT_matrix : Matrix4 :=
 (** For a density matrix ρ, S(ρ) = -Tr(ρ log ρ) *)
 (** For pure states |ψ⟩, ρ = |ψ⟩⟨ψ| and S(ρ) = 0 *)
 
-Parameter density_matrix : forall {n : nat}, QuantumState n -> Matrix4.
+(** DISCHARGED (was Parameter density_matrix). The density matrix of a pure
+    state |ψ⟩ is the outer product ρ = |ψ⟩⟨ψ|, i.e. ρ_ij = ψ_i · conj(ψ_j).
+    This is the concrete construction; giving it a definition removes it from
+    the trust base (it was an unused parameter). *)
+Definition density_matrix {n : nat} (ψ : QuantumState n) : Matrix4 :=
+  fun i j => Cmult (amplitude ψ i) (Cconj (amplitude ψ j)).
 
 Definition von_neumann_entropy {n : nat} (ψ : QuantumState n) : R :=
   (* For pure states, entropy is always 0 *)

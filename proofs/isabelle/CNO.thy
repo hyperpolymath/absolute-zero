@@ -17,13 +17,13 @@ text \<open>
 subsection \<open>Memory Model\<close>
 
 type_synonym address = nat
-type_synonym value = nat
-type_synonym memory = "address \<Rightarrow> value"
+type_synonym cell_value = nat
+type_synonym memory = "address \<Rightarrow> cell_value"
 
 definition empty_memory :: memory where
   "empty_memory = (\<lambda>_ . 0)"
 
-definition mem_update :: "memory \<Rightarrow> address \<Rightarrow> value \<Rightarrow> memory" where
+definition mem_update :: "memory \<Rightarrow> address \<Rightarrow> cell_value \<Rightarrow> memory" where
   "mem_update m addr val = (\<lambda>a. if a = addr then val else m a)"
 
 definition mem_eq :: "memory \<Rightarrow> memory \<Rightarrow> bool" where
@@ -49,11 +49,16 @@ record program_state =
   state_pc :: nat
 
 definition state_eq :: "program_state \<Rightarrow> program_state \<Rightarrow> bool" where
+  \<comment> \<open>NOTE (2026-07-06): \<open>state_pc\<close> is deliberately EXCLUDED, mirroring the Coq
+      development (proofs/coq/common/CNO.v, note dated 2026-05-18). The program
+      counter is control-flow bookkeeping, not an observable side effect;
+      \<open>step\<close> advances it for every instruction, so requiring PC-equality would
+      make \<open>nop_is_cno\<close> (and every non-empty CNO claim) FALSE. Observable state =
+      memory + registers + I/O only.\<close>
   "state_eq s1 s2 = (
     mem_eq (state_memory s1) (state_memory s2) \<and>
     state_registers s1 = state_registers s2 \<and>
-    state_io s1 = state_io s2 \<and>
-    state_pc s1 = state_pc s2
+    state_io s1 = state_io s2
   )"
 
 subsection \<open>Instructions\<close>
@@ -70,12 +75,12 @@ type_synonym program = "instruction list"
 
 subsection \<open>Helper Functions\<close>
 
-fun get_reg :: "registers \<Rightarrow> nat \<Rightarrow> value option" where
+fun get_reg :: "registers \<Rightarrow> nat \<Rightarrow> cell_value option" where
   "get_reg [] _ = None" |
   "get_reg (r # rs) 0 = Some r" |
   "get_reg (r # rs) (Suc n) = get_reg rs n"
 
-fun set_reg :: "registers \<Rightarrow> nat \<Rightarrow> value \<Rightarrow> registers" where
+fun set_reg :: "registers \<Rightarrow> nat \<Rightarrow> cell_value \<Rightarrow> registers" where
   "set_reg [] _ _ = []" |
   "set_reg (r # rs) 0 val = val # rs" |
   "set_reg (r # rs) (Suc n) val = r # set_reg rs n val"
@@ -183,6 +188,18 @@ theorem halt_is_cno: "is_CNO [Halt]"
             thermodynamically_reversible_def energy_dissipated_def
   by auto
 
+text \<open>
+  The canonical CNO: a single \<open>Nop\<close>. \<open>eval [Nop] s\<close> only advances the
+  program counter, so it is a CNO precisely because \<open>state_eq\<close> excludes the
+  PC (mirrors Coq \<open>nop_is_cno\<close>). This would be FALSE under a PC-including
+  \<open>state_eq\<close> — it is the concrete witness that pinned the model decision above.
+\<close>
+theorem nop_is_cno: "is_CNO [Nop]"
+  unfolding is_CNO_def terminates_def state_eq_def pure_def
+            no_io_def no_memory_alloc_def mem_eq_def
+            thermodynamically_reversible_def energy_dissipated_def
+  by auto
+
 subsection \<open>CNO Properties\<close>
 
 theorem cno_terminates:
@@ -241,23 +258,32 @@ proof -
 
   show ?thesis
     unfolding is_CNO_def
-  proof (intro conjI allI)
+  proof (intro conjI)
     show "\<forall>s. terminates (seq_comp p1 p2) s"
       using terminates_always by auto
   next
-    fix s
-    have "eval (seq_comp p1 p2) s = eval p2 (eval p1 s)"
-      using eval_seq_comp by auto
-    also have "state_eq (eval p1 s) s"
-      using i1 by auto
-    ultimately show "state_eq (eval (seq_comp p1 p2) s) s"
-      using i2 state_eq_trans by metis
+    show "\<forall>s. state_eq (eval (seq_comp p1 p2) s) s"
+    proof
+      fix s
+      have "eval (seq_comp p1 p2) s = eval p2 (eval p1 s)"
+        using eval_seq_comp by simp
+      moreover have "state_eq (eval p2 (eval p1 s)) s"
+        \<comment> \<open>\<open>i2\<close> gives \<open>eval p2 (eval p1 s) =st= eval p1 s\<close>, \<open>i1\<close> gives
+            \<open>eval p1 s =st= s\<close>; transitivity closes it.\<close>
+        using i1 i2 state_eq_trans by metis
+      ultimately show "state_eq (eval (seq_comp p1 p2) s) s" by simp
+    qed
   next
-    fix s
-    show "pure s (eval (seq_comp p1 p2) s)"
-      using pu1 pu2 eval_seq_comp
-      unfolding pure_def no_io_def no_memory_alloc_def state_eq_def mem_eq_def
-      by metis
+    show "\<forall>s. pure s (eval (seq_comp p1 p2) s)"
+    proof
+      fix s
+      have "pure s (eval p1 s)" using pu1 by simp
+      moreover have "pure (eval p1 s) (eval p2 (eval p1 s))" using pu2 by simp
+      ultimately have "pure s (eval p2 (eval p1 s))"
+        unfolding pure_def no_io_def no_memory_alloc_def mem_eq_def by auto
+      thus "pure s (eval (seq_comp p1 p2) s)"
+        using eval_seq_comp by simp
+    qed
   next
     show "thermodynamically_reversible (seq_comp p1 p2)"
       unfolding thermodynamically_reversible_def energy_dissipated_def
@@ -285,12 +311,26 @@ lemma triple_rotation_identity:
 
 subsection \<open>Load-Store Preservation\<close>
 
+text \<open>
+  Loading \<open>mem[addr]\<close> into register 0 and immediately storing register 0 back
+  to \<open>mem[addr]\<close> leaves memory unchanged. The proof case-splits on whether
+  register 0 exists: if the register file is empty the \<open>Store\<close> takes its
+  \<open>None\<close> branch (no write at all); otherwise the value written back is exactly
+  the value just loaded, so \<open>mem_update m addr (m addr) = m\<close>. Plain \<open>auto\<close>
+  cannot make this progress because it does not case-split the \<open>get_reg\<close>
+  result produced by \<open>set_reg\<close>.
+\<close>
 lemma load_store_preserves_memory:
   fixes addr :: address and s :: program_state
   shows "mem_eq (state_memory (eval [Load addr 0, Store addr 0] s))
                 (state_memory s)"
-  unfolding mem_eq_def mem_update_def
-  by auto
+proof (cases "state_registers s")
+  case Nil
+  thus ?thesis by (simp add: mem_eq_def)
+next
+  case (Cons r rs)
+  thus ?thesis by (simp add: mem_eq_def mem_update_def)
+qed
 
 subsection \<open>Absolute Zero\<close>
 

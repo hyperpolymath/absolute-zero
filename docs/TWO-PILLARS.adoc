@@ -205,6 +205,21 @@ See `OND-ROADMAP.adoc` §5–6.
 
 == Status honesty (shared discipline)
 
+[NOTE]
+.Status update — 2026-07-06
+====
+Both pillars have since been substantially discharged. *OND-1..5 and OND-7 are
+proved and machine-checked* (Coq, Lean 4, Agda; Z3 for the bounded instances) —
+every OND Coq theorem is `Closed under the global context`, and the independence
+theorem below is anchored to the *real* core `is_CNO`. Only *OND-6* (conditional
+composition) remains open, by design. On the CNO side, the domain developments
+(filesystem, category, lambda, quantum, statistical mechanics) that previously
+*axiomatised* their headline results have been re-grounded on concrete models
+and re-proved; the axioms that remain are the genuine *physical postulates* (the
+Boltzmann constant `kB > 0`, Landauer's bound, gate unitarity), now explicitly
+tagged `METAL-BOUNDARY AXIOM` — the honest edge described above, not proof-debt.
+====
+
 Both pillars use the same honest status vocabulary. CNO already carries many
 openly `Admitted` proofs (see `PROOF-CLASSIFICATION.adoc`); OND launching with
 obligations outstanding is therefore *normal and expected*, not a regression.

@@ -1,7 +1,23 @@
 -R common CNO
+-R category CNO
+-R lambda CNO
+-R filesystem CNO
+-R physics CNO
+-R quantum CNO
+-R ond CNO
 -R malbolge Malbolge
 
+common/Complex.v
 common/PhysicsConstants.v
 common/CNO.v
 common/StatMechBasis.v
+category/CNOCategory.v
+lambda/LambdaCNO.v
+filesystem/FilesystemCNO.v
+physics/StatMech_helpers.v
+physics/StatMech.v
+physics/LandauerDerivation.v
+quantum/QuantumMechanicsExact.v
+quantum/QuantumCNO.v
+ond/OND.v
 malbolge/MalbolgeCore.v

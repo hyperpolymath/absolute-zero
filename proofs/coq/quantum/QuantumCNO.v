@@ -16,6 +16,8 @@
 *)
 
 Require Import Coq.Reals.Reals.
+Require Import Coq.micromega.Lia.
+Require Import Coq.micromega.Lra.
 (* Self-contained complex numbers (proofs/coq/common/Complex.v). *)
 Require Import CNO.Complex.
 Require Import Coq.Logic.FunctionalExtensionality.
@@ -39,11 +41,18 @@ Open Scope C_scope.
     For simplicity, we work with finite-dimensional systems (qubits).
 *)
 
-(** Dimension of Hilbert space (2^n for n qubits) *)
-Parameter dim : nat.
-(* AXIOM: dim_positive; Hilbert-space dimensionality precondition.
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom dim_positive : (dim > 0)%nat.
+(** Dimension of Hilbert space (2^n for n qubits).
+
+    DISCHARGED (was Parameter dim + Axiom dim_positive). We fix a concrete
+    single-qubit Hilbert space, dim = 2 = 2^1. Nothing in this development
+    relies on [dim] being abstract, so pinning it to a concrete positive
+    value both preserves every downstream statement and lets us *prove*
+    [dim_positive] instead of postulating it. *)
+Definition dim : nat := 2.
+
+(** DISCHARGED (was Axiom dim_positive). *)
+Lemma dim_positive : (dim > 0)%nat.
+Proof. unfold dim; lia. Qed.
 
 (** Complex vector representing quantum state *)
 Definition QuantumState : Type := nat -> C.
@@ -60,33 +69,68 @@ Definition QuantumState : Type := nat -> C.
     Here we use an axiomatized version that captures the key properties.
 *)
 
-(** Axiomatized inner product with required properties *)
-Parameter inner_product : QuantumState -> QuantumState -> C.
+(** DISCHARGED (was Parameter inner_product + 3 axioms). We give the inner
+    product its concrete finite-dimensional definition
+    ⟨ψ|φ⟩ = Σ_{k<dim} conj(ψ_k)·φ_k, so the three Hilbert-space "axioms"
+    (conjugate symmetry, linearity, positive definiteness) become *proved*
+    lemmas rather than postulates. *)
 
-(** Inner product axioms (defining properties of a Hilbert space) *)
+(** Partial sum Σ_{i<k} conj(ψ_i)·φ_i. *)
+Fixpoint ip_sum (ψ φ : QuantumState) (k : nat) : C :=
+  match k with
+  | O => C0
+  | S k' => Cplus (ip_sum ψ φ k') (Cmult (Cconj (ψ k')) (φ k'))
+  end.
 
-(** Conjugate symmetry: ⟨ψ|φ⟩ = (⟨φ|ψ⟩)* *)
-(* AXIOM: inner_product_conj_sym; Inner product space axiom (conjugate symmetry).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom inner_product_conj_sym :
+(** Concrete inner product: the finite sum over the [dim] basis indices. *)
+Definition inner_product (ψ φ : QuantumState) : C :=
+  ip_sum ψ φ dim.
+
+(** Conjugate symmetry (helper on partial sums, then the headline lemma). *)
+Lemma ip_sum_conj_sym :
+  forall (f g : QuantumState) (k : nat),
+    ip_sum f g k = Cconj (ip_sum g f k).
+Proof.
+  intros f g k. induction k as [|k IH]; simpl.
+  - unfold C0, Cconj; apply Cpair_eq; simpl; ring.
+  - rewrite IH.
+    destruct (ip_sum g f k) as [pr pi].
+    destruct (f k) as [fr fi]; destruct (g k) as [gr gi].
+    unfold Cplus, Cmult, Cconj; apply Cpair_eq; simpl; ring.
+Qed.
+
+(** DISCHARGED (was Axiom inner_product_conj_sym): ⟨ψ|φ⟩ = (⟨φ|ψ⟩)*. *)
+Lemma inner_product_conj_sym :
   forall ψ φ : QuantumState,
     inner_product ψ φ = Cconj (inner_product φ ψ).
+Proof. intros ψ φ; unfold inner_product; apply ip_sum_conj_sym. Qed.
 
-(** Linearity in second argument: ⟨ψ|aφ₁ + bφ₂⟩ = a⟨ψ|φ₁⟩ + b⟨ψ|φ₂⟩ *)
-(* AXIOM: inner_product_linear; Inner product space axiom (linearity).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom inner_product_linear :
+(** DISCHARGED (was Axiom inner_product_linear). The original statement was
+    literally [True] (a placeholder, since the model lacks state arithmetic),
+    so it is proved trivially — no content is lost, and it leaves the trust
+    base rather than sitting in it. *)
+Lemma inner_product_linear :
   forall ψ φ1 φ2 : QuantumState,
   forall a b : C,
-    (* Requires defining linear combination of states *)
-    True.  (* Simplified - full axiom requires state arithmetic *)
+    True.
+Proof. intros; exact I. Qed.
 
-(** Positive definiteness: ⟨ψ|ψ⟩ ≥ 0, and ⟨ψ|ψ⟩ = 0 iff ψ = 0 *)
-(* AXIOM: inner_product_pos_def; Inner product space axiom (positive definiteness).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom inner_product_pos_def :
+(** Positive definiteness (real part of Σ conj(ψ_i)·ψ_i is a sum of |ψ_i|²). *)
+Lemma ip_sum_pos_re :
+  forall (f : QuantumState) (k : nat),
+    (Re (ip_sum f f k) >= 0)%R.
+Proof.
+  intros f k. induction k as [|k IH]; simpl.
+  - unfold C0, Re; simpl; lra.
+  - destruct (f k) as [fr fi].
+    unfold Re, Cplus, Cmult, Cconj in *; simpl in *. nra.
+Qed.
+
+(** DISCHARGED (was Axiom inner_product_pos_def): Re⟨ψ|ψ⟩ ≥ 0. *)
+Lemma inner_product_pos_def :
   forall ψ : QuantumState,
     (Re (inner_product ψ ψ) >= 0)%R.
+Proof. intros ψ; unfold inner_product; apply ip_sum_pos_re. Qed.
 
 (** Normalization: |ψ⟩ is normalized if ⟨ψ|ψ⟩ = 1 *)
 
@@ -115,44 +159,116 @@ Qed.
 
 (** ** Common Quantum Gates *)
 
-(** Pauli X gate (NOT gate) *)
-Parameter X_gate : QuantumGate.
-(* AXIOM: X_gate_unitary; Quantum gate primitive (Pauli X) — duplicate of
-   QuantumMechanicsExact:249 (see follow-up 2 in docs/proof-debt-triage.md).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom X_gate_unitary : is_unitary X_gate.
+(** DISCHARGED gate concretisations. With the single-qubit model ([dim] = 2)
+    and the concrete [inner_product] above, the Pauli X, Y, Z and Hadamard
+    gates have honest matrix actions on the amplitude vector (ψ_0, ψ_1), and
+    their unitarity becomes a *proved* per-component real identity rather than
+    a postulate. (CNOT is a genuine two-qubit gate and cannot be hosted
+    faithfully in a single-qubit space — see its note below.) *)
 
-(** Pauli Y gate *)
-Parameter Y_gate : QuantumGate.
-(* AXIOM: Y_gate_unitary; Quantum gate primitive (Pauli Y).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom Y_gate_unitary : is_unitary Y_gate.
+(** Pauli X (NOT gate): X = [[0,1],[1,0]], i.e. it swaps ψ_0 and ψ_1. *)
+Definition X_gate : QuantumGate :=
+  fun ψ n => match n with
+             | 0%nat => ψ 1%nat
+             | 1%nat => ψ 0%nat
+             | _ => ψ n
+             end.
 
-(** Pauli Z gate *)
-Parameter Z_gate : QuantumGate.
-(* AXIOM: Z_gate_unitary; Quantum gate primitive (Pauli Z).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom Z_gate_unitary : is_unitary Z_gate.
+(** DISCHARGED (was Axiom X_gate_unitary). *)
+Lemma X_gate_unitary : is_unitary X_gate.
+Proof.
+  unfold is_unitary, inner_product, dim, X_gate. intros ψ φ. simpl.
+  destruct (ψ 0%nat) as [a0r a0i]; destruct (ψ 1%nat) as [a1r a1i].
+  destruct (φ 0%nat) as [b0r b0i]; destruct (φ 1%nat) as [b1r b1i].
+  unfold Cplus, Cmult, Cconj, C0; apply Cpair_eq; simpl; ring.
+Qed.
 
-(** Hadamard gate *)
-Parameter H_gate : QuantumGate.
-(* AXIOM: H_gate_unitary; Quantum gate primitive (Hadamard).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom H_gate_unitary : is_unitary H_gate.
+(** Pauli Y: Y = [[0,-i],[i,0]], i.e. ψ_0 ↦ -i·ψ_1, ψ_1 ↦ i·ψ_0. *)
+Definition Y_gate : QuantumGate :=
+  fun ψ n => match n with
+             | 0%nat => Cmult (Copp Ci) (ψ 1%nat)
+             | 1%nat => Cmult Ci (ψ 0%nat)
+             | _ => ψ n
+             end.
 
-(** CNOT gate (two-qubit) *)
+(** DISCHARGED (was Axiom Y_gate_unitary). *)
+Lemma Y_gate_unitary : is_unitary Y_gate.
+Proof.
+  unfold is_unitary, inner_product, dim, Y_gate. intros ψ φ. simpl.
+  destruct (ψ 0%nat) as [a0r a0i]; destruct (ψ 1%nat) as [a1r a1i].
+  destruct (φ 0%nat) as [b0r b0i]; destruct (φ 1%nat) as [b1r b1i].
+  unfold Cplus, Cmult, Cconj, Copp, Ci, C0; apply Cpair_eq; simpl; ring.
+Qed.
+
+(** Pauli Z: Z = [[1,0],[0,-1]], i.e. ψ_1 ↦ -ψ_1. *)
+Definition Z_gate : QuantumGate :=
+  fun ψ n => match n with
+             | 1%nat => Copp (ψ 1%nat)
+             | _ => ψ n
+             end.
+
+(** DISCHARGED (was Axiom Z_gate_unitary). *)
+Lemma Z_gate_unitary : is_unitary Z_gate.
+Proof.
+  unfold is_unitary, inner_product, dim, Z_gate. intros ψ φ. simpl.
+  destruct (ψ 0%nat) as [a0r a0i]; destruct (ψ 1%nat) as [a1r a1i].
+  destruct (φ 0%nat) as [b0r b0i]; destruct (φ 1%nat) as [b1r b1i].
+  unfold Cplus, Cmult, Cconj, Copp, C0; apply Cpair_eq; simpl; ring.
+Qed.
+
+(** Hadamard: H = (1/√2)·[[1,1],[1,-1]]. *)
+Definition H_gate : QuantumGate :=
+  fun ψ n => match n with
+             | 0%nat => Cmult (RtoC (1 / sqrt 2)) (Cplus (ψ 0%nat) (ψ 1%nat))
+             | 1%nat => Cmult (RtoC (1 / sqrt 2)) (Cminus (ψ 0%nat) (ψ 1%nat))
+             | _ => ψ n
+             end.
+
+(** DISCHARGED (was Axiom H_gate_unitary). The (1/√2)² factor collapses to
+    1/2 via [sqrt_sqrt], leaving each component identity 2·(1/2)·⟨·|·⟩. *)
+Lemma H_gate_unitary : is_unitary H_gate.
+Proof.
+  unfold is_unitary, inner_product, dim, H_gate. intros ψ φ. simpl.
+  assert (Hn : (sqrt 2 <> 0)%R) by (apply Rgt_not_eq, sqrt_lt_R0; lra).
+  assert (Hs : (sqrt 2 * sqrt 2 = 2)%R) by (apply sqrt_sqrt; lra).
+  (* The normalisation squares to 1/2. *)
+  assert (Ht : (1 / sqrt 2 * (1 / sqrt 2) = / 2)%R).
+  { replace (1 / sqrt 2 * (1 / sqrt 2))%R with (/ (sqrt 2 * sqrt 2))%R
+      by (field; exact Hn). rewrite Hs; reflexivity. }
+  set (t := (1 / sqrt 2)%R) in *.
+  assert (Ht2 : (t ^ 2 = / 2)%R) by (rewrite <- Ht; ring).
+  destruct (ψ 0%nat) as [a0r a0i]; destruct (ψ 1%nat) as [a1r a1i].
+  destruct (φ 0%nat) as [b0r b0i]; destruct (φ 1%nat) as [b1r b1i].
+  unfold Cplus, Cminus, Cmult, Cconj, Copp, RtoC, C0; apply Cpair_eq; simpl;
+    ring_simplify; rewrite ?Ht2; ring_simplify; lra.
+Qed.
+
+(** CNOT gate (two-qubit).
+
+    NOT-YET-DISCHARGED (class A, provable in principle): CNOT is a genuine
+    two-qubit gate (a 4×4 permutation matrix acting on the |q1 q0⟩ basis).
+    The [dim] = 2 single-qubit model here cannot host it *faithfully* (a flat
+    [nat -> C] space with one global [dim] has no tensor-product structure).
+    Its faithful concrete matrix [CNOT_matrix] lives in QuantumMechanicsExact.v;
+    discharging its unitarity requires a genuine 2-qubit (4-dimensional,
+    tensor-structured) state space, which this module deliberately does not
+    build. Kept as an abstract primitive so downstream statements type-check.
+    (This is the ONLY gate-unitarity claim in this file left undischarged.) *)
 Parameter CNOT_gate : QuantumGate.
-(* AXIOM: CNOT_gate_unitary; Quantum gate primitive (CNOT).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
+(* NOT-YET-DISCHARGED (class A): unitarity of the abstract CNOT primitive.
+   See the note above — needs a 4-dimensional tensor-product model. *)
 Axiom CNOT_gate_unitary : is_unitary CNOT_gate.
 
 (** ** Quantum State Equality *)
 
-(** Complex exponential. The quantum proofs use it abstractly via the
-    axioms below (Cexp_zero/neg/add, Cconj_Cexp). Declared as a parameter
-    so it is in scope before first use. Recorded as an assumption in
-    PROOF-STATUS-2026-05-18.md (post-T0 axiom audit). *)
-Parameter Cexp : C -> C.
+(** DISCHARGED (was Parameter Cexp + 4 axioms). The phase used throughout
+    this development is only ever applied to a real argument [RtoC θ], where
+    it denotes the unit phase e^{iθ}. We give it that concrete meaning:
+    [Cexp z = (cos (Re z), sin (Re z))], i.e. e^{i·Re z}. This is faithful to
+    every use site (all of the form [Cexp (RtoC θ)] = (cos θ, sin θ)), and it
+    turns the "complex exponential algebra" axioms below into proved lemmas
+    (follow-up 4 of docs/proof-debt-triage.md). *)
+Definition Cexp (z : C) : C := (cos (Re z), sin (Re z)).
 
 (** Two quantum states are equal up to global phase *)
 Definition quantum_state_eq (ψ φ : QuantumState) : Prop :=
@@ -160,37 +276,46 @@ Definition quantum_state_eq (ψ φ : QuantumState) : Prop :=
 
 Notation "ψ =q= φ" := (quantum_state_eq ψ φ) (at level 70).
 
-(** Complex exponential axioms needed for quantum state equality proofs.
-    These are standard properties of complex exponentials that would be
-    provided by libraries like CoqQ or Coquelicot in a full development. *)
+(** DISCHARGED (was Axiom Cexp_zero): e^{i·0} = 1. *)
+Lemma Cexp_zero : Cexp (RtoC 0) = C1.
+Proof.
+  unfold Cexp, RtoC, Re, C1; simpl.
+  rewrite cos_0, sin_0; reflexivity.
+Qed.
 
-(** e^0 = 1 *)
-(* AXIOM: Cexp_zero; Complex exponential algebra. §(c) per docs/proof-debt.md
-   (Phase 2d triage). Would collapse to DISCHARGE if Complex.v defines Cexp
-   constructively — see follow-up 4 in docs/proof-debt-triage.md. *)
-Axiom Cexp_zero : Cexp (RtoC 0) = C1.
+(** DISCHARGED (was Axiom Cexp_neg): e^{-iθ} = (e^{iθ})^{-1}. Uses the
+    Pythagorean identity cos²θ + sin²θ = 1 so the modulus is 1. *)
+Lemma Cexp_neg : forall x : R, Cexp (RtoC (-x)) = Cinv (Cexp (RtoC x)).
+Proof.
+  intros x. unfold Cexp, RtoC, Cinv, Re, Cnorm2; simpl.
+  assert (Hpy : (cos x * cos x + sin x * sin x = 1)%R).
+  { pose proof (sin2_cos2 x) as H. unfold Rsqr in H. lra. }
+  apply Cpair_eq; simpl.
+  - rewrite cos_neg, Hpy; field.
+  - rewrite sin_neg, Hpy; field.
+Qed.
 
-(** e^{-x} = (e^x)^{-1} *)
-(* AXIOM: Cexp_neg; Complex exponential algebra. §(c) per docs/proof-debt.md
-   (Phase 2d triage). See follow-up 4 (Cexp_zero comment) for collapse plan. *)
-Axiom Cexp_neg : forall x : R, Cexp (RtoC (-x)) = Cinv (Cexp (RtoC x)).
+(** DISCHARGED (was Axiom Cexp_add): e^{iθ}·e^{iφ} = e^{i(θ+φ)}. Uses the
+    angle-addition formulas for cos and sin. *)
+Lemma Cexp_add : forall x y : R, Cexp (RtoC x) * Cexp (RtoC y) = Cexp (RtoC (x + y)).
+Proof.
+  intros x y. unfold Cexp, RtoC, Cmult, Re; simpl.
+  rewrite cos_plus, sin_plus. apply Cpair_eq; simpl; ring.
+Qed.
 
-(** e^x × e^y = e^{x+y} *)
-(* AXIOM: Cexp_add; Complex exponential algebra. §(c) per docs/proof-debt.md
-   (Phase 2d triage). See follow-up 4 (Cexp_zero comment) for collapse plan. *)
-Axiom Cexp_add : forall x y : R, Cexp (RtoC x) * Cexp (RtoC y) = Cexp (RtoC (x + y)).
+(* Cmult_1_l, Cmult_assoc, Cconj_RtoC, Cconj_mult are PROVED lemmas in
+   CNO.Complex — no longer axioms. *)
 
-(* Cmult_1_l, Cmult_assoc, Cconj_RtoC, Cconj_mult are now PROVED lemmas
-   in CNO.Complex — no longer axioms (strengthens the development and
-   removes the redeclaration clash). *)
+(* REMOVED (was Axiom Cconj_Cexp : forall x:C, Cconj (Cexp x) = Cexp (Cconj x)).
+   This axiom was DEAD CODE (no proof in this file referenced it) AND FALSE
+   for a genuine phase: for the phase e^{iθ} one has (e^{iθ})* = e^{-iθ},
+   whereas the axiom asserts (e^{iθ})* = e^{iθ} (Cconj (RtoC θ) = RtoC θ),
+   which forces sin θ = 0. Had [Cexp] ever been given the concrete phase
+   definition while this axiom stood, the development would have been
+   inconsistent. It is removed here (reported as a latent-unsoundness find). *)
 
-(** Complex conjugate of exponential: (e^x)* = e^{x*} *)
-(* AXIOM: Cconj_Cexp; Complex exponential algebra. §(c) per docs/proof-debt.md
-   (Phase 2d triage). See follow-up 4 (Cexp_zero comment) for collapse plan. *)
-Axiom Cconj_Cexp : forall x : C, Cconj (Cexp x) = Cexp (Cconj x).
-
-(* `global_phase_unitary` axiom moved below, after `global_phase_gate`
-   is defined (it referenced the gate before its definition). *)
+(* `global_phase_unitary` (now proved) appears below, after
+   `global_phase_gate` is defined. *)
 
 (** Reflexivity, symmetry, transitivity *)
 Lemma quantum_state_eq_refl : forall ψ, ψ =q= ψ.
@@ -280,14 +405,41 @@ Qed.
 Definition global_phase_gate (θ : R) : QuantumGate :=
   fun ψ n => Cexp (RtoC θ) * ψ n.
 
-(** Global phase gates are unitary (standard QM result). Assumption —
-    see PROOF-STATUS-2026-05-18.md (post-T0 axiom audit).
+(** Helper: scaling both arguments of the inner-product sum by a common
+    unit-modulus constant (cr, ci) with cr² + ci² = 1 leaves the sum
+    unchanged, because conj(c)·c = |c|² = 1. *)
+Lemma ip_sum_scale :
+  forall (cr ci : R) (ψ φ : QuantumState) (k : nat),
+    (cr * cr + ci * ci = 1)%R ->
+    ip_sum (fun n => Cmult (cr, ci) (ψ n)) (fun n => Cmult (cr, ci) (φ n)) k
+    = ip_sum ψ φ k.
+Proof.
+  intros cr ci ψ φ k Hc.
+  assert (Hcr : (cr ^ 2 = 1 - ci ^ 2)%R).
+  { replace (cr ^ 2)%R with (cr * cr)%R by ring.
+    replace (ci ^ 2)%R with (ci * ci)%R by ring. lra. }
+  induction k as [|k IH]; simpl.
+  - reflexivity.
+  - rewrite IH. f_equal.
+    destruct (ψ k) as [xr xi]; destruct (φ k) as [yr yi].
+    unfold Cmult, Cconj; apply Cpair_eq; simpl;
+      ring_simplify; rewrite ?Hcr; ring.
+Qed.
 
-    Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d)
-    DEBT in docs/proof-debt.md (Phase 2d) — derivable from gate algebra
-    (e^{iθ} U is unitary iff U is). *)
-Axiom global_phase_unitary :
+(** DISCHARGED (was Axiom global_phase_unitary). A global phase multiplies
+    every amplitude by the unit-modulus scalar e^{iθ} = (cos θ, sin θ); since
+    |e^{iθ}|² = cos²θ + sin²θ = 1, the inner product is preserved. *)
+Lemma global_phase_unitary :
   forall θ : R, is_unitary (global_phase_gate θ).
+Proof.
+  intros θ. unfold is_unitary. intros ψ φ. unfold inner_product.
+  assert (Hgp : forall χ : QuantumState,
+            global_phase_gate θ χ = (fun n => Cmult (cos θ, sin θ) (χ n))).
+  { intro χ. unfold global_phase_gate, Cexp, RtoC, Re. simpl. reflexivity. }
+  rewrite (Hgp ψ), (Hgp φ).
+  apply ip_sum_scale.
+  pose proof (sin2_cos2 θ) as H. unfold Rsqr in H. lra.
+Qed.
 
 Theorem global_phase_is_cno :
   forall θ : R, is_quantum_CNO (global_phase_gate θ).
@@ -310,12 +462,18 @@ Qed.
 
 (** ** Non-CNO Gates *)
 
-(** X gate is NOT a CNO because it flips |0⟩ ↔ |1⟩
-
-    Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d)
-    DEBT in docs/proof-debt.md (Phase 2d) — existence proof, exhibit
-    |0⟩ as witness once a concrete basis state is in the model. *)
-Axiom X_gate_not_identity : exists ψ, ~ (X_gate ψ =q= ψ).
+(** DISCHARGED (was Axiom X_gate_not_identity). X flips |0⟩ ↔ |1⟩, so with the
+    witness |0⟩ = (1,0,0,…) we have (X|0⟩)_0 = 0 while (e^{iθ}|0⟩)_0 = e^{iθ},
+    forcing e^{iθ} = 0 — impossible since |e^{iθ}| = 1. *)
+Lemma X_gate_not_identity : exists ψ, ~ (X_gate ψ =q= ψ).
+Proof.
+  exists (fun n => match n with O => C1 | _ => C0 end).
+  intros [θ H]. specialize (H 0%nat).
+  unfold X_gate in H. simpl in H.
+  unfold Cexp, RtoC, Re, Cmult, C0, C1 in H. simpl in H.
+  injection H as H1 H2.
+  pose proof (sin2_cos2 θ) as Hpy. unfold Rsqr in Hpy. nra.
+Qed.
 
 Theorem X_gate_not_cno : ~ is_quantum_CNO X_gate.
 Proof.
@@ -327,12 +485,20 @@ Proof.
   contradiction.
 Qed.
 
-(** Hadamard gate is NOT a CNO
-
-    Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d)
-    DEBT in docs/proof-debt.md (Phase 2d) — existence proof, exhibit
-    |0⟩ as witness. *)
-Axiom H_gate_not_identity : exists ψ, ~ (H_gate ψ =q= ψ).
+(** DISCHARGED (was Axiom H_gate_not_identity). With witness |0⟩, the Hadamard
+    output has (H|0⟩)_1 = 1/√2 ≠ 0, while (e^{iθ}|0⟩)_1 = e^{iθ}·0 = 0; equality
+    up to phase would force 1/√2 = 0, contradicting 1/√2 > 0. *)
+Lemma H_gate_not_identity : exists ψ, ~ (H_gate ψ =q= ψ).
+Proof.
+  exists (fun n => match n with O => C1 | _ => C0 end).
+  intros [θ H]. specialize (H 1%nat).
+  unfold H_gate in H. simpl in H.
+  unfold Cexp, RtoC, Re, Cmult, Cminus, Cplus, Copp, C0, C1 in H. simpl in H.
+  injection H as H1 H2.
+  assert (Hpos : (1 / sqrt 2 > 0)%R)
+    by (apply Rlt_gt, Rdiv_lt_0_compat; [lra | apply sqrt_lt_R0; lra]).
+  nra.
+Qed.
 
 Theorem H_gate_not_cno : ~ is_quantum_CNO H_gate.
 Proof.
@@ -394,32 +560,42 @@ Qed.
 
 (** ** Quantum Information Theory *)
 
-(** Von Neumann entropy (quantum analog of Shannon entropy) *)
-Parameter von_neumann_entropy : QuantumState -> R.
+(** Von Neumann entropy (quantum analog of Shannon entropy).
 
-(* AXIOM: von_neumann_nonneg; Quantum statmech — von Neumann entropy
-   non-negativity. §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom von_neumann_nonneg :
+    DISCHARGED (was Parameter von_neumann_entropy + 3 axioms). This module,
+    like QuantumMechanicsExact.v (which also sets [von_neumann_entropy := 0]),
+    works in the PURE-STATE fragment: every state vector is a pure state, and
+    a pure state |ψ⟩ has S(|ψ⟩⟨ψ|) = 0. We therefore give the entropy its
+    concrete pure-state value, 0.
+
+    HONEST DISCLOSURE: because of this modelling choice the three lemmas below
+    hold *trivially* (0 ≥ 0, 0 = 0). They are genuine consequences of working
+    in the pure-state fragment — not deep theorems — and are reported as
+    "trivial-by-model" rather than as substantive content. The non-trivial
+    physics (mixed-state entropy, strict subadditivity, etc.) is outside the
+    scope of this module and would require a density-matrix formalisation. *)
+Definition von_neumann_entropy (ψ : QuantumState) : R := 0%R.
+
+(** DISCHARGED (was Axiom von_neumann_nonneg): S ≥ 0. Trivial in the pure model. *)
+Lemma von_neumann_nonneg :
   forall ψ : QuantumState,
     von_neumann_entropy ψ >= 0.
+Proof. intros ψ; unfold von_neumann_entropy; lra. Qed.
 
-(** Pure states have zero entropy *)
-(* AXIOM: von_neumann_pure_zero; S(|ψ⟩⟨ψ|) = 0 for pure states.
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom von_neumann_pure_zero :
+(** DISCHARGED (was Axiom von_neumann_pure_zero): pure states have zero entropy. *)
+Lemma von_neumann_pure_zero :
   forall ψ : QuantumState,
     is_normalized ψ ->
     von_neumann_entropy ψ = 0.
+Proof. intros ψ _; unfold von_neumann_entropy; reflexivity. Qed.
 
-(** Unitary evolution preserves entropy *)
-(* AXIOM: unitary_preserves_entropy; Quantum statmech postulate — von Neumann
-   entropy invariant under unitary. Duplicate of QuantumMechanicsExact:316
-   (see follow-up 2 in docs/proof-debt-triage.md).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom unitary_preserves_entropy :
+(** DISCHARGED (was Axiom unitary_preserves_entropy): S(Uψ) = S(ψ). Trivial in
+    the pure model (both sides are 0). *)
+Lemma unitary_preserves_entropy :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
     von_neumann_entropy (U ψ) = von_neumann_entropy ψ.
+Proof. intros U ψ _; unfold von_neumann_entropy; reflexivity. Qed.
 
 (** Quantum CNOs preserve information (trivially, since they're identity) *)
 Theorem quantum_cno_preserves_information :
@@ -434,16 +610,23 @@ Qed.
 
 (** ** No-Cloning Theorem *)
 
-(** The no-cloning theorem states you cannot copy arbitrary quantum states *)
-(* AXIOM: no_cloning; Fundamental quantum theorem — standardly taken as a
-   physical postulate in this style of axiomatisation. Duplicate of
-   QuantumMechanicsExact:393 (see follow-up 2 in docs/proof-debt-triage.md).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom no_cloning :
-  ~ exists (U : QuantumGate),
-    forall ψ : QuantumState,
-      exists basis : nat,
-        U ψ = ψ /\ U ψ = ψ.  (* Simplified statement *)
+(** The no-cloning theorem states you cannot copy arbitrary quantum states.
+
+    REMOVED (was Axiom no_cloning), reported as a LATENT-UNSOUNDNESS find.
+    The former "simplified" statement was
+
+        ~ exists U, forall ψ, exists basis, U ψ = ψ /\ U ψ = ψ
+
+    whose body [exists basis, U ψ = ψ /\ U ψ = ψ] is just [U ψ = ψ] (the
+    [basis] witness and the duplicated conjunct are inert). So the axiom
+    asserts ~ (exists U, forall ψ, U ψ = ψ) — but that existential is WITNESSED
+    by [I_gate] (fun ψ => ψ), which satisfies [forall ψ, I_gate ψ = ψ]. The
+    axiom was therefore provably FALSE and made the development inconsistent
+    (one could derive [False] from it). It was also dead code — no proof in
+    this file referenced it (the [cno_respects_no_cloning] result below does
+    not use it). A faithful no-cloning theorem needs a tensor-product state
+    space, which this flat single-register model does not provide; it is left
+    unstated here rather than restated in a degenerate (and unsound) form. *)
 
 (** CNOs respect no-cloning (they don't clone, they preserve) *)
 Theorem cno_respects_no_cloning :
@@ -468,12 +651,15 @@ Qed.
 *)
 Parameter measure : QuantumState -> ProgramState.
 
-(** Axiom: Measuring after identity gate gives same result as measuring before *)
-(* AXIOM: measure_identity_commutes; Measurement postulate.
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
-Axiom measure_identity_commutes :
+(** DISCHARGED (was Axiom measure_identity_commutes). Since [I_gate] is the
+    identity function ([fun ψ => ψ]), [I_gate ψ] is definitionally [ψ], so
+    measuring after the identity gate equals measuring before — by reflexivity,
+    independent of what [measure] does. ([measure] itself stays an abstract
+    operation, not an axiom.) *)
+Lemma measure_identity_commutes :
   forall (ψ : QuantumState),
     measure (I_gate ψ) = measure ψ.
+Proof. intros ψ; unfold I_gate; reflexivity. Qed.
 
 (** A quantum gate induces a classical transformation via measurement.
 
@@ -537,9 +723,15 @@ Qed.
 (** U followed by U† is a CNO (unitary inverse) *)
 Parameter unitary_inverse : QuantumGate -> QuantumGate.
 
-(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
-   in docs/proof-debt.md (Phase 2d) — follows from is_unitary definition
-   (U†U = I). *)
+(* NOT-YET-DISCHARGED (class A, provable in principle): the inverse property
+   unitary_inverse U (U ψ) =q= ψ. This does NOT follow merely from the
+   [is_unitary] definition here (which is inner-product preservation): from
+   "U preserves ⟨·|·⟩" alone one cannot *constructively exhibit* an inverse
+   FUNCTION for an arbitrary endomap of the infinite [nat -> C] space. A real
+   discharge needs finite-dimensional linear-algebra machinery (a unitary is
+   invertible with U^{-1} = U†) over a proper matrix representation — absent
+   from this abstract model. Kept as an axiom; it is load-bearing only for
+   [gate_followed_by_inverse_is_cno] and [quantum_cno_reversible] below. *)
 Axiom unitary_inverse_property :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
@@ -590,28 +782,38 @@ Qed.
 (** Physical energy dissipation for quantum operations *)
 Parameter quantum_energy_dissipated : QuantumGate -> QuantumState -> R.
 
-(** Landauer bound for quantum operations *)
-(* AXIOM: quantum_landauer_bound; Physical postulate (quantum Landauer).
-   §(c) per docs/proof-debt.md (Phase 2d triage). *)
+(** Landauer bound for quantum operations. *)
+(* METAL-BOUNDARY AXIOM (kept): the quantum Landauer bound
+   E_dissipated ≥ k_B·T·(-ΔS) when entropy decreases. This is a genuine
+   PHYSICAL postulate relating an empirical energy quantity
+   [quantum_energy_dissipated] (an abstract, unmodelled physical observable)
+   to entropy change and temperature. It is NOT a mathematical consequence of
+   the definitions — deliberately NOT discharged by setting energy ≡ 0, which
+   would falsify the bound for genuinely dissipative (non-unitary) operations.
+   It is the substantive thermodynamic input of this section. *)
 Axiom quantum_landauer_bound :
   forall (U : QuantumGate) (ψ : QuantumState),
     let ΔS := (von_neumann_entropy (U ψ) - von_neumann_entropy ψ)%R in
     (ΔS <= 0)%R ->  (* Entropy decreased (information erased) *)
     (quantum_energy_dissipated U ψ >= kB * temperature * (-ΔS))%R.
 
-(** Unitary operations preserve entropy exactly *)
-(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
-   in docs/proof-debt.md (Phase 2d) — derivable from
-   `unitary_preserves_entropy` + entropy definition. *)
-Axiom unitary_zero_entropy_change :
+(** DISCHARGED (was Axiom unitary_zero_entropy_change): unitary evolution
+    leaves von Neumann entropy unchanged. In the pure-state model both sides
+    are 0. (Same statement as [unitary_preserves_entropy]; kept as a distinct
+    name because downstream code refers to it.) *)
+Lemma unitary_zero_entropy_change :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
     von_neumann_entropy (U ψ) = von_neumann_entropy ψ.
+Proof. intros U ψ _; unfold von_neumann_entropy; reflexivity. Qed.
 
-(** Reversible quantum operations dissipate zero energy *)
-(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
-   in docs/proof-debt.md (Phase 2d) — derivable from `quantum_landauer_bound`
-   + unitarity. *)
+(** Reversible quantum operations dissipate zero energy. *)
+(* METAL-BOUNDARY AXIOM (kept): a thermodynamically reversible (entropy-
+   preserving) operation dissipates exactly zero energy. This is a PHYSICAL
+   idealisation about the abstract observable [quantum_energy_dissipated]; the
+   Landauer bound above only gives a LOWER bound (≥ 0), so E = 0 for the
+   reversible case is an independent physical postulate, not a mathematical
+   consequence. (Not discharged via energy ≡ 0 — see the Landauer note.) *)
 Axiom reversible_quantum_zero_dissipation :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
@@ -645,14 +847,20 @@ Parameter noisy_channel : QuantumGate -> QuantumGate.
 (** Fidelity: how close is noisy gate to ideal gate *)
 Parameter fidelity : QuantumGate -> QuantumGate -> R.
 
-(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
-   in docs/proof-debt.md (Phase 2d) — provable from `inner_product_pos_def`
-   + Cauchy-Schwarz. *)
+(* NOT-YET-DISCHARGED (class A, provable in principle): 0 ≤ fidelity U V ≤ 1.
+   For a genuinely-defined fidelity this follows from [inner_product_pos_def]
+   and Cauchy–Schwarz. Here [fidelity] is an abstract [Parameter] with no
+   definition, so the bound cannot be proved without first giving fidelity a
+   concrete construction (an operator-norm / overlap definition), which this
+   module does not build. Kept as an axiom. *)
 Axiom fidelity_bound : forall U V, 0 <= fidelity U V <= 1.
 
 (** Even with noise, approximate CNOs preserve high fidelity *)
-(* AXIOM: approximate_cno; Definitional / structural — encodes a relation,
-   not a derivable fact. §(c) per docs/proof-debt.md (Phase 2d triage). *)
+(* NOT-YET-DISCHARGED (class A / definitional): for any CNO U and ε > 0 there
+   is a noisy gate within fidelity 1 - ε. With a concrete fidelity satisfying
+   fidelity U U = 1 this is immediate (take U_noisy := U); but [fidelity] is
+   abstract here, so it cannot be discharged without that concrete definition.
+   Kept as an axiom. *)
 Axiom approximate_cno :
   forall U : QuantumGate,
     is_quantum_CNO U ->

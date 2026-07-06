@@ -46,9 +46,18 @@ Open Scope R_scope.
 
 Definition log2 (x : R) : R := ln x / ln 2.
 
-(** Entropy is maximized for uniform distribution *)
-(* AXIOM: shannon_entropy_uniform_max; Variant of Gibbs inequality for
-   uniform distributions. §(c) per docs/proof-debt.md (Phase 2e triage). *)
+(** Entropy of a uniform distribution over n states equals log2 n *)
+(* NOT-YET-DISCHARGED (class A) — specification axiom for the opaque
+   [shannon_entropy]. States: a distribution uniform over [n] states (each of
+   mass [1/n]) has entropy [log₂ n]. This is a true information-theoretic
+   identity and would be a Lemma once [shannon_entropy] is defined concretely as
+   [-Σ p·log₂ p] over a finite carrier (the sum telescopes:
+   [-n·(1/n)·log₂(1/n) = log₂ n]). While [shannon_entropy] stays opaque this
+   serves as (part of) its defining spec. BLOCKER: concrete entropy definition +
+   finite carrier. NOTE: it is a *sound* characterizing axiom (unlike
+   [shannon_entropy_maximum]); it is consumed by [entropy_change_erasure] below,
+   which is now discharged (Axiom -> Lemma) from it plus
+   [shannon_entropy_point_zero]. *)
 Axiom shannon_entropy_uniform_max :
   forall (P : StateDistribution) (n : nat) (states : list ProgramState),
     length states = n ->
@@ -56,12 +65,21 @@ Axiom shannon_entropy_uniform_max :
     shannon_entropy P = log2 (INR n).
 
 (** Product distribution (for independence) *)
+(* Opaque [Parameter]: the joint distribution of two independent systems. Left
+   abstract because a concrete definition presupposes the concrete distribution
+   type (see [prob_nonneg] in StatMechBasis.v). *)
 Parameter product_dist : StateDistribution -> StateDistribution -> StateDistribution.
 
 (** Entropy is additive for independent distributions *)
-(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
-   in docs/proof-debt.md (Phase 2e) — chain rule of entropy, provable from
-   the definition of `H(X,Y)` given independence hypothesis. *)
+(* NOT-YET-DISCHARGED (class A) — specification axiom for the opaque pair
+   ([shannon_entropy], [product_dist]). The additivity [H(X,Y) = H(X)+H(Y)] for
+   independent [X,Y] is the entropy chain rule and is genuinely provable from the
+   *definitions* of Shannon entropy and the product distribution. It cannot be
+   discharged while both [shannon_entropy] and [product_dist] are opaque
+   [Parameter]s with no defining equations. BLOCKER: concrete definitions of
+   [shannon_entropy] and [product_dist] (coupled to the distribution-type
+   refactor). Correcting the triage docs: this is not derivable from what is
+   currently in the file. *)
 Axiom shannon_entropy_additive :
   forall P Q : StateDistribution,
     (* For independent P and Q *)
@@ -107,8 +125,10 @@ Qed.
     ΔS ≥ 0 for irreversible processes
     ΔS = 0 for reversible processes *)
 
-(* AXIOM: second_law; Physical postulate (second law of thermodynamics).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
+(* METAL-BOUNDARY AXIOM (kept): the Second Law of Thermodynamics is a
+   fundamental empirical physical law — the entropy of an isolated system never
+   decreases. It is not derivable from mathematics; it is a postulate about the
+   physical world. Correctly kept as a physical axiom. *)
 Axiom second_law :
   forall (P_initial P_final : StateDistribution),
     (* For any physical process *)
@@ -118,6 +138,9 @@ Axiom second_law :
 
 (** Helmholtz free energy: F = E - TS
     where E is internal energy, T is temperature, S is entropy *)
+(* METAL-BOUNDARY (kept): [internal_energy] is a physical observable (the
+   thermodynamic internal energy E of a system in a given macrostate/distribution,
+   in Joules). Opaque [Parameter] standing for a measured quantity. *)
 Parameter internal_energy : StateDistribution -> R.
 
 Definition free_energy (P : StateDistribution) : R :=
@@ -164,14 +187,43 @@ Definition erasure_final (s_final : ProgramState) : StateDistribution :=
 
     This is a fundamental result from information theory.
 *)
-(* AXIOM: entropy_change_erasure; Landauer–Bennett result.
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
-Axiom entropy_change_erasure :
+(* DISCHARGED (class A): Axiom -> Lemma. The entropy change of erasing n bits
+   equals [kB·ln2·n]. This is now PROVED from the two sound characterizing
+   axioms [shannon_entropy_uniform_max] and [shannon_entropy_point_zero] plus
+   real-analysis facts ([pow_INR], [ln_pow]): the erasure-initial distribution is
+   uniform over 2^n states, so its Shannon entropy is [log₂(2^n) = n], while the
+   erasure-final point distribution has entropy 0. Multiplying by [kB·ln2] gives
+   the Boltzmann-entropy difference [kB·ln2·n]. No new axiom is introduced.
+
+   [erasure_initial n = fun _ => 1/2^n] is uniform: for the count [2^n] and the
+   carrier [repeat s_final (2^n)] (length 2^n; existence of a ProgramState
+   witness is supplied by [s_final] itself), each mass equals [1/INR(2^n)] since
+   [INR(2^n) = 2^n] (pow_INR), so [shannon_entropy_uniform_max] gives
+   [H = log₂(INR(2^n)) = ln(2^n)/ln2 = (n·ln2)/ln2 = n] (ln_pow, ln2>0). *)
+Lemma entropy_change_erasure :
   forall (n : nat) (s_final : ProgramState),
     (n > 0)%nat ->
     boltzmann_entropy (erasure_initial n) -
     boltzmann_entropy (erasure_final s_final) =
     kB * ln 2 * INR n.
+Proof.
+  intros n s_final Hn.
+  assert (Hln2 : ln 2 > 0). { pose proof ln_lt_2 as Hl. lra. }
+  (* INR of the natural power 2^n coincides with the real power 2^n. *)
+  assert (Hpow : INR (Nat.pow 2 n) = 2 ^ n).
+  { rewrite pow_INR. replace (INR 2) with 2 by (simpl; ring). reflexivity. }
+  unfold boltzmann_entropy, erasure_final.
+  rewrite (shannon_entropy_point_zero s_final).
+  (* Shannon entropy of the uniform erasure-initial distribution is n bits. *)
+  assert (HH : shannon_entropy (erasure_initial n) = INR n).
+  { rewrite (shannon_entropy_uniform_max
+               (erasure_initial n) (Nat.pow 2 n) (repeat s_final (Nat.pow 2 n))).
+    - unfold log2. rewrite Hpow. rewrite (ln_pow 2 ltac:(lra) n).
+      field. lra.
+    - apply repeat_length.
+    - intros s _. unfold erasure_initial. rewrite Hpow. reflexivity. }
+  rewrite HH. ring.
+Qed.
 
 (** Step 2: Connect entropy decrease to energy dissipation *)
 
@@ -182,8 +234,13 @@ Axiom entropy_change_erasure :
     This is the minimum work that must be dissipated as heat.
 *)
 
-(* AXIOM: isothermal_work_bound; Thermodynamic bound (Helmholtz free energy).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
+(* METAL-BOUNDARY AXIOM (kept): the isothermal work bound
+   [W_dissipated >= T·(S_i - S_f)] is a consequence of the second law for an
+   isothermal process (the minimum work to lower entropy by ΔS at temperature T).
+   It rests on physical thermodynamics (Helmholtz free energy / second law), not
+   pure mathematics — the connection between the abstract [work_dissipated]
+   definition and this physical inequality is itself a physical postulate. Kept
+   as a metal-boundary axiom. *)
 Axiom isothermal_work_bound :
   forall (P_initial P_final : StateDistribution),
     work_dissipated P_initial P_final >=
@@ -231,6 +288,12 @@ Qed.
 (** ** Application to CNOs *)
 
 (** Finite-state carrier used by the simplified distribution model. *)
+(* Modeling [Parameter]s (not physical, not discharged here):
+   [all_states] posits a finite enumeration of the (in general infinite) state
+   space so the post-execution distribution can be written as a finite fold;
+   [eval_to_dec] posits decidability of the evaluation relation. Both are
+   modeling conveniences of the *simplified* distribution model; a faithful
+   treatment would use a measure over the full state space. Left as parameters. *)
 Parameter all_states : list ProgramState.
 Parameter eval_to_dec : forall p s s', {eval p s s'} + {~ eval p s s'}.
 
@@ -264,9 +327,19 @@ Definition post_execution_dist (p : Program) (P : StateDistribution) : StateDist
     and μ is a probability measure, then H(μ) = H(T_*μ) where T_*μ is the
     pushforward measure. For the identity map, T_*μ = μ.
 *)
-(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
-   in docs/proof-debt.md (Phase 2e) — should follow from the CNO definition
-   (state in = state out) + functional Shannon entropy. *)
+(* NOT-YET-DISCHARGED (class A). Claim: CNOs preserve Shannon entropy.
+   Morally true, but NOT provable as stated with this file's [post_execution_dist]
+   (the [fold_right] over [all_states] using [eval_to_dec]). Proving
+   [H(post_execution_dist p P) = H(P)] the clean way requires
+   [post_execution_dist p P = P] pointwise, which fails in general here: for a CNO,
+   [eval p s s'] only gives [s =st= s'] (observational equality, PC excluded), not
+   [s = s'], so the fold over [all_states] collecting states that evaluate to [s']
+   need not sum to [P s'] — it depends on how many [=st=]-equivalent states sit in
+   [all_states] and on [P] being constant on [=st=] classes. BLOCKER: needs
+   [all_states] to be a system of unique [=st=]-representatives and [P] to respect
+   [=st=]; equivalently a measure/quotient treatment. (Contrast: StatMech.v proves
+   its namesake because there [post_execution_dist] is literally the identity on
+   distributions.) Correcting the triage docs: not derivable from present defs. *)
 Axiom cno_preserves_shannon_entropy :
   forall (p : Program) (P : StateDistribution),
     is_CNO p ->
@@ -316,9 +389,18 @@ Qed.
     and is safely axiomatized given the complexity of the thermodynamic machinery
     required for a complete proof.
 *)
-(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
-   in docs/proof-debt.md (Phase 2e) — name literally says `_derived`; this
-   file appears to admit the result rather than discharge it. *)
+(* NOT-YET-DISCHARGED (class A) despite the [_derived] name. Claim: a CNO
+   dissipates zero work, [work_dissipated P (post_execution_dist p P) = 0].
+   Unfolding: [work_dissipated P Q = free_energy P - free_energy Q =
+   (internal_energy P - internal_energy Q) - T·(boltzmann_entropy P - boltzmann_entropy Q)].
+   The entropy term vanishes (via [cno_zero_entropy_change], hence via
+   [cno_preserves_shannon_entropy]), but the [internal_energy] term
+   [internal_energy P - internal_energy (post_execution_dist p P)] does NOT
+   provably vanish: [internal_energy] is an opaque physical [Parameter] with no
+   preservation law. Discharging would require both (a) discharging
+   [cno_preserves_shannon_entropy] above and (b) an additional axiom/definition
+   giving [internal_energy] invariance under CNOs — i.e. more input, not a pure
+   derivation. Kept as an axiom; the triage "DISCHARGE" mark is inaccurate. *)
 Axiom cno_zero_energy_dissipation_derived :
   forall (p : Program) (P : StateDistribution),
     is_CNO p ->
@@ -327,23 +409,37 @@ Axiom cno_zero_energy_dissipation_derived :
 (** ** Summary of Derivation Chain *)
 
 (**
-   AXIOMS (Grounded in Physics/Math):
-   1. Boltzmann constant k_B (measured)
-   2. Temperature T (measured)
-   3. Probability axioms (Kolmogorov)
-   4. Shannon entropy properties (information theory)
-   5. Second Law of Thermodynamics
-   6. Isothermal work bound (thermodynamics)
+   AXIOM AUDIT (post-classification; see per-axiom tags above).
 
-   DERIVED:
-   1. Boltzmann entropy from Shannon entropy
-   2. Entropy change for erasure
-   3. Landauer's Principle (work ≥ k_B T ln(2) per bit erased)
-   4. CNO zero entropy change
-   5. CNO zero energy dissipation (from Landauer)
+   METAL-BOUNDARY axioms (kept — genuine empirical physics, not derivable):
+   1. Boltzmann constant k_B and its positivity          (PhysicsConstants.v)
+   2. Temperature T and its positivity                   (PhysicsConstants.v)
+   3. Second Law of Thermodynamics                       (this file)
+   4. Isothermal work bound (Helmholtz / 2nd law)        (this file)
+   5. Landauer's principle lower bound                   (StatMech.v)
+   6. Reversible ⇒ zero dissipation                      (StatMech.v)
+      Opaque physical observables: energy_dissipated_phys, internal_energy.
 
-   REMAINING ADMITS:
-   1. Shannon entropy calculation for uniform distribution
-   2. CNO preserves distribution (requires bijection theory)
-   3. Reversible process has ΔF = 0 (thermodynamic identity)
+   SPECIFICATION axioms for the opaque [shannon_entropy] / [product_dist]
+   (class A — sound, but not dischargeable until those are defined concretely):
+   1. shannon_entropy_nonneg, shannon_entropy_point_zero (StatMechBasis.v)
+   2. shannon_entropy_uniform_max                        (this file)
+   3. shannon_entropy_additive                           (this file)
+
+   DERIVED (proved Theorems/Lemmas — NOT axioms):
+   1. Boltzmann entropy non-negative
+   2. Entropy change for erasure  [entropy_change_erasure — DISCHARGED here:
+      Axiom -> Lemma, from uniform_max + point_zero + pow_INR/ln_pow]
+   3. Landauer's principle bound  [landauer_principle_derived, landauer_one_bit]
+   4. CNO zero entropy change     [cno_zero_entropy_change]
+
+   NOT-YET-DISCHARGED (class A — cannot be honestly derived from present defs):
+   1. cno_preserves_shannon_entropy — carrier/quotient issue (see tag)
+   2. cno_zero_energy_dissipation_derived — internal_energy has no CNO-invariance
+
+   SOUNDNESS WARNINGS (see StatMechBasis.v / StatMech.v tags):
+   - prob_nonneg, prob_normalized: false over unconstrained function-type
+     distributions (need a bundled distribution type); currently unused.
+   - shannon_entropy_maximum (StatMech.v): the stated inequality is backwards
+     (asserts uniform minimizes entropy); currently unused.
 *)
