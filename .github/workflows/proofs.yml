@@ -58,14 +58,16 @@ jobs:
       - name: Register the standard library
         run: |
           mkdir -p "$HOME/.agda"
-          LIB="$(dpkg -L agda-stdlib | grep -m1 'standard-library.*\.agda-lib' || true)"
-          if [ -n "$LIB" ]; then
-            echo "$LIB" > "$HOME/.agda/libraries"
-            echo "standard-library" > "$HOME/.agda/defaults"
-            echo "registered: $LIB"
-          else
-            echo "agda-stdlib .agda-lib not found via dpkg -L" >&2; exit 1
+          # Grab whatever .agda-lib the package ships (name is version-dependent),
+          # with a filesystem fallback. Dump the file list on failure for triage.
+          LIB="$(dpkg -L agda-stdlib 2>/dev/null | grep -m1 '\.agda-lib$' || true)"
+          [ -z "$LIB" ] && LIB="$(find /usr -name '*.agda-lib' 2>/dev/null | grep -m1 -i 'standard' || true)"
+          if [ -z "$LIB" ]; then
+            echo "::error::no .agda-lib found for agda-stdlib"; dpkg -L agda-stdlib | tail -60; exit 1
           fi
+          echo "$LIB" > "$HOME/.agda/libraries"
+          echo "standard-library" > "$HOME/.agda/defaults"
+          echo "registered: $LIB"
       - name: Type-check CNO + OND (--safe --without-K)
         working-directory: proofs/agda
         run: |
