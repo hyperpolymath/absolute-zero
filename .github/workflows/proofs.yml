@@ -55,19 +55,27 @@ jobs:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
       - name: Install Agda + stdlib
         run: sudo apt-get update && sudo apt-get install -y agda agda-stdlib
+      - name: Synthesize + register the stdlib manifest
+        run: |
+          # Ubuntu's agda-stdlib installs the SOURCES to /usr/share/agda-stdlib
+          # but ships NO .agda-lib manifest, so Agda can't resolve the
+          # `standard-library` it expects. Create the manifest inside the stdlib
+          # root (include: . = that dir) and register it in ~/.agda/libraries.
+          NAT="$(dpkg -L agda-stdlib | grep -m1 '/Data/Nat\.agda$')"
+          STDLIB="${NAT%/Data/Nat.agda}"
+          echo "stdlib root: $STDLIB"
+          [ -d "$STDLIB" ] || { echo "::error::agda-stdlib sources not found"; dpkg -L agda-stdlib | tail -60; exit 1; }
+          printf 'name: standard-library\ninclude: .\n' | sudo tee "$STDLIB/standard-library.agda-lib" >/dev/null
+          mkdir -p "$HOME/.agda"
+          echo "$STDLIB/standard-library.agda-lib" > "$HOME/.agda/libraries"
+          echo "standard-library" > "$HOME/.agda/defaults"
+          echo "registered standard-library -> $STDLIB"
       - name: Type-check CNO + OND (--safe --without-K)
         working-directory: proofs/agda
         run: |
           agda --version
-          # The Ubuntu agda-stdlib package installs the SOURCES (no .agda-lib
-          # manifest), so add its root directly to Agda's include path via -i.
-          # Locate the root as the parent of Data/Nat.agda (version-dir robust).
-          NAT="$(dpkg -L agda-stdlib | grep -m1 '/Data/Nat\.agda$')"
-          STDLIB="${NAT%/Data/Nat.agda}"
-          echo "stdlib include path: $STDLIB"
-          [ -d "$STDLIB" ] || { echo "::error::agda-stdlib source dir not found"; dpkg -L agda-stdlib | tail -60; exit 1; }
-          agda --safe --without-K -i "$STDLIB" CNO.agda
-          agda --safe --without-K -i "$STDLIB" OND.agda
+          agda --safe --without-K CNO.agda
+          agda --safe --without-K OND.agda
           echo "✓ Agda: CNO + OND type-check"
 
   z3:
