@@ -38,19 +38,19 @@ of 23+ languages.
 
 ## Status (live)
 
-* **Phase**: proof-completion (~65%)
-* **Coq**: 11/11 files compile, 0 Admitted, 72 Axioms + 42 Parameters (model-layer; Phase-1 per-axiom triage 2026-05-27, PR #58 — see `docs/proof-debt-triage.md`)
-* **Lean 4**: `lake build` 1631/1632 green
-* **Idris2 ABI**: typechecks under 0.8.0; `Proofs/DivMod.idr` consolidates the trusted div/mod base
+* **Phase**: two-pillar completion / hardening (~88%). Both pillars machine-checked across **six provers + Idris** (PR #100) — run `proofs/verify-all-provers.sh` → `ALL-PROVERS-GREEN`.
+* **Coq**: 14/14 theories compile (CNO + OND), 0 Admitted; CNO axioms cut 98→small classified remainder; **OND** (`ond/OND.v`) OND-1..5 proved with zero axioms.
+* **Lean 4**: `lake build` green (Mathlib) incl. the new `OND` lib; 0 `sorry`.
+* **Agda / Z3 / Isabelle / Mizar**: CNO + OND verified (Agda `OND.agda`; Z3 `ond/OND_checks.smt2`; Isabelle `AbsoluteZero-CNO` session; Mizar `CNO.miz` → empty `.err`).
+* **Idris2 ABI**: `absolute-zero-abi.ipkg` builds clean under 0.8.0.
 * For the authoritative live state, read [`.machine_readable/6a2/STATE.a2ml`](../../.machine_readable/6a2/STATE.a2ml)
 
-**Status note (2026-06-12)** — work landed since 2026-05-27 is CI/governance only:
-scorecard job-level permissions (#68), reusable-workflow SHA repins (#69), CodeQL
-cron weekly→monthly (#71), actions-group dependency bumps (#72), README sponsor
-badge; plus the estate-standardization wave (flat `.machine_readable/contractiles/`,
-`self-validating/` rename, `GOVERNANCE.adoc`/`MAINTAINERS.adoc`/`CODEOWNERS`,
-`manifest.scm`, `bot_directives/`). Proof tracks unchanged since the Phase-1
-axiom triage (PR #58).
+**Status note (2026-07-06)** — PR #100 (MERGED) completed both pillars across six
+provers + the Idris ABI: the OND (disclosure) pillar was authored from scratch
+(OND-1..5 proved, zero axioms; OND-6 open by design), CNO axioms were cut from 98
+to a small classified remainder, three latent-unsound axioms were found and fixed,
+and Isabelle/Mizar/Idris were brought to green. Reproduce with
+`proofs/verify-all-provers.sh`.
 
 ## Project layout (RSR-aligned)
 

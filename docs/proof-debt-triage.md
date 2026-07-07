@@ -4,6 +4,11 @@ Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 -->
 # Proof Debt — Per-Marker Triage (Coq Axioms)
 
+> **STATUS 2026-07-06 (PR #100):** Most §(a) DISCHARGE items below are now proved
+> (CNO axioms 98→small; `Print Assumptions` on every headline theorem shows only
+> Coq stdlib axioms plus explicitly-tagged postulates). See `PROOF-STATUS.adoc`
+> for the current per-theorem disposition; this table is the historical triage.
+
 Companion to [`docs/proof-debt.md`](./proof-debt.md) (the standards#203
 seed). This file classifies **every Coq `Axiom` declaration** in this
 repo into the three dispositions from the standards#203

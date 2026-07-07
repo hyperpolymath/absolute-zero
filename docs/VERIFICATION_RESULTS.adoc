@@ -2,6 +2,11 @@
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 # Verification Results: Phase 1 Completion and Cross-Solver Proofs
 
+> **SUPERSEDED / HISTORICAL (2025-11-22 session).** This is a point-in-time
+> session log. Current reproduced status: both pillars machine-checked across
+> six provers + Idris (PR #100, 2026-07-06) — see `PROOF-STATUS.adoc` and run
+> `proofs/verify-all-provers.sh` (`ALL-PROVERS-GREEN`). Counts below are historical.
+
 **Date**: 2025-11-22
 **Session**: Proof Completion and Automated Verification
 

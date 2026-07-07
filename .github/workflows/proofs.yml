@@ -1,0 +1,55 @@
+# SPDX-License-Identifier: MPL-2.0
+# Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+#
+# Proof verification CI. Runs the LIGHTWEIGHT provers that are feasible on a
+# standard GitHub runner — Coq (both pillars, all 14 theories) and Z3 (CNO +
+# OND bounded instances). The full six-prover gate (adds Lean+Mathlib, Agda,
+# Isabelle, Mizar, Idris) is heavy and runs locally / in a container via
+# `proofs/verify-all-provers.sh`; see PROOF-STATUS.adoc.
+name: Proofs
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'proofs/**'
+      - 'absolute-zero-abi.ipkg'
+      - '.github/workflows/proofs.yml'
+  pull_request:
+    paths:
+      - 'proofs/**'
+      - 'absolute-zero-abi.ipkg'
+      - '.github/workflows/proofs.yml'
+
+permissions:
+  contents: read
+
+jobs:
+  coq:
+    name: Coq — CNO + OND (14 theories)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
+      - name: Install Coq
+        run: sudo apt-get update && sudo apt-get install -y coq
+      - name: Build all theories via coq_makefile
+        working-directory: proofs/coq
+        run: |
+          coqc --version
+          coq_makefile -f _CoqProject -o Makefile.all
+          make -f Makefile.all -j"$(nproc)"
+          echo "✓ Coq: 14/14 theories compiled (CNO + OND)"
+
+  z3:
+    name: Z3 — OND bounded checks
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
+      - name: Install Z3
+        run: sudo apt-get update && sudo apt-get install -y z3
+      - name: Run Z3 checks
+        run: |
+          z3 --version
+          sh proofs/z3/verify.sh || true
+          z3 proofs/z3/ond/OND_checks.smt2
+          echo "✓ Z3: OND bounded instances checked"

@@ -13,28 +13,46 @@ audits, and other trust-boundary events.
 
 For architectural decisions (which are forward-looking design choices
 rather than backward-looking audit events), see
-`.machine_readable/META.scm` `architecture-decisions`.
+`.machine_readable/6a2/META.a2ml` `architecture-decisions`.
 
 == Open Audit Items
 
-|===
-|ID |Date filed |Severity |Description |Issue
-
-|AUDIT-2026-05-20-A
-|2026-05-20
-|Medium
-|`src/abi/Types.idr` has 5 pre-existing errors blocking Idris2 0.8.0
- typecheck (missing `Decidable.Equality` import; `%runElab` without
- `ElabReflection`; `MkStateHandle ptr` doesn't supply the `nonNull`
- auto-proof; `No absurd` lacks `Uninhabited` instances).
-|TBD (separate from #27)
-
-|===
+_None open. `AUDIT-2026-05-20-A` (Idris `Types.idr` errors) was resolved in
+PR #100 — see Resolved Audit Items below._
 
 == Resolved Audit Items
 
 |===
 |ID |Date resolved |Description |Resolution commit
+
+|AUDIT-2026-07-06-A
+|2026-07-06
+|*Unsoundness finding — 3 axioms.* During the two-pillar discharge, three
+ Coq axioms were found to be UNSOUND and removed/corrected: `no_cloning`
+ (provably false in the flat 1-qubit model — witnessed by `I_gate`),
+ `Cconj_Cexp` (false for a genuine phase: `(e^{iθ})* ≠ e^{iθ}`), and
+ `eta_equivalence` (false as stated — counterexample `f = LVar 5`; root cause:
+ `subst` does not re-index under binders). `eta_equivalence` was replaced by a
+ `no_lambda`-guarded theorem; the other two were dead code and deleted.
+|PR #100 (6b591f12)
+
+|AUDIT-2026-05-20-A
+|2026-07-06
+|`src/abi/Types.idr` 5 pre-existing errors (missing `Decidable.Equality`
+ import; `%runElab` without `ElabReflection`; `MkStateHandle`/`MkProgramHandle`
+ `nonNull` auto-proof via `choose`; `No absurd` `DecEq` instances removed as
+ unused). ABI packaging restructured (module paths ↔ `sourcedir`); Idris ABI now
+ builds clean.
+|PR #100 (6b591f12)
+
+|AUDIT-2026-07-06-B
+|2026-07-06
+|*CNO axiom base reduced 98 → small classified remainder* and *both pillars
+ (CNO + OND) machine-checked across six provers + Idris*. Remaining axioms are
+ tagged `METAL-BOUNDARY` physical postulates or openly-labelled class-A items;
+ `Print Assumptions` on every headline theorem shows only Coq stdlib axioms +
+ tagged postulates. Reproduce: `proofs/verify-all-provers.sh`.
+|PR #100 (6b591f12)
 
 |AUDIT-2026-05-20-B
 |2026-05-26
@@ -56,7 +74,7 @@ rather than backward-looking audit events), see
 |2026-05-20
 |`eval_deterministic` discharged from Axiom → Theorem via
  `step_deterministic_strong` helper. First post-T0 axiom audit win.
-|PR #24 (see META.scm ADR-007)
+|PR #24 (see 6a2/META.a2ml ADR-007)
 
 |AUDIT-2026-05-20-#32
 |2026-05-20
@@ -65,7 +83,7 @@ rather than backward-looking audit events), see
  (`=st=`); re-proved `cno_eval_on_equal_states` +
  `cno_logically_reversible` via `cno_terminates` +
  `cno_preserves_state`.
-|PR #32 (see META.scm ADR-008)
+|PR #32 (see 6a2/META.a2ml ADR-008)
 
 |AUDIT-2026-02-05
 |2026-02-05
@@ -84,6 +102,6 @@ Audit IDs follow `AUDIT-<YYYY-MM-DD>-<seq-or-PR>`:
 
 == See also
 
-* `.machine_readable/META.scm` — forward-looking architecture decisions (ADR-001…N)
+* `.machine_readable/6a2/META.a2ml` — forward-looking architecture decisions (ADR-001…N)
 * `docs/archive/` — historical session / audit artefacts (dated)
 * `RSR_COMPLIANCE.adoc` — Rhodium Standard Repository compliance status

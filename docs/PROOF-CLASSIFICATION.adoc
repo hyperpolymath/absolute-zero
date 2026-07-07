@@ -4,6 +4,18 @@
 :toc:
 :sectnums:
 
+[NOTE]
+.Status 2026-07-06 (PR #100)
+====
+This classification predates the two-pillar completion. Most items catalogued
+here as `Admitted`/axiom have since been **discharged** (CNO axioms 98→small):
+filesystem/category/QuantumMechanicsExact fully proved; genuine physical
+postulates retained as tagged `METAL-BOUNDARY`; a small class-A set left openly
+labelled; three unsound axioms removed. See `PROOF-STATUS.adoc` for the current,
+reproduced disposition. The taxonomy below remains the reference for *how* items
+were classified.
+====
+
 == Classification Principle
 
 **Priority**: Core CNO properties, especially **reversibility** and **inverse operations**

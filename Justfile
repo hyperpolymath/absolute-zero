@@ -14,8 +14,8 @@ default:
 # Build Commands
 # ============================================================================
 
-# Build everything
-build-all: build-rescript build-coq build-lean build-agda build-isabelle build-typescript
+# Build everything (all six prover backends + the Idris ABI)
+build-all: build-coq build-lean build-agda build-isabelle build-mizar build-idris
     @echo "✓ All builds complete"
 
 # Build ReScript interpreters
@@ -23,34 +23,44 @@ build-rescript:
     @echo "Building ReScript interpreters..."
     cd interpreters/rescript && npx rescript build
 
-# Build Coq proofs
+# Build Coq proofs — all 14 theories (CNO + OND pillars) via coq_makefile
 build-coq:
-    @echo "Building Coq proofs..."
+    @echo "Building Coq proofs (14 theories, both pillars)..."
     @if command -v coqc >/dev/null 2>&1; then \
-        cd proofs/coq/common && coqc CNO.v && \
-        cd ../physics && coqc -R ../common CNO StatMech.v && \
-        coqc -R ../common CNO LandauerDerivation.v && \
-        cd ../quantum && coqc -R ../common CNO QuantumMechanicsExact.v && \
-        cd ../malbolge && coqc -R ../common CNO MalbolgeCore.v && \
-        echo "✓ Coq proofs compiled"; \
+        cd proofs/coq && coq_makefile -f _CoqProject -o Makefile.all >/dev/null && \
+        make -f Makefile.all -j"$(nproc)" && \
+        echo "✓ Coq proofs compiled (CNO + OND)"; \
     else \
         echo "⚠ coqc not found, skipping Coq build"; \
     fi
 
-# Build Lean 4 proofs
+# Build Lean 4 proofs (CNO libs + OND; needs Mathlib cache)
 build-lean:
     @echo "Building Lean 4 proofs..."
     cd proofs/lean4 && lake build
 
-# Build Agda proofs
+# Build Agda proofs (CNO + OND, --safe --without-K)
 build-agda:
     @echo "Building Agda proofs..."
-    cd proofs/agda && agda CNO.agda
+    cd proofs/agda && agda --safe --without-K CNO.agda && agda --safe --without-K OND.agda
 
-# Build Isabelle/HOL proofs
+# Build Isabelle/HOL proofs (CNO + OND session)
 build-isabelle:
     @echo "Building Isabelle/HOL proofs..."
-    isabelle build -D proofs/isabelle
+    isabelle build -d proofs/isabelle AbsoluteZero-CNO
+
+# Build Mizar article (needs MIZFILES + proofs/mizar/dict/cno.voc)
+build-mizar:
+    @echo "Building Mizar CNO article..."
+    @if command -v verifier >/dev/null 2>&1; then \
+        cd proofs/mizar && accom CNO && verifier CNO && \
+        { test -s CNO.err && { echo "✗ Mizar errors (CNO.err)"; exit 1; } || echo "✓ Mizar verified"; }; \
+    else echo "⚠ mizar verifier not found, skipping"; fi
+
+# Build the Idris 2 ABI package
+build-idris:
+    @echo "Building Idris 2 ABI..."
+    idris2 --build absolute-zero-abi.ipkg
 
 # Build TypeScript
 build-typescript:
@@ -62,19 +72,24 @@ build-typescript:
 # Verification Commands
 # ============================================================================
 
-# Verify all proofs
-verify-all: verify-coq verify-z3 verify-lean verify-agda verify-isabelle
+# Verify BOTH pillars across ALL six provers + the Idris ABI (canonical gate).
+# Single source of truth; prints ALL-PROVERS-GREEN on success.
+verify:
+    @proofs/verify-all-provers.sh
+
+# Verify all proofs (per-prover targets; `just verify` is the canonical one-shot)
+verify-all: verify-coq verify-z3 verify-lean verify-agda verify-isabelle verify-mizar verify-idris
     @echo "✓ All verifications complete"
 
 # Verify Coq proofs
 verify-coq: build-coq
     @echo "✓ Coq proofs verified"
 
-# Verify Z3 SMT properties
+# Verify Z3 SMT properties (CNO checks + OND bounded instances)
 verify-z3:
     @echo "Verifying Z3 SMT properties..."
     @if command -v z3 >/dev/null 2>&1; then \
-        z3 proofs/z3/cno_properties.smt2 && echo "✓ Z3 verification complete"; \
+        sh proofs/z3/verify.sh && z3 proofs/z3/ond/OND_checks.smt2 && echo "✓ Z3 verification complete"; \
     else \
         echo "⚠ z3 not found, skipping Z3 verification"; \
     fi
@@ -91,6 +106,14 @@ verify-agda: build-agda
 # Verify Isabelle/HOL proofs
 verify-isabelle: build-isabelle
     @echo "✓ Isabelle/HOL proofs verified"
+
+# Verify the Mizar CNO article
+verify-mizar: build-mizar
+    @echo "✓ Mizar proofs verified"
+
+# Verify the Idris 2 ABI package
+verify-idris: build-idris
+    @echo "✓ Idris ABI verified"
 
 # ============================================================================
 # Testing Commands
