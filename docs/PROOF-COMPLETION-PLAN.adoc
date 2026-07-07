@@ -4,9 +4,19 @@
 :toc:
 :sectnums:
 
+[IMPORTANT]
+.HISTORICAL PLAN — largely executed (2026-07-06, PR #100)
+====
+This strategy (dated 2026-02-05) has since been carried out and superseded.
+There are now **0 `Admitted`** across the Coq development, both pillars are
+machine-checked across six provers + Idris, and the CNO axiom base was cut
+98→small. Current status: `PROOF-STATUS.adoc`; reproduce with
+`proofs/verify-all-provers.sh`. The plan below is kept for provenance.
+====
+
 == Date: 2026-02-05
 
-== Current Status
+== Current Status (historical)
 
 **Total Admitted**: 27 proofs across 8 files
 

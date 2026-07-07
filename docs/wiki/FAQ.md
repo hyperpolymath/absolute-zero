@@ -34,9 +34,11 @@ Zig shim. See [ABI](ABI.md).
 * **Admitted** (Coq) / `sorry` (Lean) / `?hole` (Idris2): a placeholder
   in a proof, marking incomplete work. Should not ship.
 
-absolute-zero core: **0 Admitted**, 72 Axioms + 42 Parameters, triaged
-per [`docs/proof-debt-triage.md`](../proof-debt-triage.md) (Phase-1
-triage, PR #58: 52 trusted-base, 17 discharge-backlog, 3 property-test).
+absolute-zero: **0 Admitted / 0 sorry** across all provers (PR #100). CNO axioms
+were cut from ~98 to a small classified remainder — genuine physical postulates
+kept as tagged `METAL-BOUNDARY`, plus a few openly-labelled class-A items; three
+unsound axioms were removed/corrected. The OND pillar (`ond/OND.v`) is fully
+constructive (zero axioms). See [`PROOF-STATUS.adoc`](../../PROOF-STATUS.adoc).
 
 ### Why is `examples/python` / `examples/go` / `examples/java` missing?
 
@@ -57,7 +59,7 @@ ECHIDNA tool table in [`0-AI-MANIFEST.a2ml`](../../0-AI-MANIFEST.a2ml).
 
 ### Is the Coq proof complete?
 
-Core theory: yes (11/11 files compile, 0 Admitted). Model-layer
+Core theory: yes (14/14 theories compile, 0 Admitted, both pillars). Model-layer
 assumptions (Parameters about abstract physics, quantum, POSIX) are
 owner-classified — these are *intended* axiomatisations of the
 external world, not gaps in the verification of the computational claim.

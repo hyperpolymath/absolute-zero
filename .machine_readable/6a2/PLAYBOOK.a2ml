@@ -5,8 +5,8 @@
 # Migrated from PLAYBOOK.scm on 2026-04-17
 
 [metadata]
-version = "1.0.0"
-last-updated = "2026-04-17"
+version = "1.0.1"
+last-updated = "2026-07-07"
 
 [deployment]
 method = "library"    # This is a research repo; no deployed service
@@ -18,14 +18,17 @@ test  = "just test"
 release = "just release"
 
 [proof-procedures]
+# Canonical one-shot gate: both pillars, all six provers + Idris → ALL-PROVERS-GREEN
+verify-all = "proofs/verify-all-provers.sh"   # or: just verify
 # Build all prover targets (gracefully skips missing local installations)
 build-all = "just build-all"
 # Individual prover builds:
-build-coq       = "just build-coq"
+build-coq       = "just build-coq"     # 14 theories (CNO + OND) via coq_makefile
 build-lean      = "just build-lean"
-build-agda      = "just build-agda"
+build-agda      = "just build-agda"    # CNO.agda + OND.agda
 build-isabelle  = "just build-isabelle"
-build-rescript  = "just build-rescript"
+build-mizar     = "just build-mizar"
+build-idris     = "just build-idris"
 
 [incident-response]
 # 1. Check .machine_readable/6a2/STATE.a2ml for current status

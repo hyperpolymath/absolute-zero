@@ -5,8 +5,8 @@
 # Migrated from NEUROSYM.scm on 2026-04-17
 
 [metadata]
-version = "1.0.0"
-last-updated = "2026-04-17"
+version = "1.0.1"
+last-updated = "2026-07-07"
 
 [hypatia-config]
 scan-enabled = true
@@ -17,7 +17,8 @@ report-format = "a2ml"  # Hypatia Logtalk removed 2026-04-12; outputs JSON→A2M
 type = "multi-prover"
 reasoning = "deductive"
 verification = "formal"
-# Proof systems: Coq, Lean 4, Z3, Agda, Isabelle, Mizar
+# Proof systems: Coq, Lean 4, Z3, Agda, Isabelle, Mizar (+ Idris 2 for the ABI)
+# All six + Idris verified as of PR #100 (2026-07-06); see PROOF-STATUS.adoc
 
 [neural-layer]
 embeddings = false

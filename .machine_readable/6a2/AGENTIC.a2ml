@@ -5,8 +5,8 @@
 # Migrated from AGENTIC.scm on 2026-04-17
 
 [metadata]
-version = "1.0.0"
-last-updated = "2026-04-17"
+version = "1.0.1"
+last-updated = "2026-07-07"
 
 [agent-permissions]
 can-edit-source = true
@@ -18,19 +18,26 @@ can-create-files = true
 [agent-constraints]
 # What AI agents MUST NOT do in this repo:
 # - Never use dangerous patterns: believe_me, assert_total, Admitted, sorry, unsafeCoerce, Obj.magic
-# - Never touch proofs/lean4/*.lean or proofs/idris2/*.idr — 18 open sorry entries blocked on mathlib build
+# - Never introduce a NEW axiom/postulate to "close" a goal; if a proof cannot be
+#   completed, leave it and report honestly (see the class-A remainder in PROOF-STATUS.adoc)
 # - Never commit secrets or credentials
 # - Never use banned languages: TypeScript, Python (except SaltStack), Go, Node.js, Bun, npm
 # - Never place checkpoint files outside .machine_readable/
 # - Never use AGPL-3.0 license (use MPL-2.0)
-# - Never run the full test suite without user approval (mathlib build is expensive)
+# - Full six-prover run (proofs/verify-all-provers.sh) needs Mathlib/Isabelle/Mizar
+#   installed; the lighter provers (Coq/Agda/Z3/Idris) run cheaply
 
 [proof-safety]
-# Lean 4 proofs have 18 open sorry entries blocked on mathlib build — do NOT modify without explicit instruction
-# Coq proofs have 19 Admitted entries — document any new Admitted with rationale
-# Python interpreters present but flagged as RSR violations — do not add new Python
-lean4-sorry-count = 18  # as of last audit 2026-04-17; update when resolved
-coq-admitted-count = 19  # as of 2026-02-05
+# As of PR #100 (2026-07-06) both pillars verify clean across six provers + Idris.
+# Lean 4 builds (0 sorry); Coq has 0 Admitted. It is now SAFE to edit
+# proofs/lean4/*.lean and the Idris ABI — but preserve the zero-cheat invariant.
+# The only remaining project axioms are (a) tagged METAL-BOUNDARY physical
+# postulates and (b) openly-labelled class-A items (y_not_cno, CNOT_gate_unitary,
+# unitary_inverse_property, fidelity_bound) — do NOT silently discharge these by
+# weakening a statement; a real proof needs new machinery (finite-dim/tensor QM,
+# coinductive beta non-termination).
+lean4-sorry-count = 0    # PR #100, 2026-07-06 (lake build green with Mathlib)
+coq-admitted-count = 0   # PR #100, 2026-07-06 (14/14 theories, Closed under global context)
 
 [maintenance-integrity]
 fail-closed = true
