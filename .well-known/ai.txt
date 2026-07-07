@@ -5,7 +5,7 @@
 User-Agent: *
 Manifest: /0-AI-MANIFEST.a2ml
 EntryPoint: /docs/CLAUDE.adoc
-State: /.machine_readable/6a2/STATE.a2ml
+State: /.machine_readable/descriptiles/STATE.a2ml
 Roadmap: /ROADMAP.adoc
 Allow: training-with-attribution
 Allow: documentation-summarisation

@@ -1,11 +1,14 @@
 # SPDX-License-Identifier: MPL-2.0
 # Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 #
-# Proof verification CI. Runs the LIGHTWEIGHT provers that are feasible on a
-# standard GitHub runner — Coq (both pillars, all 14 theories) and Z3 (CNO +
-# OND bounded instances). The full six-prover gate (adds Lean+Mathlib, Agda,
-# Isabelle, Mizar, Idris) is heavy and runs locally / in a container via
-# `proofs/verify-all-provers.sh`; see PROOF-STATUS.adoc.
+# Proof verification CI. Runs the LIGHTWEIGHT provers that are fast and reliable
+# on a standard GitHub runner — Coq (both pillars, all 14 theories), Agda (CNO +
+# OND), and Z3 (CNO + OND bounded instances). Each is an INDEPENDENT job, so one
+# flaking never blocks the others.
+#
+# The heavy provers (Lean + multi-GB Mathlib, Isabelle ~1.2 GB, Mizar i386 + MML,
+# Idris 2 from source) are NOT run here — they are covered by the local/container
+# gate `proofs/verify-all-provers.sh` (ALL-PROVERS-GREEN). See PROOF-STATUS.adoc.
 name: Proofs
 
 on:
@@ -24,10 +27,15 @@ on:
 permissions:
   contents: read
 
+# Cancel superseded runs on the same ref (don't pile up on force-pushes).
+concurrency:
+  group: proofs-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   coq:
     name: Coq — CNO + OND (14 theories)
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
       - name: Install Coq
@@ -40,9 +48,35 @@ jobs:
           make -f Makefile.all -j"$(nproc)"
           echo "✓ Coq: 14/14 theories compiled (CNO + OND)"
 
+  agda:
+    name: Agda — CNO + OND
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
+      - name: Install Agda + stdlib
+        run: sudo apt-get update && sudo apt-get install -y agda agda-stdlib
+      - name: Register the standard library
+        run: |
+          mkdir -p "$HOME/.agda"
+          LIB="$(dpkg -L agda-stdlib | grep -m1 'standard-library.*\.agda-lib' || true)"
+          if [ -n "$LIB" ]; then
+            echo "$LIB" > "$HOME/.agda/libraries"
+            echo "standard-library" > "$HOME/.agda/defaults"
+            echo "registered: $LIB"
+          else
+            echo "agda-stdlib .agda-lib not found via dpkg -L" >&2; exit 1
+          fi
+      - name: Type-check CNO + OND (--safe --without-K)
+        working-directory: proofs/agda
+        run: |
+          agda --version
+          agda --safe --without-K CNO.agda
+          agda --safe --without-K OND.agda
+          echo "✓ Agda: CNO + OND type-check"
+
   z3:
-    name: Z3 — OND bounded checks
-    runs-on: ubuntu-latest
+    name: Z3 — CNO + OND bounded checks
+    runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
       - name: Install Z3

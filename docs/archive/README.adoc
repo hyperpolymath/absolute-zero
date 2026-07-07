@@ -10,7 +10,7 @@ snapshots or by updating the live documents listed below.
 
 Authoritative live sources:
 
-* Project state — `.machine_readable/6a2/STATE.a2ml`
+* Project state — `.machine_readable/descriptiles/STATE.a2ml`
 * Roadmap — `ROADMAP.adoc` (repo root)
 * Proof-debt disposition — `docs/proof-debt-triage.md` and `docs/proof-debt.md`
 * Audit findings — `AUDIT.adoc` (repo root)
@@ -21,9 +21,9 @@ Authoritative live sources:
 |===
 | File | Date | What it was | Superseded by
 
-| `CURRENT-STATUS-2026-02-05.md` | 2026-02-05 | Point-in-time project status | `.machine_readable/6a2/STATE.a2ml`
+| `CURRENT-STATUS-2026-02-05.md` | 2026-02-05 | Point-in-time project status | `.machine_readable/descriptiles/STATE.a2ml`
 | `ECHIDNA-2025-11-22.adoc` | 2025-11-22 | Early ECHIDNA integration notes | `ECHIDNA.adoc`
-| `INTEGRATION-STATUS-2026-02-05.adoc` | 2026-02-05 | Integration status snapshot | `.machine_readable/6a2/STATE.a2ml`
+| `INTEGRATION-STATUS-2026-02-05.adoc` | 2026-02-05 | Integration status snapshot | `.machine_readable/descriptiles/STATE.a2ml`
 | `LICENSE-AUDIT-2026-02-05.adoc` | 2026-02-05 | License audit snapshot | `LICENSE` (MPL-2.0)
 | `PROOF-COMPLETION-2026-02-06.md` | 2026-02-06 | Proof-completion plan snapshot | `docs/PROOF-COMPLETION-PLAN.adoc`
 | `PROOF-STATUS-2026-05-18.md` | 2026-05-18 | Tier-0 rescue proof-status ledger | `docs/proof-debt-triage.md`, `AUDIT.adoc`

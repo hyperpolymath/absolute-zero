@@ -93,7 +93,7 @@ podman run --rm absolute-zero:verify just verify
 
 ## Status as of 2026-07-06 (PR #100)
 
-See [`.machine_readable/6a2/STATE.a2ml`](../../.machine_readable/6a2/STATE.a2ml)
+See [`.machine_readable/descriptiles/STATE.a2ml`](../../.machine_readable/descriptiles/STATE.a2ml)
 and [`PROOF-STATUS.adoc`](../../PROOF-STATUS.adoc) for live status. Summary: both
 pillars verified across **six provers + Idris** — Coq 14/14, Lean+Mathlib green,
 Agda (CNO+OND), Z3, Isabelle (`AbsoluteZero-CNO`), Mizar (`CNO.miz` empty `.err`),

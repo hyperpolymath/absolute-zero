@@ -31,14 +31,14 @@ build-mizar     = "just build-mizar"
 build-idris     = "just build-idris"
 
 [incident-response]
-# 1. Check .machine_readable/6a2/STATE.a2ml for current status
+# 1. Check .machine_readable/descriptiles/STATE.a2ml for current status
 # 2. Review recent commits: git log --oneline -10
 # 3. Run `just validate` if available
 # 4. Run `just security` for vulnerability audit
 # 5. For proof failures: check proofs/<system>/ for unsaved Admitted/sorry
 
 [release-process]
-# 1. Update version in .machine_readable/6a2/STATE.a2ml and META.a2ml
+# 1. Update version in .machine_readable/descriptiles/STATE.a2ml and META.a2ml
 # 2. Resolve all Admitted/sorry entries to target count
 # 3. Run `just build-all` to confirm no regressions
 # 4. Tag and push to origin (GitHub only)

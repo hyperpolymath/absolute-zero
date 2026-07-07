@@ -66,7 +66,7 @@ external world, not gaps in the verification of the computational claim.
 
 ### Where's the live state?
 
-`.machine_readable/6a2/STATE.a2ml`. Updated on every meaningful change.
+`.machine_readable/descriptiles/STATE.a2ml`. Updated on every meaningful change.
 
 ### Why "Absolute Zero"?
 

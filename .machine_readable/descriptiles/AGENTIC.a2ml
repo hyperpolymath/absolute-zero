@@ -51,6 +51,6 @@ recommended = ["read", "edit", "bash", "grep", "glob"]
 permissions = "read-all"
 
 [automation-hooks]
-# on-enter: Read AI.a2ml, then .machine_readable/6a2/STATE.a2ml
-# on-exit: Update .machine_readable/6a2/STATE.a2ml with session outcomes
+# on-enter: Read AI.a2ml, then .machine_readable/descriptiles/STATE.a2ml
+# on-exit: Update .machine_readable/descriptiles/STATE.a2ml with session outcomes
 # on-commit: Run just validate-rsr (if available)
