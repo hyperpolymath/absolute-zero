@@ -43,7 +43,7 @@ notes = "Exercised precedent: PR #69 repinned orphan reusable SHAs (97df7621/4fd
 
 [[recovery]]
 id = "stale-machine-metadata"
-asset = ".machine_readable/ (6a2, contractiles, bot_directives)"
+asset = ".machine_readable/ (descriptiles, contractiles, bot_directives)"
 reversible = true
 handler = "Regenerate from repo facts: git log since the last STATE date + repo docs, per the governance-checkpoint discipline; prior states recoverable from git history"
 notes = "STATE refreshes are additive light-bumps; never invent facts — omit unknown keys."

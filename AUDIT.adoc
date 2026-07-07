@@ -13,7 +13,7 @@ audits, and other trust-boundary events.
 
 For architectural decisions (which are forward-looking design choices
 rather than backward-looking audit events), see
-`.machine_readable/6a2/META.a2ml` `architecture-decisions`.
+`.machine_readable/descriptiles/META.a2ml` `architecture-decisions`.
 
 == Open Audit Items
 
@@ -74,7 +74,7 @@ PR #100 — see Resolved Audit Items below._
 |2026-05-20
 |`eval_deterministic` discharged from Axiom → Theorem via
  `step_deterministic_strong` helper. First post-T0 axiom audit win.
-|PR #24 (see 6a2/META.a2ml ADR-007)
+|PR #24 (see descriptiles/META.a2ml ADR-007)
 
 |AUDIT-2026-05-20-#32
 |2026-05-20
@@ -83,7 +83,7 @@ PR #100 — see Resolved Audit Items below._
  (`=st=`); re-proved `cno_eval_on_equal_states` +
  `cno_logically_reversible` via `cno_terminates` +
  `cno_preserves_state`.
-|PR #32 (see 6a2/META.a2ml ADR-008)
+|PR #32 (see descriptiles/META.a2ml ADR-008)
 
 |AUDIT-2026-02-05
 |2026-02-05
@@ -102,6 +102,6 @@ Audit IDs follow `AUDIT-<YYYY-MM-DD>-<seq-or-PR>`:
 
 == See also
 
-* `.machine_readable/6a2/META.a2ml` — forward-looking architecture decisions (ADR-001…N)
+* `.machine_readable/descriptiles/META.a2ml` — forward-looking architecture decisions (ADR-001…N)
 * `docs/archive/` — historical session / audit artefacts (dated)
 * `RSR_COMPLIANCE.adoc` — Rhodium Standard Repository compliance status

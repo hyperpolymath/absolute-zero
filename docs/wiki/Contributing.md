@@ -44,7 +44,7 @@ just fmt
 ## ADR / Audit trail
 
 * If your change is an **architectural decision** going forward, add an ADR
-  entry to [`.machine_readable/6a2/META.a2ml`](../../.machine_readable/6a2/META.a2ml)
+  entry to [`.machine_readable/descriptiles/META.a2ml`](../../.machine_readable/descriptiles/META.a2ml)
   (next ADR-NNN).
 * If your change **discharges a postulate / deletes unsound code**, add an
   AUDIT entry to [`AUDIT.adoc`](../../AUDIT.adoc).
