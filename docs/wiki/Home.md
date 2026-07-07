@@ -43,7 +43,7 @@ of 23+ languages.
 * **Lean 4**: `lake build` green (Mathlib) incl. the new `OND` lib; 0 `sorry`.
 * **Agda / Z3 / Isabelle / Mizar**: CNO + OND verified (Agda `OND.agda`; Z3 `ond/OND_checks.smt2`; Isabelle `AbsoluteZero-CNO` session; Mizar `CNO.miz` → empty `.err`).
 * **Idris2 ABI**: `absolute-zero-abi.ipkg` builds clean under 0.8.0.
-* For the authoritative live state, read [`.machine_readable/6a2/STATE.a2ml`](../../.machine_readable/6a2/STATE.a2ml)
+* For the authoritative live state, read [`.machine_readable/descriptiles/STATE.a2ml`](../../.machine_readable/descriptiles/STATE.a2ml)
 
 **Status note (2026-07-06)** — PR #100 (MERGED) completed both pillars across six
 provers + the Idris ABI: the OND (disclosure) pillar was authored from scratch

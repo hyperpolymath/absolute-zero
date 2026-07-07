@@ -27,7 +27,7 @@ standardisation. Detailed phase decomposition in [`ROADMAP.adoc`](../../ROADMAP.
 ## How decisions are recorded
 
 * Forward-looking architectural choices → ADRs in
-  [`.machine_readable/6a2/META.a2ml`](../../.machine_readable/6a2/META.a2ml)
+  [`.machine_readable/descriptiles/META.a2ml`](../../.machine_readable/descriptiles/META.a2ml)
   `architecture-decisions` section
 * Backward-looking audit events → [`AUDIT.adoc`](../../AUDIT.adoc)
-* Live phase / progress → [`.machine_readable/6a2/STATE.a2ml`](../../.machine_readable/6a2/STATE.a2ml)
+* Live phase / progress → [`.machine_readable/descriptiles/STATE.a2ml`](../../.machine_readable/descriptiles/STATE.a2ml)

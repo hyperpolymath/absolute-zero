@@ -37,7 +37,7 @@ For the RSR taxonomy itself (what the template prescribes), see
 
 |Machine-readable artefacts
 |✅ Passing
-|`.machine_readable/6a2/{STATE,META,ECOSYSTEM,AGENTIC,NEUROSYM,PLAYBOOK}.a2ml`
+|`.machine_readable/descriptiles/{STATE,META,ECOSYSTEM,AGENTIC,NEUROSYM,PLAYBOOK}.a2ml`
  + legacy `.scm` siblings during migration window.
 
 |`0-AI-MANIFEST.a2ml`
@@ -98,4 +98,4 @@ For the RSR taxonomy itself (what the template prescribes), see
 * `docs/RSR_OUTLINE.adoc` — the RSR template's own README (what the standard prescribes)
 * `AUDIT.adoc` — audit trail for unsoundness/dead-code findings
 * `0-AI-MANIFEST.a2ml` — AI-agent entry-point manifest
-* `.machine_readable/6a2/STATE.a2ml` — live project state
+* `.machine_readable/descriptiles/STATE.a2ml` — live project state
