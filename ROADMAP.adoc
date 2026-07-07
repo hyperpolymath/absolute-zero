@@ -15,8 +15,11 @@ assistants. It rests on two co-equal pillars: *CNO* (Certified Null _Effect_)
 and *OND* (Observational Null / Certified Null _Disclosure_).
 
 This roadmap is deliberately scoped to what one maintainer can credibly ship.
-The honest near-term goal is a *publishable CNO result with a truthful proof
-ledger* and the *first three OND obligations landed* — not a funded platform.
+The original near-term goal — a *publishable CNO result with a truthful proof
+ledger* and the *first three OND obligations landed* — has been *met and
+exceeded*: OND-1..5 are landed and both pillars are machine-checked across six
+provers (PR #100). The remaining near-term goal is the paper and CI. Not a
+funded platform;
 The long-horizon vision (a universal CNO standard) is preserved, clearly
 labelled as aspirational and unfunded, in the appendix; it is a direction of
 travel, not a commitment with a date.
@@ -30,17 +33,29 @@ prover run in a known environment, not a reading of in-file comments.
 
 == Honest Current State
 
+Updated 2026-07-07 (PR #100). Both pillars are now machine-checked across six
+provers plus the Idris ABI; reproduce with `proofs/verify-all-provers.sh`
+(`ALL-PROVERS-GREEN`). See `PROOF-STATUS.adoc` for the prover-by-prover detail.
+
 === What genuinely verifies
 
-* *Coq (reproduced):* 13 theories compile from scratch under
-  `coqc 8.18.0` (`PROOF-STATUS.adoc`) — `common`, `category`, `quantum`,
-  `lambda`, `filesystem`, `physics`, `malbolge`.
-* *Agda (reproduced):* 3 modules type-check under `agda 2.6.3`
-  (`CNO.agda`, `EchoBridgeCNO.agda`, `EchoBridgeScaffold.agda`), with
-  functional extensionality taken as an *explicit hypothesis*, not a global
-  postulate.
-* *Rust interpreters:* the Brainfuck and Whitespace interpreters are real
-  (`src/brainfuck/`, `src/whitespace/`) — the Python→Rust migration landed.
+* *Coq (reproduced):* **14 theories** compile from scratch under `coqc 8.18.0`
+  (`coq_makefile -f _CoqProject`) — `common`, `category`, `quantum`, `lambda`,
+  `filesystem`, `physics`, `malbolge`, and the new `ond`. Both pillars.
+* *OND pillar (reproduced):* `proofs/coq/ond/OND.v` proves **OND-1..5** with
+  **zero axioms** (every theorem `Closed under the global context`); mirrored in
+  Lean 4, Agda, and Z3.
+* *Agda (reproduced):* `CNO.agda`, `OND.agda`, `EchoBridgeCNO.agda` type-check
+  under `agda 2.6.3` (`--safe --without-K`); funext is an *explicit hypothesis*.
+* *Lean 4 (reproduced):* `lake build` green with Mathlib — CNO libraries + the
+  new `OND` library (`proofs/lean4/OND.lean`, 0 `sorry`).
+* *Z3 (reproduced):* CNO checks + OND bounded instances (`proofs/z3/ond/OND_checks.smt2`).
+* *Isabelle/HOL (reproduced):* session `AbsoluteZero-CNO` — `CNO.thy` (repaired)
+  + `OND.thy` build under Isabelle2025-2, 0 `sorry`.
+* *Mizar (reproduced):* `CNO.miz` rewritten into a genuine 12-theorem article;
+  `accom`+`verifier` → empty `CNO.err` (needs `proofs/mizar/dict/cno.voc`).
+* *Idris 2 ABI (reproduced):* `absolute-zero-abi.ipkg` builds clean.
+* *Rust interpreters:* Brainfuck and Whitespace interpreters are real.
 
 === What is honestly incomplete
 
@@ -48,20 +63,19 @@ prover run in a known environment, not a reading of in-file comments.
 |===
 | Area | State | Note
 
-| Axiom base | ~61 Coq + ~52 Lean axioms | The "0 Admitted" claim is true only
-  because obligations are stated as axioms. `docs/proof-debt.md` /
-  `proof-debt-triage.md` triage which are *provable debt* (dischargeable) vs
-  *foundational* (kept deliberately). Discharging the provable set is core work.
-| Lean 4 | Not built here | Requires the full Mathlib @ v4.16.0 (multi-GB); not
-  reproduced in this environment. Either CI-check it or descope the claim.
-| Z3 | No artifact | `proofs/z3/` holds only `verify.sh`; the referenced
-  `cno_properties.smt2` does not exist. The "90% / 10 theorems" claim is unbacked.
-| Isabelle / Mizar | Stubs | Generated, not run.
-| OND pillar | Docs only | `docs/TWO-PILLARS.adoc` + `docs/OND-ROADMAP.adoc`
-  specify the work; `proofs/observation-models/` and `proofs/residue/` contain
-  only README/TEMPLATE. No OND proof module exists yet.
-| Idris2 ABI | Does not build | Module-name ↔ path ↔ `sourcedir` mismatch
-  (`AUDIT.adoc` item AUDIT-2026-05-20-A); a packaging-restructure task.
+| CNO axiom base | 98 → small classified remainder | filesystem/category/
+  QuantumMechanicsExact fully discharged (0); QuantumCNO 41→12. Kept axioms are
+  either *genuine physical postulates* (tagged `METAL-BOUNDARY`: `kB>0`,
+  `temperature>0`, Landauer, Second Law) or *class-A* (true, provable in
+  principle, openly labelled). Three *unsound* axioms were removed/corrected
+  (`no_cloning`, `Cconj_Cexp`, `eta_equivalence`).
+| Class-A open proofs | 4 | `CNOT_gate_unitary`, `unitary_inverse_property`,
+  `fidelity_bound` (need a finite-dim/tensor QM model), and `y_not_cno` (needs a
+  coinductive/step-indexed β non-termination argument).
+| OND-6 | Open by design | The conditional-composition theorem — research
+  capstone; OND-1..5 landed, so the pillar is in honest, publishable shape.
+| CI proof verification | Missing | No workflow yet runs the provers; the local
+  gate `proofs/verify-all-provers.sh` is the reproducible source of truth.
 | Paper | Draft stub | `papers/.latex/main.tex` is a lone draft.
 | Tests | Empty placeholder | `tests/` holds a README only.
 |===
@@ -95,9 +109,11 @@ observables.
    positive result; research-grade; last).
 7. *OND-7* — the ongoing *residue register* (the standing proof↔reality gap).
 
-*Status*: design/roadmap stage. All OND obligations are currently `Admitted`
-(specified, not yet proved) — the normal honest starting state, mirroring
-CNO's own open obligations (see `docs/PROOF-CLASSIFICATION.adoc`).
+*Status* (2026-07-07): **OND-1..5 and OND-7 are landed** — proved and
+machine-checked in Coq (zero axioms), Lean 4, and Agda, with Z3 for the bounded
+instances, and OND-3 anchored to the real core `is_CNO`. **Only OND-6**
+(conditional composition) remains open, by design — the pillar is in the honest,
+publishable shape this roadmap targeted (see `docs/OND-ROADMAP.adoc`).
 
 [NOTE]
 ====

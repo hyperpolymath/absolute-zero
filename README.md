@@ -68,9 +68,13 @@ proof and the physical metal.
 
 See **`docs/TWO-PILLARS.adoc`** (narrative), **`docs/OND-ROADMAP.adoc`**
 (prioritised obligations), and **`docs/OND-PILLAR-STRUCTURE.adoc`**
-(module layout). The OND pillar is at the design/roadmap stage: its
-obligations are currently `Admitted` (specified, not yet proved) — the
-normal honest starting state, mirroring CNO’s own open obligations.
+(module layout). **Both pillars are now machine-checked.** OND obligations
+**OND-1..5** are proved with **zero axioms** in Coq (`proofs/coq/ond/OND.v`,
+every theorem *Closed under the global context*), mirrored in Lean 4, Agda,
+and Z3; the independence theorem is anchored to the real core `is_CNO`. Only
+**OND-6** (conditional composition, the research capstone) remains open, by
+design. Reproduce the whole estate — both pillars, all six provers plus the
+Idris ABI — with **`proofs/verify-all-provers.sh`** (`ALL-PROVERS-GREEN`).
 
 # Project Structure
 
@@ -97,9 +101,11 @@ normal honest starting state, mirroring CNO’s own open obligations.
     │   ├── agda/                # Agda proofs (dependent types)
     │   ├── isabelle/            # Isabelle/HOL (production-grade)
     │   ├── mizar/               # Mizar proofs (mathematical library)
+    │   ├── ond/                 # OND Coq module (OND-1..5 proved, zero axioms)
     │   ├── observation-models/  # OND: declared observation models O (proof inputs)
-    │   └── residue/             # OND: residue lists (the model-vs-metal gap)
-    │   # Each prover dir hosts CNO.* and (to author) co-equal OND.* modules
+    │   ├── residue/             # OND: residue lists (the model-vs-metal gap)
+    │   └── verify-all-provers.sh # one-shot gate: both pillars, all six provers + Idris
+    │   # Each prover dir hosts CNO.* and co-equal OND.* modules (OND now authored)
     │
     ├── interpreters/            # Language interpreters with CNO detection
     │   ├── rescript/            # Malbolge (ReScript)
@@ -126,33 +132,38 @@ normal honest starting state, mirroring CNO’s own open obligations.
     │
     ├── Justfile                 # Build automation
     ├── Containerfile            # Containerized verification (Podman/Docker)
-    ├── VERIFICATION.md          # Detailed verification status
-    └── .gitlab-ci.yml           # CI/CD pipeline
+    ├── PROOF-STATUS.adoc        # Reproduced verification status, prover by prover
+    └── .github/workflows/       # CI/CD (GitHub Actions)
 
 # Quick Start
 
 ## Prerequisites
 
-**Fedora**: `` `bash `` `sudo` `dnf` `install` `coq` `z3` `nodejs`
-`opam` `just` `npm` `install` `-g` `rescript@11.1`\`
+The proofs span six provers plus the Idris 2 ABI. Coq, Agda, Z3, and Idris 2 are
+the lightest; Lean needs Mathlib, and Isabelle/Mizar are large downloads.
 
-**Ubuntu**: `` `bash `` `sudo` `apt` `install` `coq` `z3` `nodejs` `npm`
-`npm` `install` `-g` `rescript@11.1` `cargo` `install` `just`\`
+- **Coq** 8.18+ (`coqc`, `coq_makefile`)
+- **Agda** 2.6.3 (with agda-stdlib)
+- **Lean 4** (via `elan`; toolchain pinned in `proofs/lean4/lean-toolchain`, needs Mathlib)
+- **Z3** 4.16+
+- **Isabelle** 2025-2 (ships a prebuilt HOL image)
+- **Mizar** 8.1.x (set `MIZFILES` to its MML)
+- **Idris 2** 0.8+
+- **just** (task runner), **Rust/cargo** (interpreters/tools)
 
-## Build
+## Build & verify
 
 ```bash
-# Install dependencies
-npm install
+# One-shot: both pillars, all six provers + the Idris ABI → ALL-PROVERS-GREEN
+proofs/verify-all-provers.sh
 
-# Build everything
-just build-all
+# Or via the task runner (canonical gate)
+just verify
 
-# Verify all proofs
-just verify-all
-
-# Run tests
-just test-all
+# Individual prover targets also exist, e.g.
+just build-coq      # all 14 Coq theories (CNO + OND) via coq_makefile
+just verify-agda
+just verify-mizar
 ```
 
 ## Container (Podman/Docker)
