@@ -1,13 +1,14 @@
 ## Machine-Readable Artefacts
 
-The following files in `.machine_readable/` contain structured project metadata:
+The following files in `.machine_readable/descriptiles/` contain structured
+project metadata (a2ml is TOML-flavoured, not Guile Scheme):
 
-- `STATE.scm` - Current project state and progress
-- `META.scm` - Architecture decisions and development practices
-- `ECOSYSTEM.scm` - Position in the ecosystem and related projects
-- `AGENTIC.scm` - AI agent interaction patterns
-- `NEUROSYM.scm` - Neurosymbolic integration config
-- `PLAYBOOK.scm` - Operational runbook
+- `STATE.a2ml` - Current project state and progress
+- `META.a2ml` - Architecture decisions and development practices
+- `ECOSYSTEM.a2ml` - Position in the ecosystem and related projects
+- `AGENTIC.a2ml` - AI agent interaction patterns
+- `NEUROSYM.a2ml` - Neurosymbolic integration config
+- `PLAYBOOK.a2ml` - Operational runbook
 
 ---
 
@@ -28,7 +29,7 @@ The following files in `.machine_readable/` contain structured project metadata:
 | **Bash/POSIX Shell** | Scripts, automation | Keep minimal |
 | **JavaScript** | Only where AffineScript cannot, or as per-language reference (examples/) | Avoid for new code unless integrating an external JS API |
 | **Nickel** | Configuration language | For complex configs |
-| **Guile Scheme** | State/meta files | STATE.scm, META.scm, ECOSYSTEM.scm |
+| **Guile Scheme** | Scripting where needed | (state/meta files are `.machine_readable/descriptiles/*.a2ml`, TOML-flavoured) |
 | **Julia** | Batch scripts, data processing | Per RSR |
 | **OCaml** | AffineScript compiler | Language-specific |
 | **Ada** | Safety-critical systems | Where required |
