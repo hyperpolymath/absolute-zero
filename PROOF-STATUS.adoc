@@ -86,6 +86,37 @@ assumed. `Print Assumptions` on every headline theorem shows only Coq stdlib axi
 (`ClassicalDedekindReals.*`, `functional_extensionality*`) plus, where relevant, the
 explicitly-tagged postulate above — never a hidden project axiom.
 
+=== Reversibility <-> CNO bridge (2026-07-16, the theorem MAA cites)
+
+`proofs/coq/common/CNO.v` now carries the bridge between `reversible` and the
+"composes to a no-op" characterisation the MAA framework (aletheia) cites. All five
+new results are **`Closed under the global context` (zero axioms)**:
+
+* `reversible_iff_exists_reverses` — the repo's `reversible` is exactly "exists a
+  one-sided left inverse" (`exists p_inv, reverses p p_inv`).
+* `reverses_seq_computes_identity` — the core lemma: a left inverse sequenced after
+  `p` computes the state-identity on every composite transition (via `eval_app` +
+  `eval_deterministic`).
+* `cno_equiv_seq_empty_of_reverses` — repackaged as `cno_equiv (p ;; p_inv) []`
+  (CNO-equivalence to the canonical no-op).
+* `reversible_bridge_forward` — the faithful *forward* direction of the aletheia
+  contract: a **two-sided** inverse makes *both* composites CNO-equivalent to the
+  no-op.
+* `reversible_bridge_backward_upto` — the *backward* direction, **necessarily up to
+  `=st=`**, with an explicit `p_inv`-termination hypothesis.
+
+*Honesty note.* The literal biconditional
+`reversible p <-> exists p_inv, is_CNO (p;;p_inv) /\ is_CNO (p_inv;;p)` is **not**
+provable under these definitions, and is deliberately *not* asserted: (1) `is_CNO`
+also demands purity and totality, which a `reversible` program need not have — so
+"=== CNO" is rendered by `cno_equiv _ []` (the identity-on-state component); (2)
+`state_eq` excludes the program counter while `eval` propagates it (the
+`eval_respects_state_eq_*` axioms were removed as unsound on 2026-05-20), forcing the
+backward direction to be up-to-`=st=`; (3) the repo's `reversible` is one-sided
+whereas the contract is two-sided. The in-file section header documents all three.
+This is a genuine statement-shape finding: it tells the aletheia contract to be
+stated two-sided and `=st=`-relative, not a proof dodged. *Lean mirror deferred.*
+
 == OND — VERIFIED (this environment), the disclosure pillar
 
 `proofs/coq/ond/OND.v` discharges roadmap obligations *OND-1..OND-5* with **zero
