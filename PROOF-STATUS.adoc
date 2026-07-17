@@ -115,7 +115,19 @@ also demands purity and totality, which a `reversible` program need not have —
 backward direction to be up-to-`=st=`; (3) the repo's `reversible` is one-sided
 whereas the contract is two-sided. The in-file section header documents all three.
 This is a genuine statement-shape finding: it tells the aletheia contract to be
-stated two-sided and `=st=`-relative, not a proof dodged. *Lean mirror deferred.*
+stated two-sided and `=st=`-relative, not a proof dodged.
+
+*Lean mirror — `proofs/lean4/CNOBridge.lean` (UNVERIFIED in this environment).*
+A functional-model mirror of the five bridge results was written for Lean 4, but
+it could **not** be machine-checked here: the Lean toolchain and Mathlib cache
+download from GitHub release assets, which the egress policy blocked (HTTP 403).
+It is registered in `lakefile.lean` as a **non-`@[default_target]`** `lean_lib`,
+so it does not gate the standard `lake build`; verify with
+`lake build CNOBridge` (+ `#print axioms`) where the toolchain is available. Note
+the mirror states the bridge with *syntactic* state equality (Lean's `eval` is a
+total function and `ProgramState.eq` includes the PC), a stronger/cleaner form
+than the Coq `=st=`-relative statement — a disclosed cross-model difference, not
+a claim of literal equivalence.
 
 == OND — VERIFIED (this environment), the disclosure pillar
 
