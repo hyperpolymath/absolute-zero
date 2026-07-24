@@ -37,7 +37,7 @@ jobs:
     name: Coq — CNO + OND (14 theories)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
       - name: Install Coq
         run: sudo apt-get update && sudo apt-get install -y coq
       - name: Build all theories via coq_makefile
@@ -53,7 +53,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
       - name: Install Agda (binary only)
         # Install just the `agda` binary (2.6.3 on 24.04). NOT `agda-stdlib` —
         # the Ubuntu stdlib package ships no usable library manifest; we fetch a
@@ -82,7 +82,7 @@ jobs:
     name: Z3 — CNO + OND bounded checks
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
       - name: Install Z3
         run: sudo apt-get update && sudo apt-get install -y z3
       - name: Run Z3 checks
