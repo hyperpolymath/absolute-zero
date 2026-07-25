@@ -9,10 +9,19 @@ This document specifies the directory and module layout for the *Observational
 Null Operations (OND)* pillar. It mirrors the existing CNO multi-prover layout
 as closely as the conceptual differences allow, and adds the two OND-specific
 artifacts CNO does not need: *declared observation models* and *residue lists*.
-*No proof files are created by this design* — the per-prover OND modules below
-are specified for a dedicated proof effort to author (see `OND-ROADMAP.adoc`).
-The OND-specific *artifact* directories and their templates *are* created, since
-they are documentation inputs/outputs, not proofs.
+
+[IMPORTANT]
+.STATUS — 2026-07-07: OND modules AUTHORED (PR #100)
+====
+The dedicated proof effort has run. The OND modules specified below now exist and
+are machine-checked: `proofs/coq/ond/OND.v` (OND-1..5, zero axioms, all *Closed
+under the global context*), plus `proofs/lean4/OND.lean`, `proofs/agda/OND.agda`,
+`proofs/isabelle/OND.thy`, and `proofs/z3/ond/OND_checks.smt2`. The first residue
+instance (`proofs/residue/ct_select.residue`) and observation model
+(`proofs/observation-models/O_all.model`) are populated. Note: the Coq module
+landed at `proofs/coq/ond/OND.v` (not the `observational/` path sketched below).
+Only OND-6 remains to author.
+====
 
 == Co-equality principle
 
@@ -25,14 +34,15 @@ other. The only structural *addition* for OND is the pair of artifact trees
 extra parts — a declared `O` (input) and a residue list (output) — that have no
 CNO analogue.
 
-== Per-prover module layout (mirrors CNO — TO BE AUTHORED)
+== Per-prover module layout (mirrors CNO — AUTHORED)
 
-Each OND module sits beside its CNO counterpart. These files are *specified
-here, to be created by the proof effort* — they are not created by this design.
+Each OND module sits beside its CNO counterpart. As of PR #100 these files exist
+and are verified (Coq/Lean/Agda/Z3/Isabelle); the Coq module is at
+`proofs/coq/ond/OND.v`.
 
 [cols="1,2,2,3",options="header"]
 |===
-| Prover | CNO (exists) | OND (to author) | Obligations (see OND-ROADMAP)
+| Prover | CNO (exists) | OND (authored) | Obligations (see OND-ROADMAP)
 
 | *Coq*
 | `proofs/coq/common/CNO.v`

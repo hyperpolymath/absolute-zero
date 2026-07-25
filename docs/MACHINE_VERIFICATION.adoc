@@ -2,7 +2,14 @@
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 # Machine Verification Guide
 
-## Current Status: PARTIAL VERIFICATION
+> **STATUS 2026-07-07 (PR #100):** This guide's *method* still applies, but its
+> illustrative pass/fail examples below are historical. The estate now verifies
+> **clean across all six provers + the Idris ABI** (0 `Admitted`/`sorry`); run
+> `proofs/verify-all-provers.sh` for `ALL-PROVERS-GREEN`, and see
+> `PROOF-STATUS.adoc` for the reproduced prover-by-prover status. Treat the
+> counts in the examples that follow as pedagogical, not current.
+
+## Current Status: PARTIAL VERIFICATION (historical example)
 
 ### What Will Pass ✅
 - Phase 1 core proofs (composition theorems in Coq and Lean 4)

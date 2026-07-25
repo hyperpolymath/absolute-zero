@@ -19,9 +19,19 @@ this project aims to follow [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+- feat(proofs): complete CNO + OND pillars, verified across six provers (#100) —
+  OND pillar authored (OND-1..5, zero axioms) in Coq/Lean/Agda/Z3; single gate
+  `proofs/verify-all-provers.sh` → `ALL-PROVERS-GREEN`; Isabelle CNO repaired +
+  OND added; Mizar `CNO.miz` rewritten and verifying; Idris ABI builds
+- feat(ci): add `.github/workflows/proofs.yml` (Coq + Z3 proof verification)
 - feat(absolute-zero): complete loadStore_preserves_memory proof — no sorry
 
 ### Fixed
+
+- fix(proofs): remove/correct three latent-unsound Coq axioms (`no_cloning`,
+  `Cconj_Cexp`, `eta_equivalence`); discharge CNO axiom base 98 → small
+  classified remainder (#100)
+- fix(abi): repair Idris packaging + 6 latent type errors — ABI builds clean (#100)
 
 - fix(baseline): repair main + estate-policy sweep (unblocks #41) (#42)
 - fix(governance): enumerate banned-language demos in .hypatia-ignore (#44)

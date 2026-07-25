@@ -1,0 +1,12 @@
+# Observation model O_all  (proofs/coq/ond/OND.v : Definition O_all)
+# O_all : Exec -> (nat * nat) := fun e => (ex_out e, ex_time e)
+#
+# The observer sees, per run: (1) the value left on the declared output channel
+# (memory cell 2), and (2) the elapsed time. It does NOT see the raw input
+# memory, so it cannot read the secret (cell 0) or public (cell 1) inputs
+# directly — only what the execution produces. This is why skip is OND under
+# ANY model (OND-2): its produced execution is secret-independent.
+#
+# Sibling models used in the proofs:
+#   O_out  = fun e => ex_out e     (output channel only)
+#   O_time = fun e => ex_time e    (timing only; the channel a CNO can leak through)

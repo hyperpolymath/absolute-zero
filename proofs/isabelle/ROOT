@@ -1,0 +1,5 @@
+session "AbsoluteZero-CNO" = HOL +
+  description "Absolute Zero — Certified Null Operations (CNO) and Observational Null Disclosure (OND), Isabelle/HOL"
+  theories
+    CNO
+    OND

@@ -12,7 +12,7 @@
 #
 # Populated 2026-06-12 (governance checkpoint): replaces the
 # rsr-template-repo stub. Sources: README.adoc, ROADMAP.adoc,
-# 6a2/STATE.a2ml ([route-to-mvp], [critical-next-actions], [blockers-and-issues]).
+# descriptiles/STATE.a2ml ([route-to-mvp], [critical-next-actions], [blockers-and-issues]).
 # A2ML here is TOML-flavoured.
 
 [metadata]

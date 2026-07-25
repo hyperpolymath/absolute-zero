@@ -11,6 +11,7 @@
 
 module AbsoluteZero.ABI.Foreign
 
+import Data.Bits
 import AbsoluteZero.ABI.Types
 import AbsoluteZero.ABI.Layout
 
@@ -252,11 +253,11 @@ verifyCNO prog state = do
     -- Unpack 5 booleans from Bits64 (uses first 5 bytes)
     unpackResult : Bits64 -> CNOVerificationResult
     unpackResult packed = MkCNOResult
-      { is_cno = ((packed `and` 0x01) /= 0)
-      , terminates = ((packed `and` 0x02) /= 0)
-      , preserves_state = ((packed `and` 0x04) /= 0)
-      , is_pure = ((packed `and` 0x08) /= 0)
-      , is_reversible = ((packed `and` 0x10) /= 0)
+      { is_cno = ((packed .&. 0x01) /= 0)
+      , terminates = ((packed .&. 0x02) /= 0)
+      , preserves_state = ((packed .&. 0x04) /= 0)
+      , is_pure = ((packed .&. 0x08) /= 0)
+      , is_reversible = ((packed .&. 0x10) /= 0)
       }
 
 ||| Check if program is a CNO (simplified interface)
@@ -334,8 +335,8 @@ abiVersion : IO (Bits32, Bits32, Bits32)
 abiVersion = do
   packed <- primIO prim__abiVersion
   let major = cast (packed `shiftR` 32)
-  let minor = cast ((packed `shiftR` 16) `and` 0xFFFF)
-  let patch = cast (packed `and` 0xFFFF)
+  let minor = cast ((packed `shiftR` 16) .&. 0xFFFF)
+  let patch = cast (packed .&. 0xFFFF)
   pure (major, minor, patch)
 
 --------------------------------------------------------------------------------

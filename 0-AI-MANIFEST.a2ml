@@ -19,22 +19,22 @@ purpose = """
 [entry-points]
 # Where an AI agent should look first.
 root-context  = "docs/CLAUDE.adoc"
-project-state = ".machine_readable/6a2/STATE.a2ml"
+project-state = ".machine_readable/descriptiles/STATE.a2ml"
 roadmap       = "ROADMAP.adoc"
 contributing  = "CONTRIBUTING.adoc"
 audit-trail   = "AUDIT.adoc"
 rsr-status    = "RSR_COMPLIANCE.adoc"
 
 [machine-readable]
-# Authoritative metadata artefacts; .a2ml format under 6a2/ supersedes
+# Authoritative metadata artefacts; .a2ml format under descriptiles/ supersedes
 # the older Guile-Scheme .scm format. Both kept side-by-side during the
 # migration window for legacy tooling compatibility.
-state     = ".machine_readable/6a2/STATE.a2ml"
-meta      = ".machine_readable/6a2/META.a2ml"
-ecosystem = ".machine_readable/6a2/ECOSYSTEM.a2ml"
-agentic   = ".machine_readable/6a2/AGENTIC.a2ml"
-neurosym  = ".machine_readable/6a2/NEUROSYM.a2ml"
-playbook  = ".machine_readable/6a2/PLAYBOOK.a2ml"
+state     = ".machine_readable/descriptiles/STATE.a2ml"
+meta      = ".machine_readable/descriptiles/META.a2ml"
+ecosystem = ".machine_readable/descriptiles/ECOSYSTEM.a2ml"
+agentic   = ".machine_readable/descriptiles/AGENTIC.a2ml"
+neurosym  = ".machine_readable/descriptiles/NEUROSYM.a2ml"
+playbook  = ".machine_readable/descriptiles/PLAYBOOK.a2ml"
 
 legacy-scm-meta      = ".machine_readable/META.scm"
 legacy-scm-ecosystem = ".machine_readable/ECOSYSTEM.scm"
@@ -67,5 +67,5 @@ tools = [
 
 [delivery]
 commit-policy = "conventional commits; never amend published commits"
-state-update  = "update .machine_readable/6a2/STATE.a2ml whenever phase/progress changes"
+state-update  = "update .machine_readable/descriptiles/STATE.a2ml whenever phase/progress changes"
 adr-tracking  = "architectural changes recorded in .machine_readable/META.scm `architecture-decisions`"

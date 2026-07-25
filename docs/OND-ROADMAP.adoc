@@ -13,6 +13,25 @@ states what it claims, which proof system(s) suit it, its honesty *label*
 *No proofs are started here* — this is the specification of the work; the
 proofs themselves are deferred to a dedicated effort.
 
+[IMPORTANT]
+.STATUS UPDATE — 2026-07-06: OND-1..5 + OND-7 LANDED
+====
+The dedicated effort has since run. *OND-1, OND-2, OND-3, OND-4, and OND-5 are
+now proved and machine-checked* — Coq (`proofs/coq/ond/OND.v`), Lean 4
+(`proofs/lean4/OND.lean`), and Agda (`proofs/agda/OND.agda`), with the bounded
+instances confirmed in Z3 (`proofs/z3/ond/OND_checks.smt2`). Every OND theorem
+in Coq reports `Closed under the global context` — *zero axioms, zero admits*.
+The independence theorem (OND-3) is additionally anchored to the *real* core
+`is_CNO` over `Program` (`writer_program_not_core_CNO`, `skip_program_is_core_CNO`).
+OND-7's residue register carries its first real instance
+(`proofs/residue/ct_select.residue`, `proofs/observation-models/O_all.model`).
+
+*Only OND-6 (conditional composition theorem, 🔴 research-grade) remains open* —
+that is the deliberate research fork, and the pillar is in the "honest,
+publishable shape" this document itself describes (OND-1..5 landed, OND-6 open).
+Per-obligation status is recorded inline below.
+====
+
 == Classification principle
 
 *Priority*: establish the OND *definition* and its *honest boundary* first,

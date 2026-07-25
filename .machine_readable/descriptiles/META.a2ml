@@ -5,8 +5,8 @@
 # Migrated from META.scm on 2026-04-17
 
 [metadata]
-version = "1.0.0"
-last-updated = "2026-05-27"
+version = "1.0.1"
+last-updated = "2026-07-07"
 
 [project-info]
 license = "MPL-2.0"
@@ -18,12 +18,16 @@ decisions = [
   { id = "ADR-002", status = "accepted", title = "Dual Landauer formalization: axiom (StatMech.v) + derivation (LandauerDerivation.v)" },
   { id = "ADR-003", status = "accepted", title = "Lambda CNO = identity property only, not termination" },
   { id = "ADR-004", status = "accepted", title = "post_execution_dist specialized for CNOs (identity on distributions)" },
-  { id = "ADR-005", status = "proposed", title = "Fix QuantumCNO.v Cexp: real exp -> complex phase factor" },
+  { id = "ADR-005", status = "accepted", title = "Fix QuantumCNO.v Cexp: concretised as e^{i·Re z} = (cos(Re z), sin(Re z)); removed the false Cconj_Cexp axiom (PR #100)" },
   { id = "ADR-006", status = "accepted", title = "state_eq excludes state_pc — PC is control-flow bookkeeping, not observable side effect (2026-05-18 rescue)" },
   { id = "ADR-007", status = "accepted", title = "Discharge eval_deterministic Axiom → Theorem via step_deterministic_strong helper (2026-05-20, PR #24); first post-T0 axiom audit win" },
   { id = "ADR-008", status = "accepted", title = "Delete unsound eval_respects_state_eq_{left,right} axioms; weaken logically_reversible definition to use =st= (observational reversibility); re-prove cno_eval_on_equal_states + cno_logically_reversible via cno_terminates + cno_preserves_state (2026-05-20); rationale: under PC-excluding state_eq the strong axioms force a syntactically-identical eval result, which is unsound because eval propagates PC deterministically while =st= ignores it" },
   { id = "ADR-009", status = "accepted", title = "Delete unsound alignmentMatchesPlatformWord Idris2 postulate; consolidate alignedSizeCorrect into shared AbsoluteZero.ABI.Proofs.DivMod module (PR #40, Refs #27)" },
   { id = "ADR-010", status = "accepted", title = "Phase 1 per-axiom triage of 72 Coq Axioms per standards#203 trusted-base policy (2026-05-27, PR #58): 52 §c TRUSTED-BASE + 17 §a DISCHARGE backlog + 3 §b PROPERTY-TEST; canonical disposition in docs/proof-debt-triage.md" },
+  { id = "ADR-011", status = "accepted", title = "OND (disclosure) pillar model (PR #100): operation = (state effect, timing cost); observable execution = (declared output channel, timing); observer does NOT see raw secret input. Rationale — a CNO leaves all STATE observables unchanged, so it can leak only through a non-state channel (timing); modelling timing is what makes OND⊥CNO statable and true." },
+  { id = "ADR-012", status = "accepted", title = "OND-1..5 proved zero-axiom in Coq/Lean/Agda (+Z3 bounded); OND-3 independence anchored to the real core is_CNO; OND-6 (conditional composition) left OPEN as a research capstone (PR #100)." },
+  { id = "ADR-013", status = "accepted", title = "Remove three latent-UNSOUND axioms found during discharge (PR #100): no_cloning (provably false in the flat model), Cconj_Cexp (false for a genuine phase), eta_equivalence (false as stated — counterexample f=LVar5; subst does not re-index under binders) → replaced with a no_lambda-guarded theorem." },
+  { id = "ADR-014", status = "accepted", title = "Accept a small, openly-labelled class-A axiom remainder (y_not_cno, CNOT_gate_unitary, unitary_inverse_property, fidelity_bound) rather than build the finite-dim/tensor-QM + coinductive-beta machinery to discharge them now; genuine physics postulates kept as tagged METAL-BOUNDARY (PR #100)." },
 ]
 
 [development-practices]

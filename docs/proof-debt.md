@@ -4,6 +4,14 @@ Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 -->
 # Proof Debt — absolute-zero
 
+> **STATUS 2026-07-06 (PR #100):** Much of the debt inventoried below is now
+> **paid down** — CNO axioms cut 98→small, both pillars machine-checked across
+> six provers. Remaining items are (a) genuine physical postulates tagged
+> `METAL-BOUNDARY` and (b) a small openly-labelled class-A set (`y_not_cno`,
+> `CNOT_gate_unitary`, `unitary_inverse_property`, `fidelity_bound`). Three
+> axioms turned out **unsound** and were removed/corrected (`no_cloning`,
+> `Cconj_Cexp`, `eta_equivalence`). Current disposition: `PROOF-STATUS.adoc`.
+
 **Schema**: [hyperpolymath/standards `TRUSTED-BASE-REDUCTION-POLICY.adoc`](https://github.com/hyperpolymath/standards/blob/main/docs/TRUSTED-BASE-REDUCTION-POLICY.adoc) (standards#203).
 
 ## Initial inventory

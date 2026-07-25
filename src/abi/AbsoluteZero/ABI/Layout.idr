@@ -274,8 +274,11 @@ programStateAlignmentValid _ = believe_me ()
 
 ||| Calculate total size of an array of elements
 public export
+-- The element size lives (non-erased) inside the `HasSize` witness; the
+-- type-level `elemSize` binder is erased (quantity 0), so we recover the size
+-- by matching the `SizeProof` and multiplying.
 arraySize : HasSize t elemSize -> (n : Nat) -> Nat
-arraySize _ n = elemSize * n
+arraySize (SizeProof {n = sz}) n = sz * n
 
 ||| Calculate aligned size (round up to alignment boundary).
 ||| Definition and correctness lemma live in `AbsoluteZero.ABI.Proofs.DivMod`

@@ -35,10 +35,12 @@ flags a foundational dependency worth understanding.
 * `malbolge/MalbolgeCore.v` — Malbolge VM semantics
 * `filesystem/FilesystemCNO.v` — filesystem CNOs
 
-Status: 11/11 files compile, 0 Admitted (post 2026-05-18 rescue).
-72 Axioms + 42 Parameters, Phase-1-triaged (PR #58, 2026-05-27):
-52 trusted-base, 17 discharge-backlog, 3 property-test. See
-[`docs/proof-debt-triage.md`](../proof-debt-triage.md) and
+Status (PR #100, 2026-07-06): **14/14 theories compile, 0 Admitted**, now
+including `ond/OND.v` (the OND pillar, OND-1..5, zero axioms). CNO axioms cut
+98→small classified remainder: filesystem/category/QuantumMechanicsExact fully
+discharged; genuine physical postulates kept as tagged `METAL-BOUNDARY`; a few
+class-A items openly labelled; three unsound axioms removed/corrected. See
+[`PROOF-STATUS.adoc`](../../PROOF-STATUS.adoc) and
 [`docs/PROOF-CLASSIFICATION.adoc`](../PROOF-CLASSIFICATION.adoc).
 
 ### `proofs/lean4/`

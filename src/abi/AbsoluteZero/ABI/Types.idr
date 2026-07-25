@@ -14,6 +14,7 @@ module AbsoluteZero.ABI.Types
 import Data.Bits
 import Data.So
 import Data.Vect
+import Decidable.Equality
 
 %default total
 
@@ -25,14 +26,14 @@ import Data.Vect
 public export
 data Platform = Linux | Windows | MacOS | BSD | WASM
 
-||| Compile-time platform detection
-||| This will be set during compilation based on target
+||| Compile-time platform detection.
+||| Default target is Linux; override at the FFI/build boundary for other
+||| platforms. (Previously an empty `%runElab do pure Linux`, which both
+||| required `%language ElabReflection` and did no actual reflection — reduced
+||| to the plain default it always computed.)
 public export
 thisPlatform : Platform
-thisPlatform =
-  %runElab do
-    -- Platform detection logic
-    pure Linux  -- Default, override with compiler flags
+thisPlatform = Linux
 
 --------------------------------------------------------------------------------
 -- Result Codes
@@ -71,18 +72,16 @@ resultToInt NonTerminating = 5
 resultToInt HasSideEffects = 6
 resultToInt NotCNO = 7
 
-||| Results are decidably equal
-public export
-DecEq Result where
-  decEq Ok Ok = Yes Refl
-  decEq Error Error = Yes Refl
-  decEq InvalidParam InvalidParam = Yes Refl
-  decEq OutOfMemory OutOfMemory = Yes Refl
-  decEq NullPointer NullPointer = Yes Refl
-  decEq NonTerminating NonTerminating = Yes Refl
-  decEq HasSideEffects HasSideEffects = Yes Refl
-  decEq NotCNO NotCNO = Yes Refl
-  decEq _ _ = No absurd
+-- NOTE: a hand-written `DecEq Result` instance previously lived here with a
+-- `decEq _ _ = No absurd` catch-all. That does not type-check: the coverage
+-- checker sees the catch-all's operands abstractly, so `absurd` would need
+-- `Uninhabited (x = y)` for arbitrary `x, y : Result` — which is false (they
+-- may be equal). A total instance would require enumerating all 56 off-diagonal
+-- pairs (or proving `resultToInt` injective over primitive `Bits32` literals).
+-- The instance had ZERO consumers in this package, so it was removed rather
+-- than shipped broken. Decidable equality is recoverable when needed via the
+-- injective discriminant `resultToInt` (see `instrToDiscriminant` likewise):
+--   decEq x y  ==>  compare (resultToInt x) (resultToInt y) and lift.
 
 --------------------------------------------------------------------------------
 -- Instruction Types
@@ -114,28 +113,15 @@ instrToDiscriminant (Add _ _ _) = 3
 instrToDiscriminant (Jump _) = 4
 instrToDiscriminant Halt = 5
 
-||| Instructions are decidably equal
-public export
-DecEq Instruction where
-  decEq Nop Nop = Yes Refl
-  decEq (Load r1 a1) (Load r2 a2) =
-    case (decEq r1 r2, decEq a1 a2) of
-      (Yes Refl, Yes Refl) => Yes Refl
-      _ => No absurd
-  decEq (Store r1 a1) (Store r2 a2) =
-    case (decEq r1 r2, decEq a1 a2) of
-      (Yes Refl, Yes Refl) => Yes Refl
-      _ => No absurd
-  decEq (Add r1 r2 r3) (Add r1' r2' r3') =
-    case (decEq r1 r1', decEq r2 r2', decEq r3 r3') of
-      (Yes Refl, Yes Refl, Yes Refl) => Yes Refl
-      _ => No absurd
-  decEq (Jump t1) (Jump t2) =
-    case decEq t1 t2 of
-      Yes Refl => Yes Refl
-      No _ => No absurd
-  decEq Halt Halt = Yes Refl
-  decEq _ _ = No absurd
+-- NOTE: a hand-written `DecEq Instruction` instance previously lived here with
+-- `No absurd` catch-alls (both within each same-constructor case and as the
+-- final fallthrough). These do not type-check for the same reason as the
+-- `DecEq Result` instance above (abstract operands, no `Uninhabited (x = y)`),
+-- and additionally the intra-constructor `_ => No absurd` cannot prove the
+-- arguments differ without an explicit witness. The instance had ZERO consumers
+-- in this package and was removed rather than shipped broken. Structural
+-- decidable equality is recoverable via `instrToDiscriminant` plus `decEq` on
+-- the `Bits32` argument fields when a consumer actually needs it.
 
 --------------------------------------------------------------------------------
 -- Program Types
@@ -156,7 +142,11 @@ maxProgramLength = 1024
 ||| Proof that program length is within bounds
 public export
 data ValidProgramLength : Nat -> Type where
-  ValidLen : {n : Nat} -> {auto 0 prf : So (n <= maxProgramLength)} ->
+  -- Fully-qualify `maxProgramLength`: written bare it is a lowercase name and
+  -- Idris auto-binds it as a fresh (erased) implicit, so the bound `n <= _`
+  -- became vacuous. Qualifying pins it to the actual constant (1024).
+  ValidLen : {n : Nat} ->
+             {auto 0 prf : So (n <= AbsoluteZero.ABI.Types.maxProgramLength)} ->
              ValidProgramLength n
 
 --------------------------------------------------------------------------------
@@ -220,16 +210,22 @@ data ProgramHandle : Type where
 
 ||| Safely create a state handle from a pointer value
 ||| Returns Nothing if pointer is null
+||| `choose` yields the `So (ptr /= 0)` witness the opaque handle demands; the
+||| null pointer falls through to `Nothing`. Matching the literal `0` first is
+||| not enough — it does not refine a `Bits64` *variable* to non-zero for the
+||| implicit proof search, so we obtain the proof explicitly.
 public export
 createStateHandle : Bits64 -> Maybe StateHandle
-createStateHandle 0 = Nothing
-createStateHandle ptr = Just (MkStateHandle ptr)
+createStateHandle ptr = case choose (ptr /= 0) of
+  Left  prf => Just (MkStateHandle ptr {nonNull = prf})
+  Right _   => Nothing
 
 ||| Safely create a program handle from a pointer value
 public export
 createProgramHandle : Bits64 -> Maybe ProgramHandle
-createProgramHandle 0 = Nothing
-createProgramHandle ptr = Just (MkProgramHandle ptr)
+createProgramHandle ptr = case choose (ptr /= 0) of
+  Left  prf => Just (MkProgramHandle ptr {nonNull = prf})
+  Right _   => Nothing
 
 ||| Extract pointer value from state handle
 public export

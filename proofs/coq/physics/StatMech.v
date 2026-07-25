@@ -41,8 +41,18 @@ Open Scope R_scope.
     (consolidated by Follow-up 3 of [docs/proof-debt-triage.md]). *)
 
 (** Axiom: Entropy is maximized for uniform distribution *)
-(* AXIOM: shannon_entropy_maximum; H ≤ log n (Gibbs inequality).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
+(* NOT-YET-DISCHARGED (class A) + SOUNDNESS WARNING: the statement is
+   mathematically INCORRECT as written and cannot be proved without changing its
+   meaning. It reads: if [P] is constant on [states], then [H(P) <= H(P')] for
+   *every* other distribution [P']. That asserts a uniform distribution has the
+   MINIMUM entropy and lower-bounds all others — the reverse of the Gibbs
+   inequality (uniform MAXIMIZES entropy). Worse, taking [states := []] makes the
+   constancy hypothesis vacuously true for any [P], yielding [H(P) <= H(P')] for
+   all [P, P'] (all entropies equal). The correct statement is
+   [H(P') <= H(P) = log₂|support|] for [P'] supported on the same finite set.
+   This axiom is UNUSED downstream. BLOCKER: cannot discharge the current
+   (false) statement; recommend replacing it with the correct Gibbs bound, whose
+   proof then needs a concrete [shannon_entropy] and finite-support machinery. *)
 Axiom shannon_entropy_maximum :
   forall (P : StateDistribution) (states : list ProgramState),
     (forall s1 s2, In s1 states -> In s2 states -> P s1 = P s2) ->
@@ -96,10 +106,18 @@ Qed.
 *)
 
 (** Energy dissipated by a computational process (Joules) *)
+(* METAL-BOUNDARY (kept): [energy_dissipated_phys] is a physical observable
+   (heat released to the environment, in Joules) attached to a process taking one
+   distribution to another. It is an opaque [Parameter] representing a measured
+   physical quantity, not a derivable mathematical function. *)
 Parameter energy_dissipated_phys : StateDistribution -> StateDistribution -> R.
 
-(* AXIOM: landauer_principle; Physical postulate (Landauer's principle).
-   §(c) per docs/proof-debt.md (Phase 2e triage). *)
+(* METAL-BOUNDARY AXIOM (kept): Landauer's principle (1961) is an EMPIRICAL
+   physical law of thermodynamics — erasing information dissipates at least
+   [kB·T·ln2·(-ΔS)] of energy. It is not a mathematical theorem; it is a lower
+   bound imposed by the second law on physical realizations of computation.
+   Correctly kept as a physical postulate (the module comment above already
+   states "This is a PHYSICAL LAW, not a mathematical theorem"). *)
 Axiom landauer_principle :
   forall (P_initial P_final : StateDistribution),
     let ΔS := shannon_entropy P_final - shannon_entropy P_initial in
@@ -197,9 +215,15 @@ Qed.
 
 (** Physical axiom: Reversible processes (ΔS = 0) dissipate no energy *)
 (** This is a consequence of Landauer's Principle and thermodynamic reversibility *)
-(* Triaged DISCHARGE in docs/proof-debt-triage.md; enumerated as §(d) DEBT
-   in docs/proof-debt.md (Phase 2e) — derivable from `landauer_principle`
-   + reversibility hypothesis. *)
+(* METAL-BOUNDARY AXIOM (kept). CLASSIFICATION CORRECTION: the triage docs mark
+   this "DISCHARGE / derivable from landauer_principle + reversibility", but it is
+   NOT derivable from the present machinery. [landauer_principle] only gives a
+   *lower* bound on [energy_dissipated_phys] when ΔS < 0; for ΔS = 0 it says
+   nothing, and there is no upper-bound axiom on the opaque
+   [energy_dissipated_phys], so [= 0] cannot be proved. The statement
+   "zero entropy change ⇒ zero dissipation" is itself an additional physical
+   postulate (thermodynamic reversibility), so it is honestly kept as a
+   metal-boundary axiom rather than fake-derived. *)
 Axiom reversible_zero_dissipation :
   forall P_initial P_final : StateDistribution,
     shannon_entropy P_initial = shannon_entropy P_final ->
