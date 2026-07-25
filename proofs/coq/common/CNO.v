@@ -675,3 +675,126 @@ Proof.
     exists s1; exact Heval1.
 Qed.
 
+(** ** The Reversibility <-> CNO Bridge (task A2)
+
+    This section connects the repo's [reversible] predicate to the
+    "composes to a no-op" characterisation the MAA framework (aletheia)
+    cites:
+
+        IsReversible(op) <-> exists op_inv, (op ;; op_inv) === CNO
+                                          /\ (op_inv ;; op) === CNO
+
+    Three honest modelling facts shape what is actually provable (the
+    naive biconditional against the repo's [reversible]/[is_CNO] is NOT
+    true here, and we do not assert it):
+
+    1. [is_CNO] is strictly stronger than "computes the identity": it also
+       demands purity and termination from *every* state. A [reversible]
+       program need be neither (it may perform undone I/O, and may diverge
+       on states outside p's range). So "=== CNO" is rendered faithfully by
+       [cno_equiv _ []] — CNO-equivalence to the canonical no-op (the empty
+       program), i.e. the identity-on-state component — not full [is_CNO].
+
+    2. [state_eq] (=st=) deliberately EXCLUDES the program counter, while
+       [eval] propagates the PC deterministically. The axioms that would
+       let one replace a state by an =st=-equal one under [eval] were
+       removed as UNSOUND on 2026-05-20 (see the note above
+       [cno_eval_on_equal_states]). Hence the *backward* direction is only
+       recoverable up to =st= ([reversible_bridge_backward_upto]), never
+       syntactically.
+
+    3. The repo's [reversible] is a *one-sided* left inverse
+       ([reversible_iff_exists_reverses]); the aletheia contract is
+       *two-sided*. The forward bridge is therefore stated for the honest
+       two-sided notion [reverses p p_inv /\ reverses p_inv p].
+
+    Everything below is axiom-free (Print Assumptions: "Closed under the
+    global context"), resting only on [eval_deterministic] and [eval_app]. *)
+
+(** [reverses p p_inv]: p_inv undoes p on every reachable transition. *)
+Definition reverses (p p_inv : Program) : Prop :=
+  forall s s', eval p s s' -> eval p_inv s' s.
+
+(** The repo's one-sided [reversible] is exactly "there exists a left
+    inverse" — making explicit that the two-sided bridge below needs a
+    strictly stronger hypothesis. *)
+Lemma reversible_iff_exists_reverses :
+  forall p, reversible p <-> exists p_inv, reverses p p_inv.
+Proof.
+  intros p. split; intros [p_inv H]; exists p_inv; exact H.
+Qed.
+
+(** Core lemma: a left inverse sequenced after p computes the
+    state-identity on every transition of the composite. Uses only
+    [eval_app] and [eval_deterministic]. *)
+Lemma reverses_seq_computes_identity :
+  forall p p_inv,
+    reverses p p_inv ->
+    forall s s', eval (seq_comp p p_inv) s s' -> s =st= s'.
+Proof.
+  intros p p_inv Hrev s s' Heval.
+  unfold seq_comp in Heval.
+  apply eval_app in Heval.
+  destruct Heval as [sm [Ep Epinv]].
+  (* p_inv from sm reaches both s' (given) and s (by reversibility);
+     determinism forces s' =st= s. *)
+  pose proof (Hrev s sm Ep) as Hback.
+  pose proof (eval_deterministic _ _ _ _ Epinv Hback) as Heq.
+  apply state_eq_sym; exact Heq.
+Qed.
+
+(** Evaluating the empty program is the identity on states (syntactic). *)
+Lemma eval_nil_eq : forall s s', eval [] s s' -> s' = s.
+Proof.
+  intros s s' H. inversion H. reflexivity.
+Qed.
+
+(** Repackaged as CNO-equivalence to the empty program: p ;; p_inv is a
+    no-op (in the identity-on-state sense) whenever p_inv reverses p. *)
+Lemma cno_equiv_seq_empty_of_reverses :
+  forall p p_inv,
+    reverses p p_inv ->
+    cno_equiv (seq_comp p p_inv) [].
+Proof.
+  intros p p_inv Hrev s s1 s2 H1 H2.
+  (* eval [] s s2 forces s2 = s (without a fragile subst on s). *)
+  pose proof (eval_nil_eq _ _ H2) as Hs2.
+  rewrite Hs2.
+  apply state_eq_sym.
+  apply (reverses_seq_computes_identity p p_inv Hrev s s1 H1).
+Qed.
+
+(** Forward bridge (the faithful direction of the aletheia contract):
+    a two-sided inverse makes BOTH composites CNO-equivalent to the
+    no-op. Axiom-free. *)
+Theorem reversible_bridge_forward :
+  forall p,
+    (exists p_inv, reverses p p_inv /\ reverses p_inv p) ->
+    exists p_inv,
+      cno_equiv (seq_comp p p_inv) [] /\ cno_equiv (seq_comp p_inv p) [].
+Proof.
+  intros p [p_inv [Hpp Hpi]].
+  exists p_inv. split.
+  - apply cno_equiv_seq_empty_of_reverses; exact Hpp.
+  - apply cno_equiv_seq_empty_of_reverses; exact Hpi.
+Qed.
+
+(** Backward bridge, up to =st= (necessarily — see fact 2 above): if
+    p ;; p_inv is a no-op and p_inv terminates on p's output, then p_inv
+    recovers the input up to state-equivalence. A syntactic converse is
+    unavailable because =st= excludes the PC. *)
+Theorem reversible_bridge_backward_upto :
+  forall p p_inv,
+    cno_equiv (seq_comp p p_inv) [] ->
+    forall s s',
+      eval p s s' ->
+      (exists u, eval p_inv s' u) ->
+      exists u, eval p_inv s' u /\ u =st= s.
+Proof.
+  intros p p_inv Hce s s' Ep [u Epinv].
+  exists u. split; [ exact Epinv | ].
+  assert (Ecomp : eval (seq_comp p p_inv) s u).
+  { unfold seq_comp. apply eval_app. exists s'. split; assumption. }
+  apply (Hce s u s Ecomp). apply eval_empty.
+Qed.
+

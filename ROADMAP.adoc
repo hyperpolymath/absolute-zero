@@ -131,12 +131,19 @@ No fixed dates — a solo project proceeds as time allows. Ordered by value.
 
 Absolute Zero is the CNO foundation that `hyperpolymath/maa-framework`
 coordinates as a pinned submodule. The theorem MAA actually cites is the
-*general reversibility biconditional*, which does not yet exist at the general
-level (only a filesystem-specific, axiom-backed instance).
+*general reversibility biconditional*.
 
-* [ ] Prove `reversible p ↔ ∃ p_inv, is_CNO (p ;; p_inv) ∧ is_CNO (p_inv ;; p)`
-  in `proofs/coq/common/CNO.v` (linking `reversible` to `cno_composition`),
-  with a Lean mirror.
+* [x] *Reversibility <-> CNO bridge — landed in Coq (2026-07-16, zero axioms).*
+  `proofs/coq/common/CNO.v` proves the forward direction of the aletheia contract
+  (`reversible_bridge_forward`: a two-sided inverse makes both composites
+  `cno_equiv _ []`) and the backward direction up to `=st=`
+  (`reversible_bridge_backward_upto`), via the core lemma
+  `reverses_seq_computes_identity`. All `Closed under the global context`.
+  *Finding:* the literal `reversible p ↔ ∃ p_inv, is_CNO (p;;p_inv) ∧ is_CNO (p_inv;;p)`
+  is **not** provable here — `is_CNO` over-demands purity/totality, `state_eq`
+  excludes the PC (forcing up-to-`=st=`), and `reversible` is one-sided; so the
+  contract should be stated two-sided and `=st=`-relative (see `PROOF-STATUS.adoc`).
+  *Remaining:* Lean mirror.
 * [ ] Discharge the filesystem existence axioms in `FilesystemCNO.v` so
   `valence_reversible_pair_is_cno` becomes axiom-free.
 * [ ] Discharge the "provable debt" axioms triaged in `proof-debt-triage.md`

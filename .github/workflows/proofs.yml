@@ -37,7 +37,7 @@ jobs:
     name: Coq — CNO + OND (14 theories)
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
       - name: Install Coq
         run: sudo apt-get update && sudo apt-get install -y coq
       - name: Build all theories via coq_makefile
@@ -51,21 +51,25 @@ jobs:
   agda:
     name: Agda — CNO + OND
     runs-on: ubuntu-24.04
+    timeout-minutes: 25
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
-      - name: Install Agda + stdlib
-        run: sudo apt-get update && sudo apt-get install -y agda agda-stdlib
-      - name: Register the standard library
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
+      - name: Install Agda (binary only)
+        # Install just the `agda` binary (2.6.3 on 24.04). NOT `agda-stdlib` —
+        # the Ubuntu stdlib package ships no usable library manifest; we fetch a
+        # version-matched stdlib from git instead (validated locally).
+        run: sudo apt-get update && sudo apt-get install -y agda
+      - name: Fetch + register agda-stdlib v1.7.3 (matches Agda 2.6.3)
         run: |
+          git clone -q --depth 1 --branch v1.7.3 \
+            https://github.com/agda/agda-stdlib.git "$HOME/agda-stdlib"
+          # The upstream manifest is named `standard-library-1.7.3`; the repo's
+          # absolute-zero.agda-lib depends on `standard-library`, so align it.
+          sed -i 's/^name: .*/name: standard-library/' \
+            "$HOME/agda-stdlib/standard-library.agda-lib"
           mkdir -p "$HOME/.agda"
-          LIB="$(dpkg -L agda-stdlib | grep -m1 'standard-library.*\.agda-lib' || true)"
-          if [ -n "$LIB" ]; then
-            echo "$LIB" > "$HOME/.agda/libraries"
-            echo "standard-library" > "$HOME/.agda/defaults"
-            echo "registered: $LIB"
-          else
-            echo "agda-stdlib .agda-lib not found via dpkg -L" >&2; exit 1
-          fi
+          echo "$HOME/agda-stdlib/standard-library.agda-lib" > "$HOME/.agda/libraries"
+          echo "standard-library" > "$HOME/.agda/defaults"
       - name: Type-check CNO + OND (--safe --without-K)
         working-directory: proofs/agda
         run: |
@@ -78,7 +82,7 @@ jobs:
     name: Z3 — CNO + OND bounded checks
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v4
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v4
       - name: Install Z3
         run: sudo apt-get update && sudo apt-get install -y z3
       - name: Run Z3 checks

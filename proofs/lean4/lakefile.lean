@@ -31,3 +31,10 @@ lean_lib StatMech
 
 @[default_target]
 lean_lib OND
+
+-- Reversibility ↔ CNO bridge (mirror of the Coq A2 development). Deliberately
+-- NOT a @[default_target]: it was authored where the Lean toolchain could not be
+-- fetched (egress policy blocked the GitHub release, HTTP 403), so it is
+-- unverified in that environment and must not gate the standard `lake build`.
+-- Build/verify explicitly with `lake build CNOBridge`.
+lean_lib CNOBridge
