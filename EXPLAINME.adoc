@@ -1,0 +1,158 @@
+// SPDX-License-Identifier: MPL-2.0
+= Absolute Zero — EXPLAINME
+:toc: preamble
+:toc-title: Contents
+:icons: font
+:doctype: article
+
+This file backs every factual claim in link:README.adoc[README.adoc] with code paths and honest caveats. Read it if you are doing due diligence on whether the story matches the code.
+
+== Claim-to-implementation map
+
+=== CNO and OND are logically independent
+
+[quote, README.adoc]
+____
+The two pillars are logically independent (a proved theorem, with witnesses).
+____
+
+How this is implemented::
+The independence theorem is proved in Coq, anchored to the core `is_CNO` definition. Witnesses demonstrating that CNO does not entail OND and OND does not entail CNO are constructed.
+
+Caveat::
+None currently known for the independence proof itself. However, the *coupling dial* between them (connecting a thing to the trace it casts) is explicitly framing, not theorem.
+
+=== OND-1..5 are proved with zero axioms
+
+[quote, README.adoc]
+____OND obligations OND-1..5 are proved with zero axioms in Coq (proofs/coq/ond/OND.v, every theorem Closed under the global context)____
+
+How this is implemented::
+`link:proofs/coq/ond/OND.v[]` contains the proofs. CI verifies that the global context is closed (no axioms admitted). Mirrored in Lean 4, Agda, and Z3.
+
+Caveat::
+OND proofs are axiom-free *relative to the declared observation model `O`*. The choice of `O` is a proof input, not a proof output. If `O` omits a real-world observable channel (e.g., power analysis), the OND proof is sound but physically incomplete. The residue list in `link:proofs/residue/[]` records this gap.
+
+=== Coq CNO: 115 Qed, 0 Admitted, 61 Axioms
+
+[quote, README.adoc]
+____115 Qed / 0 Admitted / 61 Axioms across 13 files — every theorem is discharged (no Admitted), but the development rests on 61 Coq + 52 Lean axioms.____
+
+How this is implemented::
+`link:proofs/coq/[]` contains all CNO theories. CI runs `coq_makefile` and confirms Qed counts and axiom counts. The axioms are domain-specific assumptions (quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws) that are *assumed* but not derived within Coq.
+
+Caveat::
+**This is not an axiom-free machine-checked proof.** "Machine-checked" here means the proof is valid *assuming the axioms hold*. If an axiom is false in the intended model, the theorem fails. The 61 Coq + 52 Lean axioms represent the proof debt. Discharging them (especially quantum unitarity and filesystem inverse laws) is the next major obligation.
+
+=== Multi-prover verification across six systems
+
+[quote, README.adoc]
+____Verify CNO properties in six independent proof systems.____
+
+How this is implemented::
+Artefacts exist for Coq, Lean 4, Agda, Z3, Isabelle, and Mizar in `link:proofs/[]`. `link:proofs/verify-all-provers.sh[]` orchestrates verification. CI gates Coq, Lean 4, and Agda.
+
+Caveat::
+**Z3, Isabelle, and Mizar are generated but not yet run in CI.** The artefacts exist but are not evidence until machine-executed and green. The "six prover" claim describes the target architecture, not the current CI gate.
+
+=== Thermodynamic reversibility follows from Landauer's principle
+
+[quote, README.adoc]
+____ThermodynamicallyReversible(p) — Zero energy____
+
+How this is implemented::
+`link:proofs/coq/physics/StatMech.v[]` and `link:proofs/lean4/StatMech.lean[]` formalise Landauer's principle and Bennett's reversible computing, proving CNOs dissipate zero energy because they erase no information.
+
+Caveat::
+The physics formalisation relies on axioms about the physical model (e.g., that the thermodynamic system satisfies the assumptions of Landauer's principle). This is standard for formalisations of physics, but the gap between the mathematical model and physical metal is real.
+
+=== CNO verification is undecidable in general
+
+[quote, README.adoc]
+____The problem "Is program p a CNO?" is undecidable in general.____
+
+How this is implemented::
+Proved by reduction from the halting problem. Constructive witness: the ability to decide CNO-ness would decide halting.
+
+Caveat::
+This is a standard result. The practical consequence is that the verified CNOs in this repo are specific programs or finite-state classes, not arbitrary input programs.
+
+== Dogfooded Across The Account
+
+[cols="1,2,2", options="header"]
+|===
+| Technology / Pattern | Used here | Also used in
+
+| Coq CNO/OND formalisation
+| `proofs/coq/`
+| link:https://github.com/hyperpolymath/echo-types[echo-types] (EchoCNOBridge)
+
+| Multi-prover pattern
+| Six provers + Idris ABI
+| link:https://github.com/hyperpolymath/kategoria[Kategoria] (Route δ)
+
+| OND residue-list honesty
+| `proofs/residue/`
+| link:https://github.com/hyperpolymath/epistemic-types[epistemic-types] (proof transport)
+|===
+
+== Known gaps
+
+[CAUTION]
+====
+**61 Coq + 52 Lean axioms are unproven.** The CNO pillar is machine-checked *relative to these axioms*. Key axioms: quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws. Discharging these is the next major obligation.
+====
+
+[CAUTION]
+====
+**Z3, Isabelle, and Mizar artefacts are not run.** They exist in-tree but are not part of the CI gate. Only Coq, Lean 4, and Agda are currently machine-checked evidence.
+====
+
+[CAUTION]
+====
+**OND-6 (conditional composition) is open.** OND-1..5 are proved. The capstone composition theorem is deferred.
+====
+
+[CAUTION]
+====
+**OND proofs are conditional on declared `O`.** An OND certificate is valid only for the observables in `O`. Out-of-scope channels (timing, power, cache, EM radiation) are listed in the residue, not blocked by the proof.
+====
+
+[CAUTION]
+====
+**CNO↔OND coupling dial is framing, not theorem.** The connection between a thing and the trace it casts to an observer is a conceptual bridge, not a formal result.
+====
+
+== Evidence Index
+
+[cols="2,3", options="header"]
+|===
+| Path | Proves
+
+| `proofs/coq/common/CNO.v`
+| Core CNO framework (115 Qed, 61 Axioms)
+
+| `proofs/coq/ond/OND.v`
+| OND-1..5 (zero axioms)
+
+| `proofs/coq/physics/StatMech.v`
+| Landauer's principle, thermodynamic reversibility
+
+| `proofs/coq/category/CNOCategory.v`
+| Universal CNO definition, model independence
+
+| `proofs/lean4/`
+| Lean 4 mirrors (Phases 1–4, 52 Axioms)
+
+| `proofs/agda/`
+| Agda Phase 1
+
+| `proofs/verify-all-provers.sh`
+| One-shot gate script
+
+| `proofs/observation-models/`
+| Declared `O` inputs for OND
+
+| `proofs/residue/`
+| OND residue lists (out-of-scope observables)
+|===abc def ghi jkl mno pqr stu
