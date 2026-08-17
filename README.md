@@ -208,3 +208,4 @@ Prose documentation is licensed under CC-BY-SA-4.0; see `LICENSES/`.====
 | Path | Purpose
 
 | `proofs/coq/`
+| Coq proofs: CNO framework, Malbolge, physics, category theory, lambda, quantum, filesystem, OND
