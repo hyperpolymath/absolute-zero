@@ -1,0 +1,87 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= Absolute Zero — Glossary
+:toc: preamble
+:toc-title: Contents
+:icons: font
+:doctype: article
+
+Cross-reference glossary for link:README.adoc[README.adoc], link:EXPLAINME.adoc[EXPLAINME.adoc], and the `absolute-zero` wiki.
+
+== The two pillars
+
+[[cno]]
+CNO (Certified Null Effect)::
+  A program that does nothing to the world: terminates, maps input state to identical output state, is pure, and is thermodynamically reversible. The conserved quantity is state.
+  *Classification:* **novel assembly** (standard concepts combined into this specific 4-field record).
+
+[[ond]]
+OND (Observational Null Disclosure)::
+  A program that reveals nothing about its secret input to a declared observer: its observable trace is constant over the secret, relative to a declared observation model `O`. The conserved quantity is the secret-to-observable channel.
+  *Classification:* **novel formalisation**.
+
+[[coupling-dial]]
+Coupling dial::
+  The conceptual connection between CNO (a thing) and OND (the trace it casts). Framing, not theorem.
+  *Classification:* **project-specific** (vocabulary).
+
+== CNO concepts
+
+[[is-cno]]
+IsCNO(p)::
+  The core predicate: `Terminates(p, σ) ∧ FinalState(p, σ) = σ ∧ NoSideEffects(p) ∧ ThermodynamicallyReversible(p)`.
+  *Classification:* **project-specific** (formalisation).
+
+[[landauer-principle]]
+Landauer's principle::
+  Erasing one bit of information dissipates at least `kT ln 2` of energy. A CNO erases no information, hence dissipates zero energy.
+  *Classification:* **standard** (Landauer 1961).
+
+[[reversible-computing]]
+Reversible computing::
+  Computation that can be undone with zero energy cost (Bennett 1973). A required field of `IsCNO`.
+  *Classification:* **standard** (Bennett 1973).
+
+== OND concepts
+
+[[observation-model]]
+Observation model (O)::
+  The declared set of observables (timing, size, output) that an OND proof reasons about. An OND certificate is valid *only* relative to `O`.
+  *Classification:* **project-specific**.
+
+[[residue-list]]
+Residue list::
+  The explicit list of out-of-scope observables shipped with every OND claim. The honest boundary between the proof and the physical metal.
+  *Classification:* **project-specific**.
+
+[[ond-6]]
+OND-6 (conditional composition)::
+  The open research capstone: composing OND-certified operations under conditions. OND-1..5 are proved; OND-6 is deferred.
+  *Classification:* **project-specific** (open problem).
+
+== Proof engineering
+
+[[axiom-vs-qed]]
+Axiom vs. Qed::
+  In this repo, "Qed" means the proof is discharged in the prover. "Axiom" means an unproven assumption is introduced. A theorem with 0 Admitted but 61 Axioms is machine-checked *relative to those axioms*, not axiom-free.
+  *Classification:* **standard** (proof engineering terminology).
+
+[[multi-prover]]
+Multi-prover cross-validation::
+  Verifying the same mathematical claim in independent proof systems (Coq, Lean, Agda, Z3, Isabelle, Mizar) to increase confidence.
+  *Classification:* **standard** (methodology).
+
+== Pronunciation guide
+
+[cols="1,2", options="header"]
+|===
+| Written | Spoken
+
+| CNO
+| "see-en-oh"
+
+| OND
+| "oh-en-dee"
+
+| IsCNO
+| "is-see-en-oh"
+|===
