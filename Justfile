@@ -18,10 +18,10 @@ default:
 build-all: build-coq build-lean build-agda build-isabelle build-mizar build-idris
     @echo "✓ All builds complete"
 
-# Build ReScript interpreters
-build-rescript:
-    @echo "Building ReScript interpreters..."
-    cd interpreters/rescript && npx rescript build
+# Build AffineScript interpreters
+build-affinescript:
+    @echo "Building AffineScript interpreters..."
+    cd interpreters/affinescript && npx affinescript build
 
 # Build Coq proofs — all 14 theories (CNO + OND pillars) via coq_makefile
 build-coq:
@@ -157,9 +157,9 @@ run-brainfuck FILE:
 run-whitespace FILE:
     python3 interpreters/whitespace/whitespace.py examples/whitespace/{{FILE}}
 
-# Run Malbolge example (ReScript)
+# Run Malbolge example (AffineScript)
 run-malbolge FILE:
-    cd interpreters/rescript && node -e "require('./malbolgeInterpreter.bs.js').execute('$(cat ../../examples/malbolge/{{FILE}})')"
+    cd interpreters/affinescript && node -e "require('./malbolgeInterpreter.bs.js').execute('$(cat ../../examples/malbolge/{{FILE}})')"
 
 # ============================================================================
 # Documentation
@@ -183,7 +183,7 @@ view-docs:
 # ============================================================================
 
 # Clean all build artifacts
-clean: clean-coq clean-lean clean-typescript clean-rescript
+clean: clean-coq clean-lean clean-typescript clean-affinescript
     @echo "✓ All build artifacts cleaned"
 
 # Clean Coq artifacts
@@ -205,10 +205,10 @@ clean-typescript:
     @echo "Cleaning TypeScript artifacts..."
     rm -rf node_modules dist
 
-# Clean ReScript artifacts
-clean-rescript:
-    @echo "Cleaning ReScript artifacts..."
-    cd interpreters/rescript && rm -rf lib
+# Clean AffineScript artifacts
+clean-affinescript:
+    @echo "Cleaning AffineScript artifacts..."
+    cd interpreters/affinescript && rm -rf lib
 
 # ============================================================================
 # Development
@@ -221,7 +221,7 @@ watch:
 # Format code
 format:
     @echo "Formatting code..."
-    cd interpreters/rescript && npx rescript format
+    cd interpreters/affinescript && npx affinescript format
 
 # Lint code
 lint:
@@ -258,13 +258,13 @@ install-python:
 install-provers-fedora:
     @echo "Installing proof assistants (Fedora)..."
     sudo dnf install -y coq z3 nodejs opam
-    npm install -g rescript@11.1
+    npm install -g affinescript@11.1
 
 # Install proof assistants (Ubuntu)
 install-provers-ubuntu:
     @echo "Installing proof assistants (Ubuntu)..."
     sudo apt install -y coq z3 nodejs npm
-    npm install -g rescript@11.1
+    npm install -g affinescript@11.1
 
 # ============================================================================
 # Container (Podman/Docker)

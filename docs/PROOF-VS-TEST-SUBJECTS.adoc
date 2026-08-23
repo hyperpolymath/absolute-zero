@@ -126,7 +126,7 @@ absolute-zero/
 │   └── mizar/                 # ⚠️ Pending install
 │
 ├── interpreters/              # Test subjects (formalized in proofs)
-│   ├── rescript/              # ✅ Malbolge interpreter (ReScript)
+│   ├── affinescript/              # ✅ Malbolge interpreter (AffineScript)
 │   ├── brainfuck/             # ❌ README mentions Python, doesn't exist
 │   └── whitespace/            # ❌ README mentions Python, doesn't exist
 │
@@ -139,7 +139,7 @@ absolute-zero/
 **Option A: Remove Python/npm (RSR Compliant)**
 
 ```bash
-# 1. Remove package.json (TypeScript → ReScript)
+# 1. Remove package.json (TypeScript → AffineScript)
 rm package.json
 
 # 2. Implement Brainfuck/Whitespace in Rust

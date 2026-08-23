@@ -12,4 +12,4 @@ Contributors: see git log + docs/MAINTAINERS.adoc
 /* SITE */
 Last update: 2026-05-25
 Standards: MPL-2.0, RSR (Rhodium Standard Repository) compliant
-Components: Coq, Lean 4, Z3, Agda, Isabelle, Mizar, Idris2, ReScript, Rust
+Components: Coq, Lean 4, Z3, Agda, Isabelle, Mizar, Idris2, AffineScript, Rust

@@ -28,7 +28,7 @@ pending PR #42 merge.
 |6 additional commits on top of PR #41 head: doc tidy, banned-lang
 sweep, RSR taxonomy alignment, action SHA pins, wiki seed, Cargo.lock.
 These are held back from PR #41 deliberately so the parallel session's
-PR #42 (estate-policy sweep: PMPL→MPL-2.0, ReScript banned,
+PR #42 (estate-policy sweep: PMPL→MPL-2.0, AffineScript banned,
 AffineScript primary) can merge first without conflict.
 
 |`fix/absolute-zero-baseline-rot`
@@ -93,7 +93,7 @@ swift, ruby, perl) per strict CLAUDE.md language policy.
 
 |`1ca4fa0`
 |`chore(ci)`: pin all 14 unpinned action SHAs across 5 workflow files
-(jekyll-gh-pages, rescript-deno-ci, language-policy, rust-ci,
+(jekyll-gh-pages, affinescript-deno-ci, language-policy, rust-ci,
 governance/standards-reusable). SHAs resolved via `git ls-remote`.
 
 |`99a7781`
@@ -176,14 +176,14 @@ git cherry-pick d2853ca..bb62d81                # adjust range; or use the prese
 
 # Estate-policy adaptation (per #42's new rules):
 #   - PMPL-1.0-or-later → MPL-2.0
-#   - References to "ReScript primary" → "AffineScript primary"
-#   - References to "ReScript / TypeScript banned" need adding
+#   - References to "AffineScript primary" → "AffineScript primary"
+#   - References to "AffineScript / TypeScript banned" need adding
 find . -type f \( -name '*.adoc' -o -name '*.md' -o -name '*.a2ml' \
                   -o -name '*.txt' -o -name '*.idr' -o -name '*.ipkg' \) \
   -newer /tmp/marker -exec \
   sed -i 's/PMPL-1.0-or-later/MPL-2.0/g; s/PMPL-1.0/MPL-2.0/g' {} \;
 
-# Reconcile workflow files (#42 deletes rescript-deno-ci.yml; my
+# Reconcile workflow files (#42 deletes affinescript-deno-ci.yml; my
 # action-pin commit needs to drop those edits — easiest is to revert
 # the pin commit and re-pin after rebase against the new workflow set).
 

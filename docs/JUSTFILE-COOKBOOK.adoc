@@ -30,7 +30,7 @@ just ci                 # Run full CI pipeline
 
 Build all proof systems and interpreters.
 
-*Dependencies*: build-rescript, build-coq, build-lean, build-agda, build-isabelle, build-typescript
+*Dependencies*: build-affinescript, build-coq, build-lean, build-agda, build-isabelle, build-typescript
 
 [source,bash]
 ----
@@ -38,7 +38,7 @@ just build-all
 ----
 
 *What it does*:
-1. Builds ReScript interpreters
+1. Builds AffineScript interpreters
 2. Compiles Coq proofs
 3. Compiles Lean 4 proofs
 4. Compiles Agda proofs
@@ -294,7 +294,7 @@ just container-build
 *Image details*:
 - Name: `absolute-zero:latest`
 - Base: Fedora 39
-- Includes: Coq, Z3, Lean 4, Deno, ReScript
+- Includes: Coq, Z3, Lean 4, Deno, AffineScript
 
 *Build flags*:
 [source,bash]
@@ -405,7 +405,7 @@ just docs-adoc
 
 Clean all build artifacts.
 
-*Dependencies*: clean-coq, clean-lean, clean-typescript, clean-rescript
+*Dependencies*: clean-coq, clean-lean, clean-typescript, clean-affinescript
 
 [source,bash]
 ----
@@ -416,7 +416,7 @@ just clean
 - Coq: `*.vo`, `*.vok`, `*.vos`, `*.glob`
 - Lean: `.lake/` directory
 - TypeScript: `node_modules/`, `dist/`
-- ReScript: `lib/`
+- AffineScript: `lib/`
 
 === clean-coq
 
@@ -536,7 +536,7 @@ deno task dev
 
 === format
 
-Format ReScript code.
+Format AffineScript code.
 
 [source,bash]
 ----
@@ -546,7 +546,7 @@ just format
 *What it does*:
 [source,bash]
 ----
-cd interpreters/rescript && npx rescript format
+cd interpreters/affinescript && npx affinescript format
 ----
 
 === lint
@@ -635,7 +635,7 @@ just loc
 - Lean 4 proofs
 - Z3 specifications
 - TypeScript/Deno
-- ReScript
+- AffineScript
 
 == Installation Recipes
 
@@ -898,7 +898,7 @@ Available recipes:
     build-coq
     build-isabelle
     build-lean
-    build-rescript
+    build-affinescript
     build-typescript
     check-tools
     ci
@@ -906,7 +906,7 @@ Available recipes:
     clean-all
     clean-coq
     clean-lean
-    clean-rescript
+    clean-affinescript
     clean-typescript
     container-build
     container-shell
@@ -955,7 +955,7 @@ Available recipes:
 ----
 ci
 ├── build-all
-│   ├── build-rescript
+│   ├── build-affinescript
 │   ├── build-coq
 │   ├── build-lean
 │   ├── build-agda

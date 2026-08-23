@@ -166,7 +166,7 @@ Both pillars are machine-checked. OND obligations OND-1..5 are proved with zero 
 | OND residue lists (model-vs-metal gap)
 
 | `interpreters/`
-| Malbolge (ReScript), Brainfuck (Python), Whitespace (Python) with CNO detection
+| Malbolge (AffineScript), Brainfuck (Python), Whitespace (Python) with CNO detection
 
 | `proofs/verify-all-provers.sh`
 | One-shot gate: both pillars, all six provers + Idris ABI

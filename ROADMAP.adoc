@@ -154,7 +154,7 @@ coordinates as a pinned submodule. The theorem MAA actually cites is the
   fix the `Types.idr` errors) so `idris2 --build absolute-zero-abi.ipkg` succeeds.
 * [ ] Make CI truthful: run Coq(13) + Agda(3) + Rust; either add a real
   `cno_properties.smt2` or delete the Z3 job and its "10 theorems" claim; drop
-  ReScript/TS/Python jobs; fix the mangled README table and the CNO-acronym
+  AffineScript/TS/Python jobs; fix the mangled README table and the CNO-acronym
   inconsistency.
 
 *Done means:* the proof ledger reflects only what actually checks, the

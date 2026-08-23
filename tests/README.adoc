@@ -7,7 +7,7 @@ absolute-zero, "tests" are spread across several locations by domain:
 
 * **Formal proofs** (the load-bearing verification): `proofs/{coq,lean4,agda,isabelle,mizar,z3}/`
 * **Fuzz testing**: `fuzz/`
-* **ReScript interpreter tests**: `interpreters/rescript/*_test.res`
+* **AffineScript interpreter tests**: `interpreters/affinescript/*_test.res`
 * **Rust unit tests**: inline `#[cfg(test)]` modules in `src/*.rs`
 * **Cross-language CNO behavioural examples**: `examples/<lang>/`
 

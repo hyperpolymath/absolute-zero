@@ -16,7 +16,7 @@ Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 
 ## Toolchain (reproducible)
 
-- Coq **8.20.1** via `nix … github:NixOS/nixpkgs/nixos-24.11#coq`
+- Coq **8.20.1** via `guix … github:NixOS/nixpkgs/nixos-24.11#coq`
 - Agda **2.7.0.1** + `standard-library` **2.1.1** via the same nixpkgs pin
   (also builds clean under Agda 2.6.3 / 2.8.0 — interfaces in `_build/`)
 - Lean toolchain `leanprover/lean4:v4.16.0` + mathlib (via `elan`/`lake`)
@@ -135,7 +135,7 @@ See ADR-008.
 `~/dev/repos/absolute-zero`.
 
 **Environment / build loop (per file):**
-- Coq 8.20 via `nix shell github:NixOS/nixpkgs/nixos-24.11#coq --command …`
+- Coq 8.20 via `guix shell github:NixOS/nixpkgs/nixos-24.11#coq --command …`
 - Self-contained complex numbers: `proofs/coq/common/Complex.v` (NO
   Coquelicot/mathcomp/HB). Build order: in `proofs/coq/common`,
   `coqc -R . CNO CNO.v && coqc -R . CNO Complex.v`; then in the file's

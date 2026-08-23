@@ -28,8 +28,8 @@ Multi-prover is intentional: each catches what the others miss. See
 * **`src/abi/`** — Idris2 type declarations for the C ABI, with formal
   alignment + size proofs. See [ABI](ABI.md).
 * **`src/brainfuck/`, `src/whitespace/`** — interpreter crates in Rust.
-  The former `interpreters/rescript/` Malbolge interpreter (ReScript) was
-  removed in the estate-policy sweep (PR #42); ReScript was banned by the
+  The former `interpreters/affinescript/` Malbolge interpreter (AffineScript) was
+  removed in the estate-policy sweep (PR #42); AffineScript was banned by the
   language policy on 2026-04-30.
 * **`ffi/zig/`** — Zig FFI shim that the Idris2 ABI binds to.
 

@@ -20,7 +20,7 @@ This mirror contains:
 The full GitLab repository contains:
 - **Coq formal proofs** of CNO properties
 - **Z3 SMT solver** verification scripts
-- **ReScript interpreters** for Malbolge
+- **AffineScript interpreters** for Malbolge
 - **Comprehensive documentation** on theoretical foundations
 - **Multiple esoteric language examples** (Brainfuck, Whitespace, etc.)
 - **Research papers and theoretical analysis**
@@ -69,7 +69,7 @@ absolute-zero/
 ├── Justfile                  # Build automation (used on GitLab)
 │
 ├── interpreters/
-│   └── rescript/
+│   └── affinescript/
 │       ├── malbolgeInterpreter.res    # Malbolge interpreter
 │       └── malboldgeInterpreter.res   # Alternative implementation
 │
@@ -171,8 +171,8 @@ The full project uses **`just`** (modern command runner):
 # Build everything
 just build-all
 
-# Build ReScript interpreters
-just build-rescript
+# Build AffineScript interpreters
+just build-affinescript
 
 # Compile Coq proofs
 just build-coq
@@ -227,9 +227,9 @@ Theorem cno_implies_termination :
 - Complementary to Coq proofs
 - Use `z3 cno_properties.smt2` to verify
 
-#### ReScript Interpreters (`interpreters/rescript/`)
+#### AffineScript Interpreters (`interpreters/affinescript/`)
 
-- Use `rescript format` before committing
+- Use `affinescript format` before committing
 - Maintain purity (no side effects)
 - Document unusual Malbolge semantics
 
@@ -405,7 +405,7 @@ If you use Absolute Zero in research, please cite:
 
 - **Coq**: https://coq.inria.fr/
 - **Z3**: https://github.com/Z3Prover/z3
-- **ReScript**: https://rescript-lang.org/
+- **AffineScript**: https://affinescript-lang.org/
 - **just**: https://github.com/casey/just
 
 ## Philosophical Note
@@ -441,7 +441,7 @@ cd absolute-zero
 
 # Install dependencies (Fedora)
 sudo dnf install coq z3 nodejs opam
-npm install -g rescript@11.1
+npm install -g affinescript@11.1
 
 # Build everything
 just build-all
