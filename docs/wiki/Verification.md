@@ -29,7 +29,7 @@ just build-coq        # Coq only
 just build-lean       # Lean 4 only
 just build-agda
 just build-isabelle
-just build-rescript
+just build-affinescript
 just verify           # build + check
 ```
 
@@ -69,7 +69,7 @@ idris2 --check src/abi/Proofs/DivMod.idr
 | Workflow | What it does | Status check name |
 |----------|--------------|--------------------|
 | `rust-ci.yml` | `cargo build --release`, `cargo audit`, coverage | `build`, `security`, `coverage` |
-| `rescript-deno-ci.yml` | `deno lint`, `deno fmt --check`, `deno test`, `rescript build` | `build` |
+| `affinescript-deno-ci.yml` | `deno lint`, `deno fmt --check`, `deno test`, `affinescript build` | `build` |
 | `codeql.yml` | CodeQL static analysis | `check` |
 | `secret-scanner.yml` | trufflehog + gitleaks | `secrets` |
 | `language-policy.yml` | Block new banned-language files | `check` |

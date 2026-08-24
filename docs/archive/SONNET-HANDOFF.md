@@ -139,7 +139,7 @@ Read echidnabot's STATE.scm and CLAUDE.md for details.
 ### ECHIDNA Architecture
 - Rust core: `src/rust/` — 12 prover backends, HTTP server, agent
 - Julia ML: `src/julia/` — neural models, HTTP API on port 8090
-- ReScript UI: `src/rescript/` — React components, port 8000
+- AffineScript UI: `src/affinescript/` — React components, port 8000
 - Chapel HPC: `chapel_poc/` — parallel search PoC (ISOLATED)
 - Zig FFI: `src/zig/` — C ABI bridge for external integration
 - Idris2: `src/idris/` — formal proof validator

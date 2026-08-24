@@ -13,7 +13,7 @@ TL;DR:
 
 * **Allowed**: AffineScript, Deno, Rust, Tauri, Dioxus, Gleam, Bash, JavaScript
   (where AffineScript cannot reach), Nickel, Guile Scheme, Julia, OCaml, Ada, Idris2
-* **Banned**: TypeScript, ReScript (banned 2026-04-30 — replaced by
+* **Banned**: TypeScript, AffineScript (banned 2026-04-30 — replaced by
   AffineScript), Node.js, npm/Bun/pnpm/yarn, Go, Python, Java/Kotlin,
   Swift, React Native, Flutter/Dart, Ruby, Perl
 

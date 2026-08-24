@@ -30,16 +30,16 @@ build:typescript:
       - node_modules/
     expire_in: 1 hour
 
-build:rescript:
+build:affinescript:
   stage: build
   image: node:18
   script:
-    - npm install -g rescript@11.1
-    - cd interpreters/rescript
-    - npx rescript build
+    - npm install -g affinescript@11.1
+    - cd interpreters/affinescript
+    - npx affinescript build
   artifacts:
     paths:
-      - interpreters/rescript/lib/
+      - interpreters/affinescript/lib/
     expire_in: 1 hour
 
 # ============================================================================

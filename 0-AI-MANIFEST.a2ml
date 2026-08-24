@@ -45,7 +45,7 @@ legacy-scm-playbook  = ".machine_readable/PLAYBOOK.scm"
 [language-policy]
 # Single source of truth lives in docs/CLAUDE.adoc + .github/workflows/language-policy.yml.
 # Summary:
-allowed   = ["ReScript", "Deno", "Rust", "Tauri", "Dioxus", "Gleam", "Bash", "JavaScript (limited)", "Nickel", "Guile Scheme", "Julia", "OCaml", "Ada", "Idris2"]
+allowed   = ["AffineScript", "Deno", "Rust", "Tauri", "Dioxus", "Gleam", "Bash", "JavaScript (limited)", "Nickel", "Guile Scheme", "Julia", "OCaml", "Ada", "Idris2"]
 banned    = ["TypeScript", "Node.js", "npm", "Bun", "pnpm", "yarn", "Go", "Python", "Java", "Kotlin", "Swift", "React Native", "Flutter", "Dart", "Ruby", "Perl"]
 reference = "docs/CLAUDE.adoc#language-policy"
 

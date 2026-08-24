@@ -69,7 +69,7 @@ For the RSR taxonomy itself (what the template prescribes), see
 |`tests/` exists but is empty (placeholder). Hypatia "no_tests" finding
  will clear once at least one test file lands. Existing test coverage
  lives under `proofs/` (multi-prover verification), `fuzz/`, and
- ReScript test runners in `interpreters/rescript/`.
+ AffineScript test runners in `interpreters/affinescript/`.
 
 |License headers
 |🟡 Mostly passing

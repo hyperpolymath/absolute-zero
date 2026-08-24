@@ -17,7 +17,7 @@ workflow = ".github/workflows/hypatia-scan.yml"
 
 [[accepted-findings]]
 id = "banned-language-example-files"
-finding = "cicd_rules/banned_language_file hits under examples/ (go, java, kotlin, swift, ...) and legacy ReScript paths"
+finding = "cicd_rules/banned_language_file hits under examples/ (go, java, kotlin, swift, ...) and legacy AffineScript paths"
 reason = "absolute-zero is the canonical cross-language nop-semantics demonstration repo; example files in banned languages are the point, not load-bearing code. Each accepted path is enumerated in .hypatia-ignore. After standards#180 (file_pattern glob support) the per-file entries collapse to a single examples/** pattern."
 status = "accepted"
 
@@ -34,8 +34,8 @@ reason = "Deliberate: top-level `permissions: read-all` with job-level `security
 status = "accepted"
 
 [[accepted-findings]]
-id = "stale-hypatia-ignore-rescript-entries"
-finding = ".hypatia-ignore lists ReScript paths (src/AuditTrail.res, interpreters/rescript/malbolgeInterpreter.res, examples/SafeDOMExample.res) that no longer exist in the tree"
+id = "stale-hypatia-ignore-affinescript-entries"
+finding = ".hypatia-ignore lists AffineScript paths (src/AuditTrail.res, interpreters/affinescript/malbolgeInterpreter.res, examples/SafeDOMExample.res) that no longer exist in the tree"
 reason = "Harmless staleness — ignore entries for deleted files have no effect. Cleanup is proposed as a maintainer issue rather than bot-edited, since .hypatia-ignore is security policy."
 status = "accepted-pending-cleanup"
 

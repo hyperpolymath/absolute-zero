@@ -7,8 +7,8 @@ DISCREPANCIES vs SPECIFICATIONS
 
 SPECIFICATION                    ACTUAL STATUS
 ─────────────────────────────────────────────────────────────────
-ReScript (not TypeScript)     ❌ HAS TypeScript (4 files in ts/)
-                                  ✅ HAS ReScript (1 file)
+AffineScript (not TypeScript)     ❌ HAS TypeScript (4 files in ts/)
+                                  ✅ HAS AffineScript (1 file)
 
 Deno (not npm/bun)             ❌ USES npm (package.json present)
                                   ❌ NO deno.json
@@ -46,16 +46,16 @@ ACTUAL TECHNOLOGY STACK
    └─ ❌ NO Deno
 
 3. INTERPRETERS
-   ├─ ReScript:            Malbolge interpreter (malbolgeInterpreter.res)
+   ├─ AffineScript:            Malbolge interpreter (malbolgeInterpreter.res)
    ├─ Python:              Brainfuck interpreter (brainfuck.py)
    ├─ Python:              Whitespace interpreter (whitespace.py)
    └─ TypeScript:          Malbolge (ts/interpreter/malbolge-interpreter.ts)
-                           ⚠️ DUPLICATE - should only be ReScript
+                           ⚠️ DUPLICATE - should only be AffineScript
 
 4. WEB LAYER
    ├─ HTML:                2 files (index.html, homepage/)
    ├─ CSS:                 4 files
-   ├─ TypeScript:          4 files (should be ReScript/Deno)
+   ├─ TypeScript:          4 files (should be AffineScript/Deno)
    └─ WASM:                1 file (wasm/absolute_zero.wasm)
 
 5. SHELL SCRIPTS
@@ -123,11 +123,11 @@ ACTUAL TECHNOLOGY STACK
 REQUIRED MIGRATIONS
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-PRIORITY 1: TypeScript → ReScript + Deno
+PRIORITY 1: TypeScript → AffineScript + Deno
 ─────────────────────────────────────────
-• ts/interpreter/malbolge-interpreter.ts → Already have ReScript version
-• ts/audit-trail.ts → Port to ReScript or Deno
-• ts/narrative-scaffold.ts → Port to ReScript or Deno  
+• ts/interpreter/malbolge-interpreter.ts → Already have AffineScript version
+• ts/audit-trail.ts → Port to AffineScript or Deno
+• ts/narrative-scaffold.ts → Port to AffineScript or Deno  
 • ts/wasm-loader.ts → Port to Deno
 • package.json + tsconfig.json → deno.json
 • npm scripts → deno tasks
@@ -178,7 +178,7 @@ SUMMARY STATISTICS
 Proof files:         19 files (Coq, Lean, Z3, Agda, Isabelle)
 Example languages:   30+ mainstream languages
 Example CNO files:   60+ files
-Interpreters:        3 (should consolidate to ReScript/Deno)
+Interpreters:        3 (should consolidate to AffineScript/Deno)
 Wrong tech stack:    TypeScript (4 files), npm (should be Deno)
 Wrong format:        23 .md files (should be .adoc)
 Missing:             Nickel, deno.json, justfile-cookbook.adoc
