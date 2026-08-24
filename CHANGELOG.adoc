@@ -1,0 +1,83 @@
+== Changelog
+
+All notable changes to `+absolute-zero+` will be documented in this
+file.
+
+This file is generated from conventional commits by the
+https://github.com/hyperpolymath/standards/blob/main/.github/workflows/changelog-reusable.yml[`+changelog-reusable.yml+`]
+workflow (`+hyperpolymath/standards#206+`). Adopt the workflow in this
+repo’s CI to keep this file in sync automatically — see
+https://github.com/hyperpolymath/standards/blob/main/templates/cliff.toml[`+templates/cliff.toml+`]
+for the canonical config.
+
+The format follows https://keepachangelog.com/en/1.1.0/[Keep a
+Changelog]; this project aims to follow
+https://semver.org/spec/v2.0.0.html[Semantic Versioning].
+
+=== [Unreleased]
+
+==== Added
+
+* feat(proofs): complete CNO + OND pillars, verified across six provers
+(#100) — OND pillar authored (OND-1..5, zero axioms) in
+Coq/Lean/Agda/Z3; single gate `+proofs/verify-all-provers.sh+` →
+`+ALL-PROVERS-GREEN+`; Isabelle CNO repaired + OND added; Mizar
+`+CNO.miz+` rewritten and verifying; Idris ABI builds
+* feat(ci): add `+.github/workflows/proofs.yml+` (Coq + Z3 proof
+verification)
+* feat(absolute-zero): complete loadStore_preserves_memory proof — no
+sorry
+
+==== Fixed
+
+* fix(proofs): remove/correct three latent-unsound Coq axioms
+(`+no_cloning+`, `+Cconj_Cexp+`, `+eta_equivalence+`); discharge CNO
+axiom base 98 → small classified remainder (#100)
+* fix(abi): repair Idris packaging + 6 latent type errors — ABI builds
+clean (#100)
+* fix(baseline): repair main + estate-policy sweep (unblocks #41) (#42)
+* fix(governance): enumerate banned-language demos in .hypatia-ignore
+(#44)
+* fix(coq/cno): drop cno_decidable axiom (Rice’s theorem territory)
+(#36)
+* fix(licence): canonicalise to PMPL-1.0-or-later per authorship check
+(#133) (#34)
+* fix(lean4/cno): finish loadStore_preserves_memory cons-case build
+(#28)
+* fix(lean4/cno): finish loadStore_preserves_memory cons-case build
+(#23)
+* fix(licence): canonicalise to PMPL-1.0-or-later per authorship check
+(#133) (#22)
+* fix(licence): clear scaffold-placeholder leak (isolated; dirty repo)
+(#20)
+* fix(ci): sync hypatia-scan.yml to canonical (413:
+env.HOME+Phase-2+SARIF) (#18)
+* fix(ci): adopt canonical hypatia-scan.yml (env.HOME/scanner-layout +
+Comment-step gate) (#16)
+
+==== Documentation
+
+* docs: Phase 1 per-axiom triage of 72 Coq Axioms (#58)
+* docs: seed docs/proof-debt.md per trusted-base policy (#52)
+* docs: record tech-debt audit findings (2026-05-26) (#47)
+
+==== CI
+
+* ci(rust): convert rust-ci.yml to thin wrapper (standards#174 refile)
+(#53)
+* ci: bump actions/upload-artifact SHA to current v4 (#12)
+* ci(secret-scanner): drop duplicate –fail from trufflehog extra_args
+(#11)
+* ci: fix workflow-linter YAML parse error + self-flag bug
+* ci(antipattern): fix top-level dir matching + benchmarks/lsp/bench
+filename allowlists (#9)
+
+=== Pre-history
+
+Prior commits to this file’s introduction are recorded in git history
+but not formally classified into Keep-a-Changelog sections. To backfill,
+run `+git cliff -o CHANGELOG.md+` locally using the canonical
+https://github.com/hyperpolymath/standards/blob/main/templates/cliff.toml[`+cliff.toml+`]
+— this is one-shot mechanical work.
+
+'''''
