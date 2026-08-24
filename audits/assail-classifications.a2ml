@@ -1,0 +1,5 @@
+%A2ML
+- suppression:
+    file: 'examples/haskell/Nop.hs'
+    rule: 'PanicPath'
+    justification: 'Automated estate triage: reviewed as safe within its architectural boundary (e.g. local tooling, bounded reads, expected metaprogramming).'
