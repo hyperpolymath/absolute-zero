@@ -21,7 +21,7 @@ project metadata (a2ml is TOML-flavoured, not Guile Scheme):
 | Language/Tool | Use Case | Notes |
 |---------------|----------|-------|
 | **AffineScript** | Primary application code | Compiles to JS/WASM, linear/affine type system |
-| **Bun** | JS/TS runtime & package management (tier 1) | Default for all new work. Executes `.ts` directly, no build step. Uses an npm-compatible `package.json` plus `bun.lock` — both are expected, not anti-patterns. |
+| **Bun** | JS/TS runtime & package management (tier 1) | Default for all new work. Runs compiled ESM/JS directly — no bundler step. Uses an npm-compatible `package.json` plus `bun.lock` — both are expected, not anti-patterns. Bun's native `.ts` execution does **not** license new TypeScript (see BANNED). |
 | **Rust** | Performance-critical, systems, WASM | Preferred for CLI tools |
 | **Tauri 2.0+** | Mobile apps (iOS/Android) | Rust backend + web UI |
 | **Dioxus** | Mobile apps (native UI) | Pure Rust, React-like |
@@ -40,6 +40,7 @@ project metadata (a2ml is TOML-flavoured, not Guile Scheme):
 |--------|-------------|
 | TypeScript | AffineScript |
 | ReScript | AffineScript |
+| Deno | Bun |
 | Node.js | Bun |
 | npm | Bun |
 | pnpm/yarn | Bun |
@@ -74,7 +75,7 @@ Both are FOSS with independent governance (no Big Tech).
 
 - **Primary**: Guix (guix.scm)
 - **Fallback**: Guix (flake.guix)
-- **JS deps**: Bun (`package.json` + `bun.lock`); `bunx <tool>` for one-off tooling
+- **JS deps**: Bun (`package.json` + `bun.lock`). Declare tooling as a devDependency and run `bunx --no-install --bun <tool>` — a bare `bunx <tool>` can fetch an unpinned package and may start Node via its shebang.
 
 ### Security Requirements
 
