@@ -21,7 +21,7 @@ project metadata (a2ml is TOML-flavoured, not Guile Scheme):
 | Language/Tool | Use Case | Notes |
 |---------------|----------|-------|
 | **AffineScript** | Primary application code | Compiles to JS/WASM, linear/affine type system |
-| **Deno** | Runtime & package management | Replaces Node/npm/bun |
+| **Bun** | JS runtime & package management (tier 1) | Default for all new work. Runs compiled ESM/JS directly — no bundler step. Uses an npm-compatible `package.json` plus `bun.lock` — both are expected, not anti-patterns. |
 | **Rust** | Performance-critical, systems, WASM | Preferred for CLI tools |
 | **Tauri 2.0+** | Mobile apps (iOS/Android) | Rust backend + web UI |
 | **Dioxus** | Mobile apps (native UI) | Pure Rust, React-like |
@@ -39,11 +39,11 @@ project metadata (a2ml is TOML-flavoured, not Guile Scheme):
 | Banned | Replacement |
 |--------|-------------|
 | TypeScript | AffineScript |
-| AffineScript | AffineScript |
-| Node.js | Deno |
-| npm | Deno |
-| Bun | Deno |
-| pnpm/yarn | Deno |
+| ReScript | AffineScript |
+| Deno | Bun |
+| Node.js | Bun |
+| npm | Bun |
+| pnpm/yarn | Bun |
 | Go | Rust |
 | Python | Julia/Rust/AffineScript |
 | Java/Kotlin | Rust/Tauri/Dioxus |
@@ -63,9 +63,9 @@ Both are FOSS with independent governance (no Big Tech).
 
 ### Enforcement Rules
 
-1. **No new TypeScript or AffineScript files** - Use AffineScript; meaningfully migrate existing TS/JS to AffineScript when touched (per-language `examples/` references may stay)
-2. **No package.json for runtime deps** - Use deno.json imports
-3. **No node_modules in production** - Deno caches deps automatically
+1. **No new TypeScript or ReScript files** - Use AffineScript; meaningfully migrate existing TS/JS to AffineScript when touched (per-language `examples/` references may stay)
+2. **Use `package.json` + `bun.lock` for JS runtime deps** - Bun is npm-compatible; a manifest is REQUIRED
+3. **`bun install --production` for production deps** - resolved from `package.json`, pinned via `bun.lock`
 4. **No Go code** - Use Rust instead
 5. **No Python anywhere** - Use Julia for data/batch, Rust for systems, AffineScript for apps
 6. **No Kotlin/Swift for mobile** - Use Tauri 2.0+ or Dioxus
@@ -75,7 +75,7 @@ Both are FOSS with independent governance (no Big Tech).
 
 - **Primary**: Guix (guix.scm)
 - **Fallback**: Guix (flake.guix)
-- **JS deps**: Deno (deno.json imports)
+- **JS deps**: Bun (`package.json` + `bun.lock`). Declare tooling as a devDependency and run `bunx --no-install --bun <tool>` — a bare `bunx <tool>` can fetch an unpinned package and may start Node via its shebang.
 
 ### Security Requirements
 
