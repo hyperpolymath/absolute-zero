@@ -38,6 +38,7 @@ Definition StateDistribution : Type := ProgramState -> R.
    NOTE: this axiom is currently UNUSED in any proof (dead), so removing or
    fixing it cannot break existing results — recommend the type refactor.
    Consolidated from StatMech.v:39 and LandauerDerivation.v:40 (Follow-up 3). *)
+(* TRUSTED: unsound class-A debt pending the bundled-distribution refactor. *)
 Axiom prob_nonneg :
   forall (P : StateDistribution) (s : ProgramState),
     P s >= 0.
@@ -53,6 +54,7 @@ Axiom prob_nonneg :
    NOTE: currently UNUSED in any proof (dead).
    Consolidated from StatMech.v:45 and LandauerDerivation.v:43 (Follow-up 3);
    the [map P] form was picked over the equivalent fold_right/lambda form. *)
+(* TRUSTED: unsound class-A debt pending the bundled-distribution refactor. *)
 Axiom prob_normalized :
   forall (P : StateDistribution),
     exists (states : list ProgramState),
@@ -75,6 +77,7 @@ Axiom prob_normalized :
    [Memory : nat -> nat] field.
    Consolidated from StatMech.v:51 (`state_dec`) and LandauerDerivation.v:48
    (`state_eq_dec`); canonical name `state_dec` (Follow-up 3). *)
+(* AXIOM: classical decidable equality for states containing function fields. *)
 Axiom state_dec :
   forall s1 s2 : ProgramState, {s1 = s2} + {s1 <> s2}.
 
@@ -102,6 +105,7 @@ Parameter shannon_entropy : StateDistribution -> R.
    upper bound the term [-p·log₂ p] is not sign-definite. BLOCKER: concrete
    entropy definition + normalized distribution type.
    Consolidated from StatMech.v:67 and LandauerDerivation.v:63 (Follow-up 3). *)
+(* TRUSTED: class-A debt pending a concrete entropy definition. *)
 Axiom shannon_entropy_nonneg :
   forall P : StateDistribution, shannon_entropy P >= 0.
 
@@ -115,5 +119,6 @@ Axiom shannon_entropy_nonneg :
    unproved, so both stay abstract together. BLOCKER: coupled to the
    [shannon_entropy] concrete-definition step.
    Consolidated from StatMech.v:72 and LandauerDerivation.v:67 (Follow-up 3). *)
+(* TRUSTED: class-A debt pending a concrete entropy definition. *)
 Axiom shannon_entropy_point_zero :
   forall s : ProgramState, shannon_entropy (point_dist s) = 0.
