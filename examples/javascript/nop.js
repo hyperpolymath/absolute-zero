@@ -1,6 +1,6 @@
+#!/usr/bin/env node
 // SPDX-License-Identifier: MPL-2.0
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
-#!/usr/bin/env node
 /**
  * JavaScript CNO (Code with No Output) - Absolute Zero Example
  *
@@ -67,7 +67,7 @@
  * - Strict mode has no effect on empty program
  */
 
-'use strict';
+"use strict";
 
 // Explicit no-operation (uncomment to demonstrate):
 // void 0;
