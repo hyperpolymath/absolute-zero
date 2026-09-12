@@ -32,6 +32,7 @@ Parameter kB : R.
    for a measured constant. This is a legitimate physical postulate.
    Consolidated from QuantumCNO.v:31, StatMech.v:25,
    LandauerDerivation.v:28 (Follow-up 1 of docs/proof-debt-triage.md). *)
+(* AXIOM: empirical positivity of the Boltzmann constant. *)
 Axiom kB_positive : kB > 0.
 
 (** ** Temperature *)
@@ -48,4 +49,5 @@ Parameter temperature : R.
    theorem. Kept as a physical postulate on the opaque [temperature] parameter.
    Consolidated from QuantumCNO.v:35, StatMech.v:30,
    LandauerDerivation.v:32 (Follow-up 1 of docs/proof-debt-triage.md). *)
+(* AXIOM: physical precondition that absolute temperature is positive. *)
 Axiom temperature_positive : temperature > 0.

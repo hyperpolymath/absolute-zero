@@ -266,6 +266,7 @@ instructionCrossPlatform = InvariantProof
 public export
 programStateAlignmentValid : (p : Platform) ->
   So (8 `mod` (ptrSize p `div` 8) == 0)
+-- TRUSTED: Idris2 cannot yet normalize this true per-platform calculation.
 programStateAlignmentValid _ = believe_me ()
 
 --------------------------------------------------------------------------------
