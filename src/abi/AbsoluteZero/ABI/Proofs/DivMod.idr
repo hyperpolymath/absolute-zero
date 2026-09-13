@@ -88,6 +88,7 @@ alignedSizeCorrect :
   (size : Nat) -> (align : Nat) ->
   {auto 0 nonZero : So (align /= 0)} ->
   So (alignedSize size align `mod` align == 0)
+-- TRUSTED: asserted pending the constructive proof tracked by absolute-zero#27.
 alignedSizeCorrect _ _ = believe_me ()
 
 ||| Euclidean division identity: every Nat decomposes as q*d + r.
@@ -99,6 +100,7 @@ divModIdentity :
   (n : Nat) -> (d : Nat) ->
   {auto 0 nonZero : So (d /= 0)} ->
   n = (n `div` d) * d + (n `mod` d)
+-- TRUSTED: asserted pending the constructive proof tracked by absolute-zero#27.
 divModIdentity _ _ = believe_me ()
 
 ||| Any multiple of `d` is congruent to zero mod `d`.
@@ -108,6 +110,7 @@ multModZero :
   (k : Nat) -> (d : Nat) ->
   {auto 0 nonZero : So (d /= 0)} ->
   So ((k * d) `mod` d == 0)
+-- TRUSTED: asserted pending the constructive proof tracked by absolute-zero#27.
 multModZero _ _ = believe_me ()
 
 ||| Mod distributes over addition (in the sense that `(a + b) mod d` is
@@ -117,4 +120,5 @@ addModDistrib :
   (a : Nat) -> (b : Nat) -> (d : Nat) ->
   {auto 0 nonZero : So (d /= 0)} ->
   (a + b) `mod` d = ((a `mod` d) + (b `mod` d)) `mod` d
+-- TRUSTED: asserted pending the constructive proof tracked by absolute-zero#27.
 addModDistrib _ _ _ = believe_me ()
