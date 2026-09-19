@@ -73,8 +73,8 @@ Both are FOSS with independent governance (no Big Tech).
 
 ### Package Management
 
-- **Primary**: Guix (guix.scm)
-- **Fallback**: Guix (flake.guix)
+- **Primary**: Guix (`manifest.scm` — `guix shell -m manifest.scm`)
+- **Fallback**: mise (`mise.toml`)
 - **JS deps**: Bun (`package.json` + `bun.lock`). Declare tooling as a devDependency and run `bunx --no-install --bun <tool>` — a bare `bunx <tool>` can fetch an unpinned package and may start Node via its shebang.
 
 ### Security Requirements
