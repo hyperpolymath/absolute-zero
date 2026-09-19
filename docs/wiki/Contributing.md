@@ -4,7 +4,7 @@ Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 -->
 # Contributing
 
-Short summary; the authoritative version is [`CONTRIBUTING.adoc`](../../CONTRIBUTING.adoc) at the root.
+Short summary; the authoritative version is [`../../.github/CONTRIBUTING.md`](../../.github/CONTRIBUTING.md) at the root.
 
 ## Language policy (hard rule)
 
