@@ -49,7 +49,7 @@ that runs the above on every push to main. Tracked in
 | `Verification.md` | Build + CI matrix |
 | `ABI.md` | Idris2 ABI + DivMod lemma surface |
 | `Roadmap.md` | Short; cross-links to ROADMAP.adoc |
-| `Contributing.md` | Short; cross-links to CONTRIBUTING.adoc |
+| `Contributing.md` | Short; cross-links to ../../.github/CONTRIBUTING.md |
 | `Glossary.md` | CNO, =st=, postulate, etc. |
 | `FAQ.md` | Common questions |
 | `Audit-Trail.md` | Resolved + open audit items |

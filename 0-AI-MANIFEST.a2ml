@@ -21,7 +21,7 @@ purpose = """
 root-context  = "docs/CLAUDE.adoc"
 project-state = ".machine_readable/descriptiles/STATE.a2ml"
 roadmap       = "ROADMAP.adoc"
-contributing  = "CONTRIBUTING.adoc"
+contributing  = ".github/CONTRIBUTING.md"
 audit-trail   = "AUDIT.adoc"
 rsr-status    = "RSR_COMPLIANCE.adoc"
 
