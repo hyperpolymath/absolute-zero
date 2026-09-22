@@ -54,7 +54,7 @@ immediate from the semantic `+Closed+` definition.
 
 |237 |`+y_combinator_not_identity+` |§(c) AXIOM |Non-termination claim
 about Y combinator; requires step-indexed semantics or coinduction (same
-justification as Coq `+y_not_cno+`).
+justification as Coq `+y_not_cno+`, `+proofs/coq/lambda/LambdaCNO.v:399+`).
 
 |308 |`+eta_equivalence+` |THEOREM (restricted) |The unrestricted statement
 is *false* (counterexample `+f = LVar 5+`, exactly as Coq found at

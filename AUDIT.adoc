@@ -39,7 +39,7 @@ PR #100 — see Resolved Audit Items below._
  `unrestricted_eta_equivalence_is_false`), and `proofs/lean4/AxiomAudit.lean`
  (run by the new CI job `lean` via `proofs/lean4/check-core.sh`) pins every axiom
  signature and every theorem's `#print axioms` list with `#guard_msgs`.
-|Fix PR for #125 (2026-09-22)
+|PR #165 for #125 (2026-09-22)
 
 |AUDIT-2026-07-06-A
 |2026-07-06
