@@ -1,3 +1,4 @@
+import Lean
 import CNO
 import OND
 import CNOCategory
@@ -19,8 +20,9 @@ regression test on the axiom surface of the six core modules:
   weakened to `True` silently.
 * Section C — the #125 derivations of `False`, verbatim, as NEGATIVE controls:
   each must fail to typecheck with exactly the recorded error.
-* Section D — `#print axioms` for every theorem in the six modules: the closed
-  list of axioms each theorem rests on. `sorryAx` never appears.
+* Section D — pinned `#print axioms` output for named theorems, followed by an
+  environment-wide check of every theorem in the six modules (including private
+  declarations). Only the recorded axioms are allowed; `sorryAx` never appears.
 
 Run with `proofs/lean4/check-core.sh` (CI job `lean` in
 `.github/workflows/proofs.yml`). Whitespace is compared laxly so a change in the
@@ -653,3 +655,40 @@ info: 'LambdaCNO.eta_expanded_id_is_cno' depends on axioms: [propext, Quot.sound
 -/
 #guard_msgs (whitespace := lax) in #print axioms eta_expanded_id_is_cno
 end
+
+open Lean Elab Command
+
+run_cmd do
+  let env ← getEnv
+  let modules : Array Name := #[`CNO, `OND, `CNOCategory, `CNOBridge, `FilesystemCNO, `LambdaCNO]
+  let allowed : Array Name := #[
+    `propext, `Quot.sound,
+    `FilesystemCNO.mkdir, `FilesystemCNO.rmdir, `FilesystemCNO.create,
+    `FilesystemCNO.unlink, `FilesystemCNO.readFile, `FilesystemCNO.writeFile,
+    `FilesystemCNO.chmod, `FilesystemCNO.stat, `FilesystemCNO.rename,
+    `FilesystemCNO.mkdir_rmdir_inverse, `FilesystemCNO.create_unlink_inverse,
+    `FilesystemCNO.read_write_identity, `FilesystemCNO.chmod_identity,
+    `FilesystemCNO.rename_identity, `FilesystemCNO.mkdir_not_identity,
+    `FilesystemCNO.snapshot, `FilesystemCNO.restore,
+    `FilesystemCNO.snapshot_restore_identity, `FilesystemCNO.mkdir_idempotent,
+    `LambdaCNO.y_combinator_not_identity
+  ]
+  let mut checked := 0
+  for moduleName in modules do
+    let some moduleIdx := env.getModuleIdx? moduleName
+      | throwError "axiom audit: missing module {moduleName}"
+    let theorems := env.constants.toList.filterMap fun (name, info) =>
+      if info.isTheorem && env.getModuleIdxFor? name == some moduleIdx then
+        some name
+      else
+        none
+    if theorems.isEmpty then
+      throwError "axiom audit: no theorems found in {moduleName}"
+    for name in theorems.toArray.qsort Name.lt do
+      let axioms ← collectAxioms name
+      for axiomName in axioms do
+        unless allowed.contains axiomName do
+          throwError "axiom audit: {name} depends on unexpected axiom {axiomName}"
+      logInfo m!"axiom audit: {name} depends on {axioms.qsort Name.lt |>.toList}"
+      checked := checked + 1
+  logInfo m!"axiom audit: checked {checked} theorems in {modules.size} modules"

@@ -30,7 +30,9 @@ echo "toolchain: $toolchain"
 elan run "$toolchain" lean --version
 
 out="${LEAN_CORE_OUT:-$here/_out}"
-rm -rf "$out"
+if [ "$out" = "$here/_out" ]; then
+  rm -rf -- "$out"
+fi
 mkdir -p "$out"
 
 # Dependency order: CNOCategory and CNOBridge import CNO. The rest are leaves.
