@@ -49,6 +49,32 @@ inductive FileEntry where
 /-- Filesystem state. `abbrev` so List instances propagate. -/
 abbrev Filesystem : Type := List FileEntry
 
+/-! ## Occupancy predicates
+
+These are the preconditions of the Coq lemmas in
+`proofs/coq/filesystem/FilesystemCNO.v`, mirrored verbatim. The laws below
+hold on the concrete Coq model ONLY under them; stating the laws without
+them let `False` be derived (issue #125). -/
+
+/-- No directory entry at `p`. Precondition of Coq's `mkdir_rmdir_inverse`. -/
+def noDirAt (p : Path) (fs : Filesystem) : Prop :=
+  ∀ e, e ∈ fs → match e with
+    | FileEntry.Directory p' _ _ => p ≠ p'
+    | _ => True
+
+/-- No file entry at `p`. Precondition of Coq's `create_unlink_inverse`. -/
+def noFileAt (p : Path) (fs : Filesystem) : Prop :=
+  ∀ e, e ∈ fs → match e with
+    | FileEntry.File p' _ _ => p ≠ p'
+    | _ => True
+
+/-- No entry of any kind at `p`. Precondition of Coq's `rename_inverse`. -/
+def noEntryAt (p : Path) (fs : Filesystem) : Prop :=
+  ∀ e, e ∈ fs → match e with
+    | FileEntry.File p' _ _ => p ≠ p'
+    | FileEntry.Directory p' _ _ => p ≠ p'
+    | FileEntry.Symlink p' _ _ => p ≠ p'
+
 /-! ## Filesystem Operations -/
 
 /-- Create directory -/
@@ -93,15 +119,20 @@ axiom rename : Path → Path → Filesystem → Filesystem
 
 /-! ## Operation Axioms -/
 
-/-- mkdir followed by rmdir is identity -/
--- AXIOM: mkdir_rmdir_inverse; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
+/-- mkdir followed by rmdir is identity — on a filesystem with no directory
+    at `p`. Without the precondition the law is false (mkdir on an existing
+    directory is a no-op, so rmdir then removes it) and, together with
+    `mkdir_idempotent` and `mkdir_not_identity`, derived `False` (#125). -/
+-- AXIOM: mkdir_rmdir_inverse; POSIX-semantics specification (mirrors Coq Lemma, same precondition); §(c) per docs/proof-debt.md.
 axiom mkdir_rmdir_inverse (p : Path) (fs : Filesystem) :
-  -- Precondition: p doesn't exist
+  noDirAt p fs →
   rmdir p (mkdir p fs) = fs
 
-/-- create followed by unlink is identity -/
--- AXIOM: create_unlink_inverse; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
+/-- create followed by unlink is identity — on a filesystem with no file at
+    `p` (the precondition Coq's `create_unlink_inverse` states). -/
+-- AXIOM: create_unlink_inverse; POSIX-semantics specification (mirrors Coq Lemma, same precondition); §(c) per docs/proof-debt.md.
 axiom create_unlink_inverse (p : Path) (fs : Filesystem) :
+  noFileAt p fs →
   unlink p (create p fs) = fs
 
 /-- read followed by write is identity -/
@@ -121,10 +152,12 @@ axiom chmod_identity (p : Path) (fs : Filesystem) (meta : FileMetadata) :
 axiom rename_identity (p : Path) (fs : Filesystem) :
   rename p p fs = fs
 
-/-- rename A to B followed by rename B to A is identity -/
--- AXIOM: rename_inverse; POSIX-semantics specification (mirrors Coq); §(c) per docs/proof-debt.md.
+/-- rename A to B followed by rename B to A is identity — when `p1 ≠ p2` and
+    nothing lives at `p2` (both preconditions Coq's `rename_inverse` states). -/
+-- AXIOM: rename_inverse; POSIX-semantics specification (mirrors Coq Lemma, same preconditions); §(c) per docs/proof-debt.md.
 axiom rename_inverse (p1 p2 : Path) (fs : Filesystem) :
   p1 ≠ p2 →
+  noEntryAt p2 fs →
   rename p2 p1 (rename p1 p2 fs) = fs
 
 /-! ## Filesystem CNO Definition -/
@@ -150,21 +183,24 @@ theorem fs_nop_is_cno : isFsCNO fs_nop := by
 noncomputable def mkdirRmdirOp (p : Path) : FsOp :=
   fun fs => rmdir p (mkdir p fs)
 
-theorem mkdir_rmdir_is_cno (p : Path) :
-    isFsCNO (mkdirRmdirOp p) := by
-  unfold isFsCNO mkdirRmdirOp
-  intro fs
-  exact mkdir_rmdir_inverse p fs
+/-- mkdir;rmdir is the identity on every filesystem with no directory at `p`
+    (Coq `mkdir_rmdir_is_cno`, same statement). The unconditional
+    `isFsCNO (mkdirRmdirOp p)` is not provable and is false on the Coq model. -/
+theorem mkdir_rmdir_is_cno (p : Path) (fs : Filesystem) (h : noDirAt p fs) :
+    mkdirRmdirOp p fs = fs := by
+  unfold mkdirRmdirOp
+  exact mkdir_rmdir_inverse p fs h
 
 /-- create followed by unlink. `noncomputable` — wraps axioms. -/
 noncomputable def createUnlinkOp (p : Path) : FsOp :=
   fun fs => unlink p (create p fs)
 
-theorem create_unlink_is_cno (p : Path) :
-    isFsCNO (createUnlinkOp p) := by
-  unfold isFsCNO createUnlinkOp
-  intro fs
-  exact create_unlink_inverse p fs
+/-- create;unlink is the identity on every filesystem with no file at `p`
+    (Coq `create_unlink_is_cno`, same statement). -/
+theorem create_unlink_is_cno (p : Path) (fs : Filesystem) (h : noFileAt p fs) :
+    createUnlinkOp p fs = fs := by
+  unfold createUnlinkOp
+  exact create_unlink_inverse p fs h
 
 /-- read followed by write. `noncomputable` — wraps axioms. -/
 noncomputable def readWriteOp (p : Path) : FsOp :=
@@ -229,7 +265,9 @@ theorem fs_cno_composition (op1 op2 : FsOp) :
 
 /-! ## Non-CNO Operations -/
 
-/-- mkdir alone is NOT a CNO -/
+/-- mkdir alone is NOT a CNO. Coq proves this Lemma on its concrete model
+    (`exists "" nil`); over opaque operations it has to be assumed. -/
+-- AXIOM: mkdir_not_identity; mirrors the Coq Lemma (proved on the concrete model); §(c) per docs/proof-debt.md.
 axiom mkdir_not_identity : ∃ (p : Path) (fs : Filesystem), mkdir p fs ≠ fs
 
 theorem mkdir_alone_not_cno :
@@ -256,23 +294,17 @@ theorem valence_reversible_pair_is_cno (op op_inv : FsOp) :
   intro fs
   exact h fs
 
-/-- Example: mkdir/rmdir pair from Valence Shell -/
-example (p : Path) :
-    valenceReversible
-      (fun fs => mkdir p fs)
-      (fun fs => rmdir p fs) := by
-  unfold valenceReversible
-  intro fs
-  exact mkdir_rmdir_inverse p fs
+/-- Example: mkdir/rmdir pair from Valence Shell (Coq `valence_mkdir_rmdir`):
+    reversible on every filesystem with no directory at `p`. -/
+example (p : Path) (fs : Filesystem) (h : noDirAt p fs) :
+    rmdir p (mkdir p fs) = fs :=
+  mkdir_rmdir_inverse p fs h
 
-/-- Example: create/unlink pair from Valence Shell -/
-example (p : Path) :
-    valenceReversible
-      (fun fs => create p fs)
-      (fun fs => unlink p fs) := by
-  unfold valenceReversible
-  intro fs
-  exact create_unlink_inverse p fs
+/-- Example: create/unlink pair from Valence Shell (Coq `valence_create_unlink`):
+    reversible on every filesystem with no file at `p`. -/
+example (p : Path) (fs : Filesystem) (h : noFileAt p fs) :
+    unlink p (create p fs) = fs :=
+  create_unlink_inverse p fs h
 
 /-! ## Snapshot and Restore -/
 
@@ -305,9 +337,28 @@ theorem snapshot_restore_is_cno :
 def isIdempotent (op : FsOp) : Prop :=
   ∀ fs, op (op fs) = op fs
 
-/-- mkdir is idempotent (but not CNO) -/
+/-- mkdir is idempotent (but not CNO). Coq proves this Lemma on its concrete
+    model; over opaque operations it has to be assumed. Consistent with the
+    conditional `mkdir_rmdir_inverse`: `mkdir p fs` has a directory at `p`,
+    so the inverse law does not apply to it. -/
+-- AXIOM: mkdir_idempotent; mirrors the Coq Lemma (proved on the concrete model); §(c) per docs/proof-debt.md.
 axiom mkdir_idempotent (p : Path) :
   isIdempotent (fun fs => mkdir p fs)
+
+/-- The unconditional law `∀ p fs, rmdir p (mkdir p fs) = fs` — the former
+    statement of `mkdir_rmdir_inverse` — is refuted by `mkdir_idempotent` and
+    `mkdir_not_identity` alone: on `mkdir p fs` the second `mkdir` is a no-op,
+    so the law would force `mkdir p fs = fs`. This is the derivation that
+    made issue #125's `False` proof go through; it is now a theorem about the
+    old statement instead of a contradiction in the axioms. -/
+theorem unconditional_mkdir_rmdir_inverse_is_false :
+    ¬ ∀ (p : Path) (fs : Filesystem), rmdir p (mkdir p fs) = fs := by
+  intro law
+  obtain ⟨p, fs, hne⟩ := mkdir_not_identity
+  have h1 : rmdir p (mkdir p (mkdir p fs)) = mkdir p fs := law p (mkdir p fs)
+  have h2 : mkdir p (mkdir p fs) = mkdir p fs := mkdir_idempotent p fs
+  rw [h2, law p fs] at h1
+  exact hne h1.symm
 
 /-- Idempotent does NOT imply CNO.
     Proof: destructure mkdir_not_identity to get a specific (p, fs) where

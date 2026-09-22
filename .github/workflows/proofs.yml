@@ -9,9 +9,15 @@
 # OND), and Z3 (CNO + OND bounded instances). Each is an INDEPENDENT job, so one
 # flaking never blocks the others.
 #
-# The heavy provers (Lean + multi-GB Mathlib, Isabelle ~1.2 GB, Mizar i386 + MML,
-# Idris 2 from source) are NOT run here — they are covered by the local/container
-# gate `proofs/verify-all-provers.sh` (ALL-PROVERS-GREEN). See PROOF-STATUS.adoc.
+# The Mathlib-free Lean core (CNO, OND, CNOCategory, CNOBridge, FilesystemCNO,
+# LambdaCNO) is built here too, with the toolchain pinned in
+# proofs/lean4/lean-toolchain, and proofs/lean4/AxiomAudit.lean pins the
+# signature of every axiom and the axiom list of every theorem (issue #125).
+#
+# The heavy provers (Lean + multi-GB Mathlib for QuantumCNO/StatMech, Isabelle
+# ~1.2 GB, Mizar i386 + MML, Idris 2 from source) are NOT run here — they are
+# covered by the local/container gate `proofs/verify-all-provers.sh`
+# (ALL-PROVERS-GREEN). See PROOF-STATUS.adoc.
 name: Proofs
 
 on:
@@ -94,3 +100,23 @@ jobs:
           sh proofs/z3/verify.sh || true
           z3 proofs/z3/ond/OND_checks.smt2
           echo "✓ Z3: OND bounded instances checked"
+
+  lean:
+    name: Lean — core CNO (6 modules + axiom audit)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Install elan v4.2.4 (sha256-verified) and the pinned toolchain
+        # elan is fetched as a release tarball and checksum-verified rather than
+        # via a third-party action, so the repo's Actions allow-list is not in
+        # play. The toolchain itself comes from proofs/lean4/lean-toolchain.
+        run: |
+          curl -fsSL --retry 3 -o elan.tgz \
+            https://github.com/leanprover/elan/releases/download/v4.2.4/elan-x86_64-unknown-linux-gnu.tar.gz
+          echo "42b94d4244e8353142c456ec0e4ca6528fd898a6c604d4059f494e706e431f63  elan.tgz" | sha256sum -c -
+          tar -xzf elan.tgz
+          ./elan-init -y --no-modify-path --default-toolchain none
+          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
+      - name: Build the six Mathlib-free modules and run the axiom audit
+        run: bash proofs/lean4/check-core.sh

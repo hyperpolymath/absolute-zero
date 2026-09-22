@@ -38,3 +38,10 @@ lean_lib OND
 -- unverified in that environment and must not gate the standard `lake build`.
 -- Build/verify explicitly with `lake build CNOBridge`.
 lean_lib CNOBridge
+
+-- Axiom audit for the Mathlib-free core (issue #125): `#guard_msgs` on every axiom
+-- signature and every theorem's `#print axioms`. Run via `proofs/lean4/check-core.sh`
+-- (the CI `lean` job) — plain `lean`, no Mathlib. Not a default target so a
+-- Mathlib-less `lake build` of the other libs is unaffected; `lake build AxiomAudit`
+-- also works.
+lean_lib AxiomAudit

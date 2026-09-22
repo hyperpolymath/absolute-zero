@@ -81,6 +81,7 @@ htmlcov/
 # Crash recovery artifacts
 ai-cli-crash-capture/
 proofs/lean4/.lake/
+proofs/lean4/_out/
 
 # Coq build outputs
 *.vo

@@ -177,11 +177,13 @@ theorem BetaReduceStar_trans (a b c : LambdaTerm)
 def Closed (t : LambdaTerm) (n : Nat) : Prop :=
   ∀ m s, m ≥ n → subst m s t = t
 
-/-- Substitution on closed terms is identity.
-    This is a standard metatheoretic property of lambda calculus:
-    replacing a variable that doesn't occur free has no effect. -/
-axiom subst_closed_term (t s : LambdaTerm) (n : Nat) :
-  Closed t 0 → subst n s t = t
+/-- Substitution on closed terms is identity. Under this file's semantic
+    `Closed` (substitution-invariance at every level ≥ n) this is immediate;
+    Coq proves the structural `closed_at` form as `subst_closed_at`.
+    Formerly an axiom (#125). -/
+theorem subst_closed_term (t s : LambdaTerm) (n : Nat)
+    (h : Closed t 0) : subst n s t = t :=
+  h n s (Nat.zero_le n)
 
 /-! ## Composition Theorem -/
 
@@ -257,12 +259,59 @@ example : BetaReduceStar (LApp church_zero church_zero) (LAbs (LVar 0)) := by
 
 /-! ## Eta Equivalence -/
 
-/-- Eta reduction: (λx. f x) ≡ f -/
--- AXIOM: eta_equivalence; η-equivalence is not derivable under β-only reduction —
---   requires an extra reduction rule or extensional equality.
---   §(c) NECESSARY AXIOM per docs/proof-debt.md (Lean Lambda triage 2026-05-27).
-axiom eta_equivalence (f : LambdaTerm) :
-  BetaReduceStar (LAbs (LApp f (LVar 0))) f
+/-- The unrestricted claim `BetaReduceStar (LAbs (LApp f (LVar 0))) f` for
+    ANY `f` is FALSE under this file's `BetaReduce`/`subst`: at `f = LVar 5`
+    the term `LAbs (LApp (LVar 5) (LVar 0))` contains no redex, so it is its
+    own unique normal form and reduces only to itself. The former
+    `axiom eta_equivalence` stated exactly that claim and therefore derived
+    `False` (#125). Mirrors Coq's `eta_general_claim_is_false`. -/
+theorem eta_general_claim_is_false :
+    ¬ BetaReduceStar (LAbs (LApp (LVar 5) (LVar 0))) (LVar 5) := by
+  intro h
+  cases h
+  rename_i t2 hs hr
+  cases hs
+  rename_i body' hb
+  cases hb <;> rename_i hv <;> cases hv
+
+/-- The former statement of `eta_equivalence` — for ANY `f` — is refuted. -/
+theorem unrestricted_eta_equivalence_is_false :
+    ¬ ∀ f : LambdaTerm, BetaReduceStar (LAbs (LApp f (LVar 0))) f :=
+  fun h => eta_general_claim_is_false (h (LVar 5))
+
+/-- `true` when the term contains no abstraction (a "flat" body).
+    Mirrors Coq's `no_lambda`. -/
+def noLambda : LambdaTerm → Bool
+  | LVar _ => true
+  | LApp t1 t2 => noLambda t1 && noLambda t2
+  | LAbs _ => false
+
+/-- Substituting `LVar n` for variable `n` in an abstraction-free body is the
+    identity (Coq `subst_no_lambda_self`). -/
+theorem subst_noLambda_self (body : LambdaTerm) (n : Nat)
+    (h : noLambda body = true) : subst n (LVar n) body = body := by
+  induction body generalizing n with
+  | LVar m =>
+    by_cases hnm : n = m
+    · subst hnm; simp [subst]
+    · simp [subst, hnm]
+  | LApp t1 t2 ih1 ih2 =>
+    simp only [noLambda, Bool.and_eq_true] at h
+    simp only [subst, ih1 n h.1, ih2 n h.2]
+  | LAbs _ _ =>
+    simp [noLambda] at h
+
+/-- Restricted eta-equivalence: `(λx. (λy.body) x) →* (λy.body)` for every
+    abstraction-free `body`. Under this file's non-shifting `subst` this is
+    the honest, provable core of eta; the unrestricted form is refuted above.
+    Mirrors Coq's `eta_equivalence` (Theorem, Qed). -/
+theorem eta_equivalence (body : LambdaTerm) (h : noLambda body = true) :
+    BetaReduceStar (LAbs (LApp (LAbs body) (LVar 0))) (LAbs body) := by
+  apply BetaReduceStar.beta_step
+  · apply BetaReduce.beta_abs
+    apply BetaReduce.beta_app
+  · rw [subst_noLambda_self body 0 h]
+    apply BetaReduceStar.beta_refl
 
 /-- Eta-expanded identity is a CNO: for arguments in normal form,
     it terminates and acts as identity -/

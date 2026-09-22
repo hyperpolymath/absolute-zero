@@ -25,6 +25,22 @@ PR #100 — see Resolved Audit Items below._
 |===
 |ID |Date resolved |Description |Resolution commit
 
+|AUDIT-2026-09-22-A
+|2026-09-22
+|*Unsoundness finding — Lean mirror (issue #125).* `proofs/lean4/FilesystemCNO.lean`
+ stated the inverse laws `mkdir_rmdir_inverse`, `create_unlink_inverse` and
+ `rename_inverse` WITHOUT the occupancy preconditions of the Coq lemmas they
+ mirror; together with `mkdir_idempotent` and `mkdir_not_identity` the axioms
+ proved `False`. `proofs/lean4/LambdaCNO.lean` still carried the unrestricted
+ `eta_equivalence` axiom that AUDIT-2026-07-06-A had already found false in Coq.
+ Fix: the preconditions were added verbatim (`noDirAt`, `noFileAt`, `noEntryAt`),
+ `eta_equivalence` became the proved `noLambda`-guarded theorem, both old
+ statements are refuted in-file (`unconditional_mkdir_rmdir_inverse_is_false`,
+ `unrestricted_eta_equivalence_is_false`), and `proofs/lean4/AxiomAudit.lean`
+ (run by the new CI job `lean` via `proofs/lean4/check-core.sh`) pins every axiom
+ signature and every theorem's `#print axioms` list with `#guard_msgs`.
+|Fix PR for #125 (2026-09-22)
+
 |AUDIT-2026-07-06-A
 |2026-07-06
 |*Unsoundness finding — 3 axioms.* During the two-pillar discharge, three

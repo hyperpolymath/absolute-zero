@@ -160,6 +160,27 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
 * Toolchain `leanprover/lean4:v4.16.0` with Mathlib `@ v4.16.0`; `lake exe cache get`
   + `lake build` → **build completed successfully**. Covers the CNO libraries and the
   new `OND` library (`proofs/lean4/OND.lean`, core-Lean only, zero `sorry`).
+* **Mathlib-free core is CI-gated (2026-09-22):** `proofs/lean4/check-core.sh` (job
+  `lean` in `.github/workflows/proofs.yml`; toolchain from `lean-toolchain`, elan
+  fetched as a checksum-verified tarball, zero third-party actions) compiles `CNO`,
+  `OND`, `CNOCategory`, `CNOBridge`, `FilesystemCNO`, `LambdaCNO` with plain `lean`
+  and runs `proofs/lean4/AxiomAudit.lean`: 96 `#guard_msgs` pinning every axiom
+  signature, the three occupancy predicates in full, the #125 derivations as
+  negative controls, and `#print axioms` for every theorem (no `sorryAx` anywhere).
+  `just verify-lean-core` runs the same script locally.
+* **Issue #125 fixed — the Lean axioms no longer derive `False`:**
+  `FilesystemCNO.lean` stated `mkdir_rmdir_inverse`, `create_unlink_inverse` and
+  `rename_inverse` without the occupancy preconditions of the Coq lemmas they mirror;
+  with `mkdir_idempotent` and `mkdir_not_identity` that proved `False`. They now
+  carry `noDirAt` / `noFileAt` / `noEntryAt`, mirrored verbatim from
+  `proofs/coq/filesystem/FilesystemCNO.v`, and the unconditional statement is refuted
+  in-file (`unconditional_mkdir_rmdir_inverse_is_false`). `LambdaCNO.lean` carried the
+  unrestricted `eta_equivalence` axiom (false as stated, the same `LVar 5`
+  counterexample the Coq side documents above); it is now the proved
+  `noLambda`-guarded theorem, `subst_closed_term` is proved, and the unrestricted
+  claim is refuted (`unrestricted_eta_equivalence_is_false`). Lean axiom count:
+  `FilesystemCNO` 21 → 21 (same names, three strengthened), `LambdaCNO` 3 → 1
+  (`y_combinator_not_identity`, the Lean twin of Coq's class-A `y_not_cno`).
 
 == Z3 — VERIFIED (this environment)
 

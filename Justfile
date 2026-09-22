@@ -99,6 +99,11 @@ verify-lean:
     @echo "Verifying Lean 4 proofs..."
     cd proofs/lean4 && lake build
 
+# Verify the Mathlib-free Lean core + axiom audit (what the CI `lean` job runs; no Mathlib needed)
+verify-lean-core:
+    @echo "Verifying Lean 4 core (6 modules + AxiomAudit.lean)..."
+    bash proofs/lean4/check-core.sh
+
 # Verify Agda proofs
 verify-agda: build-agda
     @echo "✓ Agda proofs verified"
