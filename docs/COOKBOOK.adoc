@@ -530,9 +530,13 @@ Valence Shell operations can be proven as CNOs:
 
 [source,coq]
 ----
+(* Precondition: no directory already at [path] — without it the law is false
+   (repeat mkdir is idempotent), see proofs/coq/filesystem/FilesystemCNO.v and
+   absolute-zero#125. *)
 Theorem mkdir_rmdir_is_cno :
-  forall (path : Path),
-    mkdir path ;; rmdir path ≡ Nop.
+  forall (path : Path) (fs : Filesystem),
+    no_dir_at path fs ->
+    rmdir path (mkdir path fs) = fs.
 ----
 
 == Troubleshooting
