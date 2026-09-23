@@ -18,18 +18,23 @@ SCRATCH="$(mktemp -d "${TMPDIR:-/tmp}/az-gate-selftest.XXXXXX")"
 trap 'rm -rf "$SCRATCH"' EXIT
 STUB="$SCRATCH/bin"; mkdir -p "$STUB" "$SCRATCH/home"
 cases=0; fails=0
+# pass <label>: record and report a successful test case.
 pass()  { cases=$((cases+1)); echo "PASS: $1"; }
+# flunk <label>: record and report a failed test case.
 flunk() { cases=$((cases+1)); fails=$((fails+1)); echo "FAIL: $1"; }
 
 for s in "$GATE" "$Z3CHECK"; do bash -n "$s" || { echo "FAIL: $s does not parse"; exit 1; }; done
 
+# mkstub <tool> [body]: create an executable stub, defaulting to success.
 mkstub() { printf '#!/bin/sh\n%s\n' "${2:-exit 0}" > "$STUB/$1"; chmod +x "$STUB/$1"; }
 for t in coqc coq_makefile make agda lake isabelle accom verifier idris2; do mkstub "$t"; done
+# z3_stub <verdicts>: replace the z3 stub with the supplied solver output.
 z3_stub() { mkstub z3 "case \"\${1:-}\" in --version) echo \"Z3 version stub\";; *) printf '$1';; esac"; }
 z3_stub 'sat\nunsat\nsat\n'
 for s in "$STUB"/*; do sh -n "$s" || { echo "FAIL: stub $s does not parse"; exit 1; }; done
 
 OUT=""; RC=0
+# run_gate: capture the gate's output and exit status with the stub toolchain.
 run_gate() { OUT="$(HOME="$SCRATCH/home" PATH="$STUB:/usr/bin:/bin" MIZFILES="${MIZ-$SCRATCH/miz}" bash "$GATE" 2>&1)"; RC=$?; }
 # expect <label> <exit-wanted> <must-contain> <must-not-contain>
 expect() {
