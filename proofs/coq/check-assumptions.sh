@@ -23,7 +23,10 @@ while read -r flag dir ns; do
 done < "$HERE/_CoqProject"
 [ "${#RFLAGS[@]}" -gt 0 ] || { echo "ASSUMPTIONS-CHECK FAILED: no -R roots in _CoqProject"; exit 1; }
 
-# check_file <file.v>: 0 iff every Print Assumptions line is closed.
+# check_file <file.v>: compile an audit with at least one Print Assumptions command.
+# Print the Coq output and remove generated artefacts beside the audit file.
+# Succeed only if compilation succeeds, no axiom blocks appear, and the number
+# of closed results matches the number of Print Assumptions commands.
 check_file() {
   local file=$1 base dir out rc expected closed axioms
   base="$(basename "${file%.v}")"; dir="$(dirname "$file")"
