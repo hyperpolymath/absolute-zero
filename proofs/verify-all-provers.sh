@@ -17,8 +17,13 @@ say() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; }
 # ---- Coq (both pillars) --------------------------------------------------
 say "Coq — CNO + OND"
 if command -v coqc >/dev/null; then
-  ( cd "$HERE/coq" && coq_makefile -f _CoqProject -o Makefile.all >/dev/null 2>&1 \
-      && make -f Makefile.all -j"$(nproc)" ) || { echo "COQ FAILED"; fail=1; }
+  if ( cd "$HERE/coq" && coq_makefile -f _CoqProject -o Makefile.all >/dev/null 2>&1 \
+      && make -f Makefile.all -j"$(nproc)" ); then
+    # The build alone is not the gate: the 17 named theorems must be closed under
+    # the global context, and the control must prove the audit can say no.
+    bash "$HERE/coq/check-assumptions.sh" || { echo "COQ ASSUMPTIONS FAILED"; fail=1; }
+    bash "$HERE/coq/check-assumptions.sh" --control || { echo "COQ ASSUMPTIONS-CONTROL FAILED"; fail=1; }
+  else echo "COQ FAILED"; fail=1; fi
 else echo "coqc missing"; fail=1; fi
 
 # ---- Agda (CNO + OND) ----------------------------------------------------

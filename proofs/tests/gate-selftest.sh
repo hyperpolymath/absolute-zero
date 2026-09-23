@@ -31,6 +31,26 @@ for t in coqc coq_makefile make agda lake isabelle accom verifier idris2; do mks
 # z3_stub <verdicts>: replace the z3 stub with the supplied solver output.
 z3_stub() { mkstub z3 "case \"\${1:-}\" in --version) echo \"Z3 version stub\";; *) printf '$1';; esac"; }
 z3_stub 'sat\nunsat\nsat\n'
+# coqc must answer `Print Assumptions` faithfully, or the audit inside the gate
+# (proofs/coq/check-assumptions.sh) cannot be exercised: one "Closed under the
+# global context" per Print Assumptions line, except the control's target
+# (landauer_limit_positive), which rests on the tagged axiom kB_positive.
+# COQC_STUB_MODE=axioms  -> every theorem reports an axiom (case O)
+# COQC_STUB_MODE=closed  -> every theorem reports closed, control included (case P)
+cat > "$STUB/coqc" <<'COQC'
+#!/bin/sh
+f=""; for a in "$@"; do case "$a" in *.v) f=$a;; esac; done
+[ -n "$f" ] && [ -r "$f" ] || exit 0
+grep '^Print Assumptions' "$f" | while IFS= read -r line; do
+  id=${line#Print Assumptions }; id=${id%.}
+  case "${COQC_STUB_MODE:-}:$id" in
+    axioms:*|:*landauer_limit_positive*) printf 'Axioms:\nPhysicsConstants.kB_positive : (0 < kB)%%R\n';;
+    *) echo "Closed under the global context";;
+  esac
+done
+exit 0
+COQC
+chmod +x "$STUB/coqc"
 for s in "$STUB"/*; do sh -n "$s" || { echo "FAIL: stub $s does not parse"; exit 1; }; done
 
 OUT=""; RC=0
@@ -69,6 +89,13 @@ expect "G z3 unknown verdict -> fail" 1 "verdicts differ from annotations" "ALL-
 z3_stub 'sat\nunsat\nsat\n'
 # H. a prover that runs but fails must FAIL
 mkstub idris2 'exit 3'; run_gate; expect "H idris2 exit 3 -> fail" 1 "IDRIS FAILED" "ALL-PROVERS-GREEN"; mkstub idris2
+# O. Coq builds but a theorem rests on an axiom: the audit must turn the gate red
+#    (pre-2026-09-23 the canonical gate never ran the audit, so this was green)
+export COQC_STUB_MODE=axioms; run_gate; unset COQC_STUB_MODE
+expect "O coq audit sees Axioms: -> fail" 1 "COQ ASSUMPTIONS FAILED" "ALL-PROVERS-GREEN"
+# P. an audit that calls EVERYTHING closed, the control's target included, must FAIL
+export COQC_STUB_MODE=closed; run_gate; unset COQC_STUB_MODE
+expect "P coq control passes wrongly -> fail" 1 "COQ ASSUMPTIONS-CONTROL FAILED" "ALL-PROVERS-GREEN"
 # I. after the mutants, the positive control is green again (no state leaked)
 run_gate; expect "I positive control repeats green" 0 "ALL-PROVERS-GREEN" "SOME PROVERS FAILED"
 
