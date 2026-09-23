@@ -1,3 +1,5 @@
+{-# OPTIONS --safe --without-K #-}
+
 -- Concrete Echo/CNO instantiation against CNO.Program and CNO.eval.
 --
 -- Primary bridge: use CNO.state-eq directly as the relation in EchoRel.

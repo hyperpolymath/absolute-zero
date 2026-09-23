@@ -39,10 +39,10 @@ build-lean:
     @echo "Building Lean 4 proofs..."
     cd proofs/lean4 && lake build
 
-# Build Agda proofs (CNO + OND, --safe --without-K)
+# Build Agda proofs (CNO + OND + EchoBridge, 4 modules, --safe --without-K)
 build-agda:
     @echo "Building Agda proofs..."
-    cd proofs/agda && agda --safe --without-K CNO.agda && agda --safe --without-K OND.agda
+    cd proofs/agda && agda --safe --without-K CNO.agda && agda --safe --without-K OND.agda && agda --safe --without-K EchoBridgeScaffold.agda && agda --safe --without-K EchoBridgeCNO.agda
 
 # Build Isabelle/HOL proofs (CNO + OND session)
 build-isabelle:
@@ -78,21 +78,21 @@ verify:
     @proofs/verify-all-provers.sh
 
 # Verify all proofs (per-prover targets; `just verify` is the canonical one-shot)
-verify-all: verify-coq verify-z3 verify-lean verify-agda verify-isabelle verify-mizar verify-idris
+verify-all: verify-coq verify-z3 verify-lean verify-agda verify-isabelle verify-mizar verify-idris verify-gate-selftest
     @echo "✓ All verifications complete"
 
-# Verify Coq proofs
+# Verify Coq proofs: build, then the Print Assumptions gate and its control
 verify-coq: build-coq
-    @echo "✓ Coq proofs verified"
+    bash proofs/coq/check-assumptions.sh
+    bash proofs/coq/check-assumptions.sh --control
+    @echo "✓ Coq proofs verified (17 named theorems closed under the global context)"
 
-# Verify Z3 SMT properties (CNO checks + OND bounded instances)
+# Verify Z3 SMT properties: every (check-sat) verdict must match its `; expect` annotation (no skip-as-pass)
 verify-z3:
     @echo "Verifying Z3 SMT properties..."
-    @if command -v z3 >/dev/null 2>&1; then \
-        sh proofs/z3/verify.sh && z3 proofs/z3/ond/OND_checks.smt2 && echo "✓ Z3 verification complete"; \
-    else \
-        echo "⚠ z3 not found, skipping Z3 verification"; \
-    fi
+    @command -v z3 >/dev/null 2>&1 || { echo "✗ z3 not found (required, not skipped)"; exit 1; }
+    bash proofs/z3/verify.sh
+    @echo "✓ Z3 verification complete"
 
 # Verify Lean 4 proofs
 verify-lean:
@@ -115,6 +115,10 @@ verify-isabelle: build-isabelle
 # Verify the Mizar CNO article
 verify-mizar: build-mizar
     @echo "✓ Mizar proofs verified"
+
+# Self-test the prover gate: stubbed toolchains + z3 mutants must turn it red
+verify-gate-selftest:
+    bash proofs/tests/gate-selftest.sh
 
 # Verify the Idris 2 ABI package
 verify-idris: build-idris
