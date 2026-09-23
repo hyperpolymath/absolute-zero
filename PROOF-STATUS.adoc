@@ -17,6 +17,13 @@ All six provers are installed and were *reproduced in this environment*. A singl
 gate, `proofs/verify-all-provers.sh`, builds every prover and prints
 `ALL-PROVERS-GREEN`: *Coq, Agda, Lean 4 (+Mathlib), Z3, Isabelle/HOL, Mizar*,
 plus the *Idris 2* ABI. Both the CNO and OND pillars are covered.
+An absent prover is a *failure*, never a skip (since 2026-09-23 — before that Isabelle
+and Mizar printed "skipped" and the gate could say GREEN on four of six), and Z3
+verdicts are compared with the `; expect sat|unsat` annotation on every `(check-sat)`
+(`proofs/z3/verify.sh`). Since 2026-09-23 the gate also runs the Coq `Print Assumptions` audit and
+its `--control` after the build, so a theorem resting on an axiom, or an audit that can no
+longer say no, turns it red. `proofs/tests/gate-selftest.sh` proves both gates turn red for
+each absent or failing prover, for each verdict mutant and for both audit mutants (16 cases, run in CI).
 ====
 
 == Coq — VERIFIED (this environment)
@@ -82,9 +89,15 @@ of these, each documented in-file with its blocker:
   `nat -> C` single-qubit model; faithful discharge is a separate formalisation.
 
 These are the analogue of the OND-6 research fork: openly labelled, not silently
-assumed. `Print Assumptions` on every headline theorem shows only Coq stdlib axioms
-(`ClassicalDedekindReals.*`, `functional_extensionality*`) plus, where relevant, the
-explicitly-tagged postulate above — never a hidden project axiom.
+assumed. `Print Assumptions` on each of the 17 theorems this document names in backticks
+prints `Closed under the global context` — no stdlib axiom and no project axiom (measured
+2026-09-23, Coq 8.18). That is CI-gated: `proofs/coq/audit/Assumptions.v` lists the 17 and
+`proofs/coq/check-assumptions.sh` (Coq job of `proofs.yml`, and the canonical
+`proofs/verify-all-provers.sh` gate since 2026-09-23) fails on any `Axioms:` block or a
+missing line; its `--control` mode proves the gate bites by requiring that
+`landauer_limit_positive`, which rests on `kB_positive`, is rejected. The wider tree is not
+closed — 109 of 182 top-level theorems are; the other 73 rest on stdlib classical axioms
+and/or the tagged parameters — see #171 for the census and the tag-grammar work.
 
 === Reversibility <-> CNO bridge (2026-07-16, the theorem MAA cites)
 
@@ -151,8 +164,11 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
 
 == Agda — VERIFIED (this environment)
 
-* `agda` 2.6.3, `--safe --without-K`: `CNO.agda`, `OND.agda`, `EchoBridgeCNO.agda`
-  type-check. The EchoBridge modules take **funext as an explicit hypothesis**
+* `agda` 2.6.3 (CI) / 2.6.4.3 (local), `--safe --without-K`: `CNO.agda`, `OND.agda`,
+  `EchoBridgeScaffold.agda`, `EchoBridgeCNO.agda` type-check; every file carries the
+  `{-# OPTIONS --safe --without-K #-}` pragma and CI (`proofs.yml`) checks all four. Until
+  2026-09-23 CI checked only the first two and `EchoBridgeCNO.agda` had no pragma of its
+  own. The EchoBridge modules take **funext as an explicit hypothesis**
   (not a global `postulate`); `OND.agda` uses zero postulates.
 
 == Lean 4 — VERIFIED (this environment)
@@ -225,3 +241,7 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
 * Remaining axioms are exactly: (a) tagged physical postulates (the honest metal
   boundary), and (b) the class-A items listed above (true, provable in principle,
   openly labelled). No headline theorem depends on a hidden project axiom.
+* Measured 2026-09-23: the 17 named theorems are closed under the global context
+  (CI-gated); of all 182 top-level theorems, 109 are closed and 73 rest on stdlib
+  classical axioms and/or the tagged parameters. The "exactly" in the bullet above is
+  not yet machine-checked — the tag grammar is unified under #171.

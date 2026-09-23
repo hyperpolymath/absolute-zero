@@ -56,6 +56,11 @@ jobs:
           coq_makefile -f _CoqProject -o Makefile.all
           make -f Makefile.all -j"$(nproc)"
           echo "✓ Coq: 14/14 theories compiled (CNO + OND)"
+      - name: Print Assumptions gate (17 named theorems closed) + control
+        working-directory: proofs/coq
+        run: |
+          bash check-assumptions.sh
+          bash check-assumptions.sh --control
 
   agda:
     name: Agda — CNO + OND
@@ -79,13 +84,15 @@ jobs:
           mkdir -p "$HOME/.agda"
           echo "$HOME/agda-stdlib/standard-library.agda-lib" > "$HOME/.agda/libraries"
           echo "standard-library" > "$HOME/.agda/defaults"
-      - name: Type-check CNO + OND (--safe --without-K)
+      - name: Type-check CNO + OND + EchoBridge (4 modules, --safe --without-K)
         working-directory: proofs/agda
         run: |
           agda --version
           agda --safe --without-K CNO.agda
           agda --safe --without-K OND.agda
-          echo "✓ Agda: CNO + OND type-check"
+          agda --safe --without-K EchoBridgeScaffold.agda
+          agda --safe --without-K EchoBridgeCNO.agda
+          echo "✓ Agda: CNO + OND + EchoBridgeScaffold + EchoBridgeCNO type-check"
 
   z3:
     name: Z3 — CNO + OND bounded checks
@@ -97,9 +104,10 @@ jobs:
       - name: Run Z3 checks
         run: |
           z3 --version
-          sh proofs/z3/verify.sh || true
-          z3 proofs/z3/ond/OND_checks.smt2
-          echo "✓ Z3: OND bounded instances checked"
+          bash proofs/z3/verify.sh
+          echo "✓ Z3: every (check-sat) verdict matched its ; expect annotation"
+      - name: Gate self-test (stub provers + z3 mutants must turn the gate red)
+        run: bash proofs/tests/gate-selftest.sh
 
   lean:
     name: Lean — core CNO (6 modules + axiom audit)
