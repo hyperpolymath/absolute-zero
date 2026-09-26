@@ -36,5 +36,5 @@ the bridge provides two layers:
 == Integration plan
 
 1. Add reciprocal consistency checks against:
-* `echo-types` (`proofs/agda/EchoCNOBridge.agda`)
+* `echo-types` (`proofs/agda/EchoBridgeCNO.agda`)
 * this repository's Coq/Lean CNO statements.

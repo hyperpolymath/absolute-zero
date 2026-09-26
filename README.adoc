@@ -140,7 +140,7 @@ Mirrored
 --
 Agda 2.6
 Dependent types
-Phase 1 complete
+CNO + OND + EchoBridge (`EchoBridgeCNO.agda`, `--safe --without-K`)
 Mirrored
 --
 
@@ -264,11 +264,11 @@ just build-coq just verify-agda —-
 
 == Documentation
 
-* link:EXPLAINME.adoc[EXPLAINME] — claim-by-claim receipts and known
-gaps
-* link:Glossary.adoc[Glossary] — terminology reference
+* link:EXPLAINME.adoc[EXPLAINME] — claim-by-claim receipts and known gaps
+* link:GLOSSARY.adoc[GLOSSARY] — terminology reference
 * `+docs/TWO-PILLARS.adoc+` — narrative description of CNO and OND
 * `+docs/OND-ROADMAP.adoc+` — prioritised OND obligations
+* `+docs/ECOSYSTEM-CONNECTIONS.adoc+` — downstream applications (JanusKey, Echo Types, Typell, Robodog, Robot Vacuum)
 * `+PROOF-STATUS.adoc+` — per-prover verification status
 
 == License

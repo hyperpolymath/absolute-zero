@@ -24,6 +24,7 @@ Open Scope R_scope.
    a mathematical object derivable from other definitions — it is an empirical
    input to the theory. Left as an opaque [Parameter] (its numeric value is
    never used, only its positivity). *)
+(* AXIOM: [METAL-BOUNDARY] Boltzmann constant kB (SI-fixed empirical constant of nature). *)
 Parameter kB : R.
 
 (* METAL-BOUNDARY AXIOM (kept): kB > 0. The positivity of the Boltzmann
@@ -32,7 +33,7 @@ Parameter kB : R.
    for a measured constant. This is a legitimate physical postulate.
    Consolidated from QuantumCNO.v:31, StatMech.v:25,
    LandauerDerivation.v:28 (Follow-up 1 of docs/proof-debt-triage.md). *)
-(* AXIOM: empirical positivity of the Boltzmann constant. *)
+(* AXIOM: [METAL-BOUNDARY] empirical positivity of the Boltzmann constant. *)
 Axiom kB_positive : kB > 0.
 
 (** ** Temperature *)
@@ -41,6 +42,7 @@ Axiom kB_positive : kB > 0.
 (* METAL-BOUNDARY AXIOM (kept): [temperature] is the absolute (Kelvin)
    temperature at which the process runs — an empirical physical parameter of
    the scenario, not a derivable mathematical constant. Opaque [Parameter]. *)
+(* AXIOM: [METAL-BOUNDARY] absolute temperature parameter (Kelvin scale). *)
 Parameter temperature : R.
 
 (* METAL-BOUNDARY AXIOM (kept): temperature > 0. Absolute temperature is
@@ -49,5 +51,5 @@ Parameter temperature : R.
    theorem. Kept as a physical postulate on the opaque [temperature] parameter.
    Consolidated from QuantumCNO.v:35, StatMech.v:30,
    LandauerDerivation.v:32 (Follow-up 1 of docs/proof-debt-triage.md). *)
-(* AXIOM: physical precondition that absolute temperature is positive. *)
+(* AXIOM: [METAL-BOUNDARY] physical precondition that absolute temperature is positive. *)
 Axiom temperature_positive : temperature > 0.

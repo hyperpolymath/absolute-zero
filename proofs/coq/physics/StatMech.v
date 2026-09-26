@@ -53,6 +53,7 @@ Open Scope R_scope.
    This axiom is UNUSED downstream. BLOCKER: cannot discharge the current
    (false) statement; recommend replacing it with the correct Gibbs bound, whose
    proof then needs a concrete [shannon_entropy] and finite-support machinery. *)
+(* AXIOM: [CLASS-A] maximum entropy bound for uniform distribution pending finite support machinery. *)
 Axiom shannon_entropy_maximum :
   forall (P : StateDistribution) (states : list ProgramState),
     (forall s1 s2, In s1 states -> In s2 states -> P s1 = P s2) ->
@@ -110,6 +111,7 @@ Qed.
    (heat released to the environment, in Joules) attached to a process taking one
    distribution to another. It is an opaque [Parameter] representing a measured
    physical quantity, not a derivable mathematical function. *)
+(* AXIOM: [METAL-BOUNDARY] physical observable of heat released by computational transition (Joules). *)
 Parameter energy_dissipated_phys : StateDistribution -> StateDistribution -> R.
 
 (* METAL-BOUNDARY AXIOM (kept): Landauer's principle (1961) is an EMPIRICAL
@@ -118,6 +120,7 @@ Parameter energy_dissipated_phys : StateDistribution -> StateDistribution -> R.
    bound imposed by the second law on physical realizations of computation.
    Correctly kept as a physical postulate (the module comment above already
    states "This is a PHYSICAL LAW, not a mathematical theorem"). *)
+(* AXIOM: [METAL-BOUNDARY] Landauer 1961 empirical thermodynamic lower bound on information erasure. *)
 Axiom landauer_principle :
   forall (P_initial P_final : StateDistribution),
     let ΔS := shannon_entropy P_final - shannon_entropy P_initial in
@@ -224,6 +227,7 @@ Qed.
    "zero entropy change ⇒ zero dissipation" is itself an additional physical
    postulate (thermodynamic reversibility), so it is honestly kept as a
    metal-boundary axiom rather than fake-derived. *)
+(* AXIOM: [METAL-BOUNDARY] thermodynamic reversibility postulate (zero entropy change implies zero dissipation). *)
 Axiom reversible_zero_dissipation :
   forall P_initial P_final : StateDistribution,
     shannon_entropy P_initial = shannon_entropy P_final ->

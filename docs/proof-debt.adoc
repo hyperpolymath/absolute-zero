@@ -67,91 +67,17 @@ guard. The axiom is gone.
 The two §(c) entries are annotated inline with `+-- AXIOM:+` leading
 comments. The §(d) entry below has an owner + deadline.
 
-=== Phase 2c triage — Lean Filesystem cluster (2026-05-27)
+=== Phase 2c triage — Lean Filesystem cluster (2026-05-27, DISCHARGED 2026-09-26)
 
-Second Lean cluster: `+proofs/lean4/FilesystemCNO.lean+` (21 axioms).
-
-==== POSIX primitive operations (§(c) AXIOM — opaque ops, 10)
-
-[width="99%",cols=">14%,26%,28%,32%",options="header",]
-|===
-|Line |Identifier |Disposition |Justification
-|56 |`+mkdir+` |§(c) AXIOM |Opaque POSIX primitive — no executable body
-in the model.
-
-|60 |`+rmdir+` |§(c) AXIOM |Opaque POSIX primitive.
-
-|64 |`+create+` |§(c) AXIOM |Opaque POSIX primitive.
-
-|68 |`+unlink+` |§(c) AXIOM |Opaque POSIX primitive.
-
-|72 |`+readFile+` |§(c) AXIOM |Opaque POSIX primitive.
-
-|76 |`+writeFile+` |§(c) AXIOM |Opaque POSIX primitive.
-
-|80 |`+stat+` |§(c) AXIOM |Opaque POSIX primitive.
-
-|84 |`+chmod+` |§(c) AXIOM |Opaque POSIX primitive.
-
-|88 |`+chown+` |§(c) AXIOM |Opaque POSIX primitive.
-
-|92 |`+rename+` |§(c) AXIOM |Opaque POSIX primitive.
-|===
-
-==== POSIX semantics specifications (§(c) AXIOM — mirror Coq, 6)
-
-
-*2026-09-22 (issue #125):* the three `+_inverse+` laws had been transcribed
-*without* the occupancy preconditions of the Coq lemmas they mirror; together
-with `+mkdir_idempotent+` and `+mkdir_not_identity+` the axioms proved
-`+False+`. They now carry `+noDirAt+` / `+noFileAt+` / `+noEntryAt+`
-(`+FilesystemCNO.lean:60–77+`, verbatim from `+FilesystemCNO.v+`), and
-`+proofs/lean4/AxiomAudit.lean+` (CI job `+lean+`) pins every signature.
-
-[cols=">,,",options="header",]
-|===
-|Line |Identifier |Disposition
-|127 |`+mkdir_rmdir_inverse+` |§(c) AXIOM (mirrors Coq, *with* its precondition `+noDirAt p fs+` — #125)
-|134 |`+create_unlink_inverse+` |§(c) AXIOM (mirrors Coq, *with* its precondition `+noFileAt p fs+` — #125)
-|140 |`+read_write_identity+` |§(c) AXIOM (mirrors Coq)
-|146 |`+chmod_identity+` |§(c) AXIOM (mirrors Coq)
-|152 |`+rename_identity+` |§(c) AXIOM (mirrors Coq)
-|158 |`+rename_inverse+` |§(c) AXIOM (mirrors Coq, *with* its preconditions `+p1 ≠ p2+` and `+noEntryAt p2 fs+` — #125)
-|===
-
-==== Snapshot primitives (§(c) AXIOM — opaque ops, 2)
-
-[cols=">,,",options="header",]
-|===
-|Line |Identifier |Disposition
-|281 |`+snapshot+` |§(c) AXIOM (opaque snapshot primitive)
-|285 |`+restore+` |§(c) AXIOM (opaque restore primitive)
-|===
-
-==== Discharge candidates (§(d) DEBT — 3)
-
-These claim provable existence / equality facts that should follow from
-the §(c) primitives once the model is concretely defined. They need a
-discharge PR — see §(d) DEBT below.
-
-[width="100%",cols=">17%,32%,35%,16%",options="header",]
-|===
-|Line |Identifier |Disposition |Plan
-|271 |`+mkdir_not_identity+` |§(d) DEBT |Existence proof; exhibit one
-concrete `+fs+` lacking the path.
-
-|320 |`+snapshot_restore_identity+` |§(d) DEBT |Composite theorem;
-derivable from `+snapshot+`/`+restore+` once a concrete snapshot model
-lands.
-
-|345 |`+mkdir_idempotent+` |§(d) DEBT |Does *not* follow from the
-`+mkdir_rmdir_inverse+` family — that combination derives `+False+` unless
-the inverse law carries its occupancy precondition (issue #125, fixed
-2026-09-22). Discharge = port the concrete Coq model.
-|===
-
-All 18 §(c) entries above are annotated inline with `+-- AXIOM:+`
-leading comments.
+Second Lean cluster: `+proofs/lean4/FilesystemCNO.lean+` (**21 → 0 axioms** — *DISCHARGED 2026-09-26*, issue #167).
+All 10 primitive operations (`mkdir`, `rmdir`, `create`, `unlink`, `readFile`,
+`writeFile`, `stat`, `chmod`, `chown`, `rename`), the 2 snapshot operations (`snapshot`, `restore`),
+and all 9 laws and properties (`mkdir_rmdir_inverse`, `create_unlink_inverse`,
+`read_write_identity`, `chmod_identity`, `rename_identity`, `rename_inverse`,
+`snapshot_restore_identity`, `mkdir_not_identity`, `mkdir_idempotent`) have been
+fully discharged to concrete executable definitions and proved theorems by porting
+the Coq concrete filesystem model. `AxiomAudit.lean` §D verifies that all
+`FilesystemCNO` theorems depend on zero axioms.
 
 === Phase 2d triage — Lean Quantum cluster (2026-05-27)
 
@@ -205,11 +131,11 @@ once a concrete basis-state model lands.
 |===
 |Line |Identifier |Disposition |Plan
 |134 |`+X_gate_not_identity+` |§(d) DEBT |Existence proof; exhibit
-`+|0⟩+` as witness once a concrete basis state is in the model. Mirrors
+`\|0⟩` as witness once a concrete basis state is in the model. Mirrors
 Coq site at `+QuantumCNO.v:283+`.
 
 |144 |`+H_gate_not_identity+` |§(d) DEBT |Existence proof; exhibit
-`+|0⟩+` as witness. Mirrors Coq site at `+QuantumCNO.v:296+`.
+`\|0⟩` as witness. Mirrors Coq site at `+QuantumCNO.v:296+`.
 
 |235 |`+unitary_inverse_property+` |§(d) DEBT |Follows from
 `+isUnitary+` definition (`+U†U = I+`). Mirrors Coq site at
@@ -352,12 +278,12 @@ repeat-mkdir semantics. Triaged DISCHARGE in #58.
 ** *Deadline*: INDEFINITE (needs `+is_unitary+` algebraic lemmas).
 * `+proofs/coq/quantum/QuantumCNO.v:283+` — `+X_gate_not_identity+`
 ** *Owner*: @hyperpolymath
-** *Plan*: existence proof; exhibit `+|0⟩+` as witness once a concrete
+** *Plan*: existence proof; exhibit `\|0⟩` as witness once a concrete
 basis state is in the model. Triaged DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE (blocked on concrete basis-state model).
 * `+proofs/coq/quantum/QuantumCNO.v:296+` — `+H_gate_not_identity+`
 ** *Owner*: @hyperpolymath
-** *Plan*: existence proof; exhibit `+|0⟩+` as witness. Triaged
+** *Plan*: existence proof; exhibit `\|0⟩` as witness. Triaged
 DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE (blocked on concrete basis-state model).
 * `+proofs/coq/quantum/QuantumCNO.v:487+` — `+unitary_inverse_property+`
@@ -416,34 +342,17 @@ than discharging it. Should follow from
 * `+proofs/lean4/LambdaCNO.lean:184+` — `+subst_closed_term+` — *DISCHARGED
 2026-09-22* (fix PR for #125): now a `+theorem+`; it is immediate from the
 semantic definition of `+Closed+` (`+h n s (Nat.zero_le n)+`).
-* `+proofs/lean4/FilesystemCNO.lean:271+` — `+mkdir_not_identity+`
-** *Owner*: @hyperpolymath
-** *Plan*: existence proof; exhibit one concrete `+fs+` lacking the
-path. Mirrors Coq site at `+FilesystemCNO.v:300+`.
-** *Deadline*: INDEFINITE.
-* `+proofs/lean4/FilesystemCNO.lean:320+` —
-`+snapshot_restore_identity+`
-** *Owner*: @hyperpolymath
-** *Plan*: composite theorem; derivable from `+snapshot+`/`+restore+`
-primitives once a concrete snapshot model is in place. Mirrors Coq site
-at `+FilesystemCNO.v:453+`.
-** *Deadline*: INDEFINITE.
-* `+proofs/lean4/FilesystemCNO.lean:345+` — `+mkdir_idempotent+`
-** *Owner*: @hyperpolymath
-** *Plan*: does *not* follow from `+mkdir_rmdir_inverse+`: issue #125 showed
-that with an unconditional inverse law, idempotence plus
-`+mkdir_not_identity+` derives `+False+` (now recorded in-file as
-`+unconditional_mkdir_rmdir_inverse_is_false+`). Discharge = port the
-concrete Coq list model, where `+FilesystemCNO.v:421+` proves it.
-** *Deadline*: INDEFINITE.
+* `+proofs/lean4/FilesystemCNO.lean+` — all 21 axioms (`mkdir_not_identity`,
+`snapshot_restore_identity`, `mkdir_idempotent`, operations and laws) — *DISCHARGED
+2026-09-26* (issue #167): concrete model ported from Coq `FilesystemCNO.v`.
 * `+proofs/lean4/QuantumCNO.lean:134+` — `+X_gate_not_identity+`
 ** *Owner*: @hyperpolymath
-** *Plan*: existence proof; exhibit `+|0⟩+` as witness once a concrete
+** *Plan*: existence proof; exhibit `\|0⟩` as witness once a concrete
 basis state is in the model. Mirrors Coq site at `+QuantumCNO.v:283+`.
 ** *Deadline*: INDEFINITE.
 * `+proofs/lean4/QuantumCNO.lean:144+` — `+H_gate_not_identity+`
 ** *Owner*: @hyperpolymath
-** *Plan*: existence proof; exhibit `+|0⟩+` as witness. Mirrors Coq site
+** *Plan*: existence proof; exhibit `\|0⟩` as witness. Mirrors Coq site
 at `+QuantumCNO.v:296+`.
 ** *Deadline*: INDEFINITE.
 * `+proofs/lean4/QuantumCNO.lean:235+` — `+unitary_inverse_property+`

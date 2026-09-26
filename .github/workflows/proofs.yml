@@ -23,15 +23,14 @@ name: Proofs
 on:
   push:
     branches: [main, master]
-    paths:
-      - 'proofs/**'
-      - 'absolute-zero-abi.ipkg'
-      - '.github/workflows/proofs.yml'
   pull_request:
     paths:
       - 'proofs/**'
       - 'absolute-zero-abi.ipkg'
       - '.github/workflows/proofs.yml'
+      - 'Justfile'
+      - '*.agda-lib'
+      - 'lakefile*'
 
 permissions:
   contents: read
@@ -61,6 +60,15 @@ jobs:
         run: |
           bash check-assumptions.sh
           bash check-assumptions.sh --control
+      - name: Axiom tag grammar gate + control (issue #171)
+        working-directory: proofs/coq
+        run: |
+          bash check-axiom-tags.sh
+          bash check-axiom-tags.sh --control
+      - name: Axiom dependency census (issue #171)
+        working-directory: proofs/coq
+        run: |
+          bash census-assumptions.sh
 
   agda:
     name: Agda — CNO + OND

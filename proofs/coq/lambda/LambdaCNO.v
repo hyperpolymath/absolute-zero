@@ -394,8 +394,9 @@ Definition y_combinator : LambdaTerm :=
    full reduction congruence or a coinductive/step-indexed
    non-termination argument — genuinely out of scope for a contained
    fix here, not merely tedious. §(c) NECESSARY AXIOM per
-   docs/proof-debt.md (triage: docs/proof-debt-triage.md row
+   docs/proof-debt.adoc (triage: docs/proof-debt-triage.adoc row
    LambdaCNO.v:356). *)
+(* AXIOM: [CLASS-A] y_not_cno: non-termination of Y combinator under arbitrary beta interleavings. *)
 Axiom y_not_cno : ~ is_lambda_CNO y_combinator.
 
 (** ** Practical Examples *)

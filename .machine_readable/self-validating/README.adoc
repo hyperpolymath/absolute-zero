@@ -8,6 +8,13 @@
 
 K9 contractiles are self-validating components that combine configuration, validation, and deployment logic in a single file format. They implement the RSR principle of "self-describing artifacts" by embedding contracts and orchestration directly in the component.
 
+== Architectural Decision Note
+
+Per **ADR-001 (2026-04-18)**, self-validating K9 components live here (`self-validating/`) rather than under
+`contractiles/` so the contractile directory remains a pure six-verb set
+(intend, trust, must, bust, adjust, dust). Formerly housed in `.machine_readable/svc/` prior to the
+self-validating rename.
+
 == The Three Security Levels
 
 K9 components declare their trust requirements using "The Leash" security model:

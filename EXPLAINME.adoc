@@ -85,7 +85,7 @@ This is a standard result. The practical consequence is that the verified CNOs i
 
 | Coq CNO/OND formalisation
 | `proofs/coq/`
-| link:https://github.com/hyperpolymath/echo-types[echo-types] (EchoCNOBridge)
+| link:https://github.com/hyperpolymath/echo-types[echo-types] (EchoBridgeCNO)
 
 | Multi-prover pattern
 | Six provers + Idris ABI

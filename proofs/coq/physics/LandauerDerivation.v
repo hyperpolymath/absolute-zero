@@ -58,6 +58,7 @@ Definition log2 (x : R) : R := ln x / ln 2.
    [shannon_entropy_maximum]); it is consumed by [entropy_change_erasure] below,
    which is now discharged (Axiom -> Lemma) from it plus
    [shannon_entropy_point_zero]. *)
+(* AXIOM: [CLASS-A] uniform distribution maximizes Shannon entropy on finite carrier. *)
 Axiom shannon_entropy_uniform_max :
   forall (P : StateDistribution) (n : nat) (states : list ProgramState),
     length states = n ->
@@ -68,6 +69,7 @@ Axiom shannon_entropy_uniform_max :
 (* Opaque [Parameter]: the joint distribution of two independent systems. Left
    abstract because a concrete definition presupposes the concrete distribution
    type (see [prob_nonneg] in StatMechBasis.v). *)
+(* AXIOM: [CLASS-A] joint product distribution of independent state distributions. *)
 Parameter product_dist : StateDistribution -> StateDistribution -> StateDistribution.
 
 (** Entropy is additive for independent distributions *)
@@ -80,6 +82,7 @@ Parameter product_dist : StateDistribution -> StateDistribution -> StateDistribu
    [shannon_entropy] and [product_dist] (coupled to the distribution-type
    refactor). Correcting the triage docs: this is not derivable from what is
    currently in the file. *)
+(* AXIOM: [CLASS-A] additivity of Shannon entropy for independent joint distributions. *)
 Axiom shannon_entropy_additive :
   forall P Q : StateDistribution,
     (* For independent P and Q *)
@@ -129,6 +132,7 @@ Qed.
    fundamental empirical physical law — the entropy of an isolated system never
    decreases. It is not derivable from mathematics; it is a postulate about the
    physical world. Correctly kept as a physical axiom. *)
+(* AXIOM: [METAL-BOUNDARY] Second Law of Thermodynamics (entropy of isolated physical system never decreases). *)
 Axiom second_law :
   forall (P_initial P_final : StateDistribution),
     (* For any physical process *)
@@ -141,6 +145,7 @@ Axiom second_law :
 (* METAL-BOUNDARY (kept): [internal_energy] is a physical observable (the
    thermodynamic internal energy E of a system in a given macrostate/distribution,
    in Joules). Opaque [Parameter] standing for a measured quantity. *)
+(* AXIOM: [METAL-BOUNDARY] internal energy thermodynamic observable (Joules). *)
 Parameter internal_energy : StateDistribution -> R.
 
 Definition free_energy (P : StateDistribution) : R :=
@@ -241,6 +246,7 @@ Qed.
    pure mathematics — the connection between the abstract [work_dissipated]
    definition and this physical inequality is itself a physical postulate. Kept
    as a metal-boundary axiom. *)
+(* AXIOM: [METAL-BOUNDARY] isothermal work dissipation lower bound from second law. *)
 Axiom isothermal_work_bound :
   forall (P_initial P_final : StateDistribution),
     work_dissipated P_initial P_final >=
@@ -294,7 +300,9 @@ Qed.
    [eval_to_dec] posits decidability of the evaluation relation. Both are
    modeling conveniences of the *simplified* distribution model; a faithful
    treatment would use a measure over the full state space. Left as parameters. *)
+(* AXIOM: [CLASS-A] finite state space carrier list for simplified distribution model. *)
 Parameter all_states : list ProgramState.
+(* AXIOM: [CLASS-A] classical decidability of program evaluation relation. *)
 Parameter eval_to_dec : forall p s s', {eval p s s'} + {~ eval p s s'}.
 
 (** Distribution after program execution *)
@@ -340,6 +348,7 @@ Definition post_execution_dist (p : Program) (P : StateDistribution) : StateDist
    [=st=]; equivalently a measure/quotient treatment. (Contrast: StatMech.v proves
    its namesake because there [post_execution_dist] is literally the identity on
    distributions.) Correcting the triage docs: not derivable from present defs. *)
+(* AXIOM: [CLASS-A] Shannon entropy preservation under CNO execution pending measure theoretic carrier. *)
 Axiom cno_preserves_shannon_entropy :
   forall (p : Program) (P : StateDistribution),
     is_CNO p ->
@@ -401,6 +410,7 @@ Qed.
    [cno_preserves_shannon_entropy] above and (b) an additional axiom/definition
    giving [internal_energy] invariance under CNOs — i.e. more input, not a pure
    derivation. Kept as an axiom; the triage "DISCHARGE" mark is inaccurate. *)
+(* AXIOM: [CLASS-A] zero energy dissipation for CNO transitions under isothermal bound. *)
 Axiom cno_zero_energy_dissipation_derived :
   forall (p : Program) (P : StateDistribution),
     is_CNO p ->

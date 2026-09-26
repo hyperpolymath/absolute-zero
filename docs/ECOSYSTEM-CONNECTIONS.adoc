@@ -1,0 +1,61 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
+= Absolute Zero — Ecosystem Connections & Downstream Applications
+:toc: preamble
+:icons: font
+
+Absolute Zero formalises two pillars of verified computational nullity:
+*Certified Null Operations (CNO)* (programs that provably alter no state)
+and *Observational Null Disclosure (OND)* (programs that provably reveal
+no secrets to a declared observer model `O`).
+
+This document maps how these mathematical foundations directly underpin
+sibling projects in the hyperpolymath estate.
+
+== 1. JanusKey (`hyperpolymath/januskey`)
+
+*Domain:* Reversible filesystem operations in Rust with append-only inversion logs.
+
+*Connection:*
+JanusKey relies on the mathematical guarantee that filesystem actions carry sufficient
+inversion data to guarantee exact state restoration. Absolute Zero's
+`FilesystemCNO` (`proofs/coq/filesystem/FilesystemCNO.v` and `proofs/lean4/FilesystemCNO.lean`)
+provides the formal verification kernel for JanusKey:
+
+* `mkdir_rmdir_inverse` and `create_unlink_inverse` verify atomic create/destroy inverse pairs under occupancy preconditions (`noDirAt`, `noFileAt`).
+* `read_write_identity` and `chmod_identity` verify that idempotent updates cause zero net state delta.
+* `rename_inverse` verifies that path swaps under `noEntryAt` are invertible.
+* `transaction_cno` proves by list induction that any balanced forward-and-rollback transaction sequence is a CNO.
+
+== 2. Echo Types & the `-type` Family (`hyperpolymath/echo-types`, `hyperpolymath/residual-evidence-types`)
+
+*Domain:* Proof-relevant fibers as typed witnesses for structured information loss under non-injective maps.
+
+*Connection:*
+* `proofs/agda/EchoBridgeCNO.agda` bridges Agda CNO formalisation directly with Echo Types.
+* A CNO is the zero-information-loss boundary: when a transformation is pure, total, and reversible (injective/bijective on state), the corresponding Echo fiber is trivial.
+* Conversely, OND models disclosure channels; the residue list (e.g. `proofs/residue/ct_select.residue`) acts as explicit, typed residual evidence of out-of-scope physical side channels (timing, power, cache).
+
+== 3. Typell & Kategoria (`kategoria/typell`)
+
+*Domain:* Type-theoretic verification engine and categorical foundations for database query validation.
+
+*Connection:*
+* `proofs/coq/category/CNOCategory.v` and `proofs/lean4/CNOCategory.lean` prove that CNOs correspond to identity morphisms in the category of state transitions.
+* Functors preserving CNOs guarantee that query transformations do not introduce side effects or alter transactional consistency invariants.
+
+== 4. Robodog Defensive Systems Lab (`hyperpolymath/robodog-defensive-systems-lab`)
+
+*Domain:* Autonomous quadruped defense simulation, coordinator resilience, safety invariants.
+
+*Connection:*
+* *Reversible Defensive Postures (CNO):* In autonomous defense systems, defensive maneuvers or probe actions triggered by tentative sensor alerts must be safely unwound if the alert is determined to be a false positive. CNO guarantees that aborted defensive routines leave actuators and operational state provably invariant.
+* *Null Disclosure under Physical Observation (OND):* Autonomous defensive units operate in hostile physical environments where adversaries monitor side-channel emissions (RF emissions, execution timing, power draw, sensor polling cadence). OND guarantees that routine sensor checks and patrol logic reveal zero secret mission parameters (cryptographic patrol keys, boundary thresholds) relative to declared physical observation models `O`.
+
+== 5. Robot Vacuum Cleaner (`hyperpolymath/robot-vacuum-cleaner`)
+
+*Domain:* Autonomous cleaning robot with dual Julia and Rust implementations, SLAM algorithms, and GraphQL telemetry.
+
+*Connection:*
+* *Transactional Trajectory & Map Rollback (CNO):* During exploration and SLAM map updating, speculative path traversals or failed navigation attempts must roll back to previously verified topological milestones without corrupting grid occupancy state (`snapshot_restore_identity` and `valenceReversible`).
+* *Telemetry Non-Disclosure (OND):* Telemetry and GraphQL reporting channels must provably reveal zero private household metadata (room geometry, human presence timestamps) beyond explicit authorized telemetry schemas. OND formalisation parameterises exactly what is observable versus what remains masked.

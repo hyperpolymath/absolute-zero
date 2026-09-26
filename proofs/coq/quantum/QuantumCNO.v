@@ -254,9 +254,11 @@ Qed.
     tensor-structured) state space, which this module deliberately does not
     build. Kept as an abstract primitive so downstream statements type-check.
     (This is the ONLY gate-unitarity claim in this file left undischarged.) *)
+(* AXIOM: [CLASS-A] primitive 2-qubit CNOT gate parameter. *)
 Parameter CNOT_gate : QuantumGate.
 (* NOT-YET-DISCHARGED (class A): unitarity of the abstract CNOT primitive.
    See the note above — needs a 4-dimensional tensor-product model. *)
+(* AXIOM: [CLASS-A] CNOT gate unitarity pending 4-dimensional tensor product model. *)
 Axiom CNOT_gate_unitary : is_unitary CNOT_gate.
 
 (** ** Quantum State Equality *)
@@ -649,6 +651,7 @@ Qed.
     representing the expected (deterministic) behavior when post-selecting
     on the measurement outcome, or the most likely outcome.
 *)
+(* AXIOM: [CLASS-A] projective quantum state measurement parameter mapping to ProgramState. *)
 Parameter measure : QuantumState -> ProgramState.
 
 (** DISCHARGED (was Axiom measure_identity_commutes). Since [I_gate] is the
@@ -721,6 +724,7 @@ Proof.
 Qed.
 
 (** U followed by U† is a CNO (unitary inverse) *)
+(* AXIOM: [CLASS-A] unitary inverse gate operator. *)
 Parameter unitary_inverse : QuantumGate -> QuantumGate.
 
 (* NOT-YET-DISCHARGED (class A, provable in principle): the inverse property
@@ -732,6 +736,7 @@ Parameter unitary_inverse : QuantumGate -> QuantumGate.
    invertible with U^{-1} = U†) over a proper matrix representation — absent
    from this abstract model. Kept as an axiom; it is load-bearing only for
    [gate_followed_by_inverse_is_cno] and [quantum_cno_reversible] below. *)
+(* AXIOM: [CLASS-A] unitary inverse property pending finite dimensional matrix representation. *)
 Axiom unitary_inverse_property :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
@@ -780,6 +785,7 @@ Qed.
 *)
 
 (** Physical energy dissipation for quantum operations *)
+(* AXIOM: [METAL-BOUNDARY] physical energy dissipation functional for quantum operations (Joules). *)
 Parameter quantum_energy_dissipated : QuantumGate -> QuantumState -> R.
 
 (** Landauer bound for quantum operations. *)
@@ -791,6 +797,7 @@ Parameter quantum_energy_dissipated : QuantumGate -> QuantumState -> R.
    the definitions — deliberately NOT discharged by setting energy ≡ 0, which
    would falsify the bound for genuinely dissipative (non-unitary) operations.
    It is the substantive thermodynamic input of this section. *)
+(* AXIOM: [METAL-BOUNDARY] quantum Landauer bound (von Neumann entropy erasure dissipates heat). *)
 Axiom quantum_landauer_bound :
   forall (U : QuantumGate) (ψ : QuantumState),
     let ΔS := (von_neumann_entropy (U ψ) - von_neumann_entropy ψ)%R in
@@ -814,6 +821,7 @@ Proof. intros U ψ _; unfold von_neumann_entropy; reflexivity. Qed.
    Landauer bound above only gives a LOWER bound (≥ 0), so E = 0 for the
    reversible case is an independent physical postulate, not a mathematical
    consequence. (Not discharged via energy ≡ 0 — see the Landauer note.) *)
+(* AXIOM: [METAL-BOUNDARY] thermodynamic reversibility for unitary quantum operations (zero dissipation). *)
 Axiom reversible_quantum_zero_dissipation :
   forall (U : QuantumGate) (ψ : QuantumState),
     is_unitary U ->
@@ -842,9 +850,11 @@ Qed.
 *)
 
 (** Noisy quantum channel *)
+(* AXIOM: [CLASS-A] noisy quantum channel modeling environmental decoherence. *)
 Parameter noisy_channel : QuantumGate -> QuantumGate.
 
 (** Fidelity: how close is noisy gate to ideal gate *)
+(* AXIOM: [CLASS-A] quantum state/gate fidelity measure parameter. *)
 Parameter fidelity : QuantumGate -> QuantumGate -> R.
 
 (* NOT-YET-DISCHARGED (class A, provable in principle): 0 ≤ fidelity U V ≤ 1.
@@ -853,6 +863,7 @@ Parameter fidelity : QuantumGate -> QuantumGate -> R.
    definition, so the bound cannot be proved without first giving fidelity a
    concrete construction (an operator-norm / overlap definition), which this
    module does not build. Kept as an axiom. *)
+(* AXIOM: [CLASS-A] fidelity bounded in [0, 1] interval pending concrete construction. *)
 Axiom fidelity_bound : forall U V, 0 <= fidelity U V <= 1.
 
 (** Even with noise, approximate CNOs preserve high fidelity *)
@@ -861,6 +872,7 @@ Axiom fidelity_bound : forall U V, 0 <= fidelity U V <= 1.
    fidelity U U = 1 this is immediate (take U_noisy := U); but [fidelity] is
    abstract here, so it cannot be discharged without that concrete definition.
    Kept as an axiom. *)
+(* AXIOM: [CLASS-A] existence of high-fidelity approximate realization of quantum CNO. *)
 Axiom approximate_cno :
   forall U : QuantumGate,
     is_quantum_CNO U ->
