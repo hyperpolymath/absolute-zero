@@ -1,0 +1,29 @@
+# SPDX-License-Identifier: MPL-2.0
+name: Wiki Sync
+
+on:
+  push:
+    branches: [main, master]
+    paths:
+      - 'docs/wiki/**'
+      - 'scripts/wiki-sync.sh'
+      - '.github/workflows/wiki-sync.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: wiki-sync
+  cancel-in-progress: true
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - name: Sync docs/wiki to GitHub Wiki
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: bash scripts/wiki-sync.sh

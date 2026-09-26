@@ -85,7 +85,10 @@ verify-all: verify-coq verify-z3 verify-lean verify-agda verify-isabelle verify-
 verify-coq: build-coq
     bash proofs/coq/check-assumptions.sh
     bash proofs/coq/check-assumptions.sh --control
-    @echo "✓ Coq proofs verified (17 named theorems closed under the global context)"
+    bash proofs/coq/check-axiom-tags.sh
+    bash proofs/coq/check-axiom-tags.sh --control
+    bash proofs/coq/census-assumptions.sh
+    @echo "✓ Coq proofs verified (17 named theorems closed, tags verified, census generated)"
 
 # Verify Z3 SMT properties: every (check-sat) verdict must match its `; expect` annotation (no skip-as-pass)
 verify-z3:
@@ -186,6 +189,11 @@ docs:
 view-docs:
     @echo "Documentation files:"
     @ls -lh docs/
+
+# Sync docs/wiki to GitHub Wiki repository (issue #80)
+wiki-sync:
+    @echo "Syncing docs/wiki to GitHub wiki..."
+    bash scripts/wiki-sync.sh
 
 # ============================================================================
 # Cleanup

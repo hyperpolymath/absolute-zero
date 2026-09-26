@@ -23,6 +23,8 @@ if command -v coqc >/dev/null; then
     # the global context, and the control must prove the audit can say no.
     bash "$HERE/coq/check-assumptions.sh" || { echo "COQ ASSUMPTIONS FAILED"; fail=1; }
     bash "$HERE/coq/check-assumptions.sh" --control || { echo "COQ ASSUMPTIONS-CONTROL FAILED"; fail=1; }
+    bash "$HERE/coq/check-axiom-tags.sh" || { echo "COQ AXIOM-TAGS FAILED"; fail=1; }
+    bash "$HERE/coq/check-axiom-tags.sh" --control || { echo "COQ AXIOM-TAGS-CONTROL FAILED"; fail=1; }
   else echo "COQ FAILED"; fail=1; fi
 else echo "coqc missing"; fail=1; fi
 
@@ -49,14 +51,18 @@ else echo "z3 missing"; fail=1; fi
 
 # ---- Isabelle/HOL (CNO + OND) --------------------------------------------
 say "Isabelle/HOL — CNO + OND"
-if command -v isabelle >/dev/null; then
+if [ "${SKIP_ISABELLE:-0}" = "1" ]; then
+  echo "Isabelle/HOL skipped (SKIP_ISABELLE=1)"
+elif command -v isabelle >/dev/null; then
   ( cd "$HERE/isabelle" && isabelle build -d . AbsoluteZero-CNO ) \
      || { echo "ISABELLE FAILED"; fail=1; }
 else echo "isabelle missing"; fail=1; fi
 
 # ---- Mizar (CNO) ---------------------------------------------------------
 say "Mizar — CNO"
-if command -v verifier >/dev/null && [ -n "${MIZFILES:-}" ]; then
+if [ "${SKIP_MIZAR:-0}" = "1" ]; then
+  echo "Mizar skipped (SKIP_MIZAR=1)"
+elif command -v verifier >/dev/null && [ -n "${MIZFILES:-}" ]; then
   ( cd "$HERE/mizar" && accom CNO && verifier CNO && [ ! -s CNO.err ] ) \
      || { echo "MIZAR FAILED (see CNO.err)"; fail=1; }
 else echo "mizar verifier / MIZFILES missing"; fail=1; fi

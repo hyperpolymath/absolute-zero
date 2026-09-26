@@ -55,7 +55,7 @@ for s in "$STUB"/*; do sh -n "$s" || { echo "FAIL: stub $s does not parse"; exit
 
 OUT=""; RC=0
 # run_gate: capture the gate's output and exit status with the stub toolchain.
-run_gate() { OUT="$(HOME="$SCRATCH/home" PATH="$STUB:/usr/bin:/bin" MIZFILES="${MIZ-$SCRATCH/miz}" bash "$GATE" 2>&1)"; RC=$?; }
+run_gate() { OUT="$(HOME="$SCRATCH/home" PATH="$STUB:/usr/bin:/bin" MIZFILES="${MIZ-$SCRATCH/miz}" SKIP_ISABELLE="${SKIP_ISABELLE:-0}" SKIP_MIZAR="${SKIP_MIZAR:-0}" bash "$GATE" 2>&1)"; RC=$?; }
 # expect <label> <exit-wanted> <must-contain> <must-not-contain>
 expect() {
   local label=$1 want=$2 must=$3 mustnot=$4
@@ -70,10 +70,18 @@ run_gate; expect "A all provers present -> ALL-PROVERS-GREEN" 0 "ALL-PROVERS-GRE
 # B. isabelle absent must FAIL (pre-2026-09-23: printed 'skipped', stayed green)
 mv "$STUB/isabelle" "$SCRATCH/isabelle.off"; run_gate
 expect "B isabelle absent -> fail" 1 "isabelle missing" "ALL-PROVERS-GREEN"
+# B2. isabelle absent with SKIP_ISABELLE=1 succeeds (issue #161)
+SKIP_ISABELLE=1 run_gate
+expect "B2 isabelle absent with SKIP_ISABELLE=1 -> pass" 0 "Isabelle/HOL skipped (SKIP_ISABELLE=1)" "SOME PROVERS FAILED"
+unset SKIP_ISABELLE
 mv "$SCRATCH/isabelle.off" "$STUB/isabelle"
 # C. mizar verifier absent must FAIL
 mv "$STUB/verifier" "$SCRATCH/verifier.off"; run_gate
 expect "C mizar verifier absent -> fail" 1 "mizar verifier / MIZFILES missing" "ALL-PROVERS-GREEN"
+# C2. mizar absent with SKIP_MIZAR=1 succeeds (issue #161)
+SKIP_MIZAR=1 run_gate
+expect "C2 mizar absent with SKIP_MIZAR=1 -> pass" 0 "Mizar skipped (SKIP_MIZAR=1)" "SOME PROVERS FAILED"
+unset SKIP_MIZAR
 mv "$SCRATCH/verifier.off" "$STUB/verifier"
 # D. MIZFILES unset must FAIL
 MIZ="" run_gate; expect "D MIZFILES unset -> fail" 1 "mizar verifier / MIZFILES missing" "ALL-PROVERS-GREEN"

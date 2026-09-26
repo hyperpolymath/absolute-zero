@@ -184,18 +184,16 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
   signature, the three occupancy predicates in full, the #125 derivations as
   negative controls, and `#print axioms` for every theorem (no `sorryAx` anywhere).
   `just verify-lean-core` runs the same script locally.
-* **Issue #125 fixed — the Lean axioms no longer derive `False`:**
-  `FilesystemCNO.lean` stated `mkdir_rmdir_inverse`, `create_unlink_inverse` and
-  `rename_inverse` without the occupancy preconditions of the Coq lemmas they mirror;
-  with `mkdir_idempotent` and `mkdir_not_identity` that proved `False`. They now
-  carry `noDirAt` / `noFileAt` / `noEntryAt`, mirrored verbatim from
-  `proofs/coq/filesystem/FilesystemCNO.v`, and the unconditional statement is refuted
-  in-file (`unconditional_mkdir_rmdir_inverse_is_false`). `LambdaCNO.lean` carried the
-  unrestricted `eta_equivalence` axiom (false as stated, the same `LVar 5`
-  counterexample the Coq side documents above); it is now the proved
-  `noLambda`-guarded theorem, `subst_closed_term` is proved, and the unrestricted
-  claim is refuted (`unrestricted_eta_equivalence_is_false`). Lean axiom count:
-  `FilesystemCNO` 21 → 21 (same names, three strengthened), `LambdaCNO` 3 → 1
+* **FilesystemCNO ported from Coq (issue #167):**
+  `FilesystemCNO.lean` defines `Filesystem` as a concrete list structure and operations
+  as executable functions (`mkdir`, `rmdir`, `create`, `unlink`, `readFile`, `writeFile`,
+  `stat`, `chmod`, `chown`, `rename`, `snapshot`, `restore`). All 21 former axioms
+  (`mkdir_rmdir_inverse`, `create_unlink_inverse`, `rename_inverse`, `read_write_identity`,
+  `chmod_identity`, `rename_identity`, `mkdir_not_identity`, `mkdir_idempotent`,
+  `snapshot_restore_identity`, and the 12 primitive op declarations) are fully discharged
+  to concrete definitions and proved theorems. `AxiomAudit.lean` verifies that all
+  FilesystemCNO theorems depend on zero axioms.
+  Lean axiom count: `FilesystemCNO` 21 → **0**, `LambdaCNO` 3 → 1
   (`y_combinator_not_identity`, the Lean twin of Coq's class-A `y_not_cno`).
 
 == Z3 — VERIFIED (this environment)
@@ -238,10 +236,16 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
 * "Verified here" = a reproduced compiler/checker run in this environment, not a
   reading of in-file comments. Reproduce everything with
   `proofs/verify-all-provers.sh`.
-* Remaining axioms are exactly: (a) tagged physical postulates (the honest metal
-  boundary), and (b) the class-A items listed above (true, provable in principle,
-  openly labelled). No headline theorem depends on a hidden project axiom.
-* Measured 2026-09-23: the 17 named theorems are closed under the global context
-  (CI-gated); of all 182 top-level theorems, 109 are closed and 73 rest on stdlib
-  classical axioms and/or the tagged parameters. The "exactly" in the bullet above is
-  not yet machine-checked — the tag grammar is unified under #171.
+* Axiom census (machine-generated via `proofs/coq/census-assumptions.sh`):
+  of 182 top-level theorems across the 14 theories, exactly **109 are closed under
+  the global context** (zero axioms), and 73 rest on Coq stdlib classical axioms
+  (`ClassicalDedekindReals.*`, `FunctionalExtensionality.*`, `Classical_Prop.classic`,
+  `ProofIrrelevance.*`) and/or the tagged project parameters.
+* All top-level declarations are verified by `proofs/coq/check-axiom-tags.sh` to carry
+  a unified tag grammar: `(* AXIOM: [METAL-BOUNDARY] ... *)` for physical constants
+  and laws, or `(* AXIOM: [CLASS-A] ... *)` for provable-in-principle mathematics.
+  The two former unsound declarations in `StatMechBasis.v` (`prob_nonneg` and
+  `prob_normalized`, which claimed Kolmogorov properties over raw unconstrained
+  functions `ProgramState -> R`) have been deleted; zero theorems depend on either.
+* The 17 named headline theorems remain 100% closed under the global context (zero axioms,
+  CI-gated by `check-assumptions.sh`).

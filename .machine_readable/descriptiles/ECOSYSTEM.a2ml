@@ -36,6 +36,11 @@ projects = [
   { name = "echidnabot",       relationship = "potential-consumer",  notes = "GitHub bot; could automate CNO checks in PRs" },
   { name = "valence-shell",    relationship = "integration-target",  notes = "Filesystem ops library proven in FilesystemCNO.v" },
   { name = "rsr-template-repo", relationship = "infrastructure",     notes = "Repository standards template" },
+  { name = "januskey",         relationship = "downstream-consumer", notes = "Reversible file operations CLI formally verified by FilesystemCNO" },
+  { name = "echo-types",       relationship = "bridge-target",       notes = "EchoBridgeCNO.agda connects CNO zero-loss boundary with proof-relevant fibers" },
+  { name = "typell",           relationship = "theory-consumer",     notes = "Category-theoretic query verification via CNOCategory" },
+  { name = "robodog-defensive-systems-lab", relationship = "application-domain", notes = "Reversible defensive maneuvers (CNO) and side-channel non-disclosure (OND)" },
+  { name = "robot-vacuum-cleaner", relationship = "application-domain", notes = "Transactional SLAM map rollback (CNO) and privacy telemetry boundaries (OND)" },
 ]
 
 [what-this-is]
