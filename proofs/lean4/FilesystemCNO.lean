@@ -317,6 +317,7 @@ axiom snapshot : Filesystem → Filesystem
 axiom restore : Filesystem → Filesystem → Filesystem
 
 /-- snapshot followed by restore is identity -/
+-- AXIOM: snapshot_restore_identity; snapshot/restore specification (mirrors Coq); §(c) per docs/proof-debt.md.
 axiom snapshot_restore_identity (fs : Filesystem) :
   restore (snapshot fs) fs = fs
 
