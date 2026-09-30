@@ -12,7 +12,7 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read
 
 concurrency:
   group: wiki-sync
@@ -21,6 +21,9 @@ concurrency:
 jobs:
   sync:
     runs-on: ubuntu-latest
+    # Write is scoped to this job only: scripts/wiki-sync.sh pushes to the wiki.
+    permissions:
+      contents: write
     timeout-minutes: 10
     steps:
       - uses: actions/checkout@v7.0.1
