@@ -22,7 +22,7 @@ AUDIT_FILE="${1:-}"
 # under `CNO.`, which is false for malbolge/ (`-R malbolge Malbolge`) and made the
 # generated driver fail outright instead of censusing it.
 declare -A dir_root
-while read -r flag dir ns; do
+while read -r flag dir ns || [ -n "$flag" ]; do
   [ "$flag" = "-R" ] && dir_root["$dir"]="$ns"
 done < "$HERE/_CoqProject"
 
