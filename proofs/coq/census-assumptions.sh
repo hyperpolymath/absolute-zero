@@ -40,8 +40,13 @@ for d in common category quantum lambda filesystem physics ond malbolge; do
     fi
     while IFS= read -r f; do
       if [ -f "$f" ]; then
+        base="$(basename "${f%.v}")"
+        if [ -n "${base_root[$base]+x}" ]; then
+          echo "CENSUS FAILED: duplicate theory basename '$base' in '$f'" >&2
+          exit 1
+        fi
         theories+=("$f")
-        base_root["$(basename "${f%.v}")"]="$root"
+        base_root["$base"]="$root"
       fi
     done < <(find "$HERE/$d" -maxdepth 1 -name "*.v" | sort)
   fi
@@ -83,7 +88,7 @@ if command -v coqc >/dev/null 2>&1 && [ -f "$HERE/common/CNO.vo" ]; then
   } > "$tmp/Census.v"
 
   RFLAGS=()
-  while read -r flag dir ns; do
+  while read -r flag dir ns || [ -n "$flag" ]; do
     [ "$flag" = "-R" ] && RFLAGS+=("-R" "$HERE/$dir" "$ns")
   done < "$HERE/_CoqProject"
 
