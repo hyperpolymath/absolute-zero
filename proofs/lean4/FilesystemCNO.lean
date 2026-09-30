@@ -202,7 +202,8 @@ theorem create_unlink_is_cno (p : Path) (fs : Filesystem) (h : noFileAt p fs) :
   unfold createUnlinkOp
   exact create_unlink_inverse p fs h
 
-/-- read followed by write. `noncomputable` — wraps axioms. -/
+/-- Write the content returned by `readFile` back to `p`, leaving the filesystem
+    unchanged if `readFile` returns `none`. `noncomputable` — wraps axioms. -/
 noncomputable def readWriteOp (p : Path) : FsOp :=
   fun fs =>
     match readFile p fs with
@@ -218,7 +219,8 @@ theorem read_write_is_cno (p : Path) :
   | some content =>
       exact read_write_identity p fs content h
 
-/-- chmod to current permissions. `noncomputable` — wraps axioms. -/
+/-- Set permissions at `p` to those returned by `stat`, leaving the filesystem
+    unchanged if `stat` returns `none`. `noncomputable` — wraps axioms. -/
 noncomputable def chmodNopOp (p : Path) : FsOp :=
   fun fs =>
     match stat p fs with
@@ -323,6 +325,8 @@ axiom snapshot_restore_identity (fs : Filesystem) :
 
 -- `noncomputable` because `restore` and `snapshot` are axioms with no
 -- executable body; without this Lean 4.16 refuses to emit code for `def`.
+/-- Restore a snapshot of the input filesystem onto that same filesystem.
+    Returns the input filesystem by `snapshot_restore_identity`. -/
 noncomputable def snapshotRestoreOp : FsOp :=
   fun fs => restore (snapshot fs) fs
 
