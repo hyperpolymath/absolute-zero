@@ -3,12 +3,14 @@
 = absolute-zero - Citation Guide
 :toc:
 
+Author: Jonathan D.A. Jewell, ORCID iD https://orcid.org/0000-0002-3078-6652 (same author form as link:../CITATION.cff[CITATION.cff]).
+
 == BibTeX
 
 [source,bibtex]
 ----
 @software{absolute-zero_2025,
-  author = {Polymath, Hyper},
+  author = {Jewell, Jonathan D.A.},
   title = {absolute-zero},
   year = {2025},
   url = {https://github.com/hyperpolymath/absolute-zero},
@@ -18,21 +20,20 @@
 
 == Harvard Style
 
-Polymath, H. (2025) _absolute-zero_ [Computer software]. Available at: https://github.com/hyperpolymath/absolute-zero
+Jewell, J.D.A. (2025) _absolute-zero_ [Computer software]. Available at: https://github.com/hyperpolymath/absolute-zero
 
 == OSCOLA
 
-Hyper Polymath, 'absolute-zero' (2025) <https://github.com/hyperpolymath/absolute-zero>
+Jonathan D.A. Jewell, 'absolute-zero' (2025) <https://github.com/hyperpolymath/absolute-zero>
 
 == MLA
 
-Polymath, Hyper. "absolute-zero." 2025, github.com/hyperpolymath/absolute-zero.
+Jewell, Jonathan D.A. "absolute-zero." 2025, github.com/hyperpolymath/absolute-zero.
 
 == APA 7
 
-Polymath, H. (2025). _absolute-zero_ [Computer software]. GitHub. https://github.com/hyperpolymath/absolute-zero
+Jewell, J. D. A. (2025). _absolute-zero_ [Computer software]. GitHub. https://github.com/hyperpolymath/absolute-zero
 
 == See Also
 
 * link:../CITATION.cff[CITATION.cff]
-* link:../codemeta.json[codemeta.json]
