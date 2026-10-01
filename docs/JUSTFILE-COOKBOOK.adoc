@@ -13,6 +13,8 @@ v1.0, 2025-11-22
 
 This cookbook documents all `just` recipes in the Absolute Zero project. Every recipe is explained with examples, flags, and common usage patterns.
 
+WARNING: `just --list` is authoritative. The Appendix recipe list and dependency graph were regenerated from it on 2026-10-01. Nine per-recipe sections below describe recipes the Justfile no longer defines: `build-z3`, `check-tools`, `clean-all`, `docs-adoc`, `docs-all`, `docs-proof-stats`, `install-help`, `loc` and `quick-check`. Treat them as historical until this cookbook is rewritten.
+
 === Quick Reference
 
 [source,bash]
@@ -30,7 +32,7 @@ just ci                 # Run full CI pipeline
 
 Build all proof systems and interpreters.
 
-*Dependencies*: build-affinescript, build-coq, build-lean, build-agda, build-isabelle, build-typescript
+*Dependencies*: build-coq, build-lean, build-agda, build-isabelle, build-mizar, build-idris
 
 [source,bash]
 ----
@@ -38,12 +40,12 @@ just build-all
 ----
 
 *What it does*:
-1. Builds AffineScript interpreters
-2. Compiles Coq proofs
-3. Compiles Lean 4 proofs
-4. Compiles Agda proofs
-5. Builds Isabelle/HOL proofs
-6. Compiles TypeScript (deprecated, will be removed)
+1. Compiles Coq proofs
+2. Compiles Lean 4 proofs
+3. Compiles Agda proofs
+4. Builds Isabelle/HOL proofs
+5. Checks Mizar proofs
+6. Builds the Idris2 ABI
 
 *Exit codes*:
 - `0`: All builds successful
@@ -138,20 +140,6 @@ just verify-z3
 ----
 z3 -T:60 proofs/z3/cno_properties.smt2  # 60 second timeout
 ----
-
-=== build-typescript
-
-⚠️  **DEPRECATED**: Will be removed. Use Deno instead.
-
-[source,bash]
-----
-just build-typescript
-----
-
-*Migration path*:
-- Replace with `deno task build`
-- Port TypeScript files to Deno
-- Remove `ts/` directory
 
 == Verification Recipes
 
@@ -252,7 +240,7 @@ just verify-z3
 
 Run all tests (unit, integration, proofs).
 
-*Dependencies*: test-interpreters, test-proofs
+*Dependencies*: test-proofs
 
 [source,bash]
 ----
@@ -260,25 +248,7 @@ just test-all
 ----
 
 *Test suites*:
-1. Interpreter tests (Brainfuck, Whitespace, Malbolge)
-2. Proof verification tests
-3. Example CNO validation
-
-=== test-typescript
-
-⚠️ **DEPRECATED**: Use `deno test` instead.
-
-[source,bash]
-----
-just test-typescript
-----
-
-*Migration*:
-[source,bash]
-----
-# New approach:
-deno test --allow-read tests/
-----
+1. Proof verification tests (`test-proofs`)
 
 == Container Recipes
 
@@ -405,7 +375,7 @@ just docs-adoc
 
 Clean all build artifacts.
 
-*Dependencies*: clean-coq, clean-lean, clean-typescript, clean-affinescript
+*Dependencies*: clean-coq, clean-lean
 
 [source,bash]
 ----
@@ -415,8 +385,6 @@ just clean
 *What gets deleted*:
 - Coq: `*.vo`, `*.vok`, `*.vos`, `*.glob`
 - Lean: `.lake/` directory
-- TypeScript: `node_modules/`, `dist/`
-- AffineScript: `lib/`
 
 === clean-coq
 
@@ -520,19 +488,6 @@ just quick-check || exit 1
 ----
 
 == Development Recipes
-
-=== watch
-
-Watch TypeScript files for changes.
-
-⚠️ **DEPRECATED**: Use `deno task dev` instead.
-
-[source,bash]
-----
-just watch
-# New:
-deno task dev
-----
 
 === format
 
@@ -896,57 +851,52 @@ Available recipes:
     build-agda
     build-all
     build-coq
+    build-elm
+    build-idris
     build-isabelle
     build-lean
-    build-affinescript
-    build-typescript
-    check-tools
+    build-mizar
     ci
     clean
-    clean-all
     clean-coq
+    clean-elm
     clean-lean
-    clean-affinescript
-    clean-typescript
     container-build
     container-shell
     container-test-all
     container-verify
     default
-    docs-adoc
-    docs-all
-    docs-proof-stats
     docker-build
     docker-verify
+    docs
+    echidna-check
+    echidna-complete FILE
+    echidna-list
+    echidna-repl
+    echidna-suggest FILE
+    echidna-verify
     format
     help
-    install-help
-    install-npm
-    install-provers-fedora
-    install-provers-ubuntu
-    install-python
     lint
-    loc
     paper
     proof-status
-    quick-check
-    run-brainfuck FILE
-    run-example LANG FILE
-    run-malbolge FILE
-    run-whitespace FILE
+    run-elm
     stats
     test-all
-    test-interpreters
     test-proofs
-    test-typescript
+    verify
     verify-agda
     verify-all
     verify-coq
+    verify-gate-selftest
+    verify-idris
     verify-isabelle
     verify-lean
+    verify-lean-core
+    verify-mizar
     verify-z3
     view-docs
-    watch
+    wiki-sync
 ----
 
 === Recipe Dependencies Graph
@@ -955,21 +905,23 @@ Available recipes:
 ----
 ci
 ├── build-all
-│   ├── build-affinescript
 │   ├── build-coq
 │   ├── build-lean
 │   ├── build-agda
 │   ├── build-isabelle
-│   └── build-typescript
+│   ├── build-mizar
+│   └── build-idris
 ├── test-all
-│   ├── test-interpreters
 │   └── test-proofs
 └── verify-all
     ├── verify-coq (depends on build-coq)
     ├── verify-z3
     ├── verify-lean
     ├── verify-agda (depends on build-agda)
-    └── verify-isabelle (depends on build-isabelle)
+    ├── verify-isabelle (depends on build-isabelle)
+    ├── verify-mizar (depends on build-mizar)
+    ├── verify-idris (depends on build-idris)
+    └── verify-gate-selftest
 ----
 
 ---
