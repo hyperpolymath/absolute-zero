@@ -35,9 +35,9 @@ git commit -m "Sync from absolute-zero/docs/wiki@$(cd ../absolute-zero && git re
 git push
 ```
 
-(Automation TODO: a `Justfile` recipe `just wiki-sync` plus a workflow
-that runs the above on every push to main. Tracked in
-`RSR_COMPLIANCE.adoc`.)
+This is automated: `.github/workflows/wiki-sync.yml` runs `scripts/wiki-sync.sh`
+on every push to `main` that touches `docs/wiki/`, and `just wiki-sync` runs the
+same script locally. The manual steps above remain the fallback.
 
 ## Page index
 
