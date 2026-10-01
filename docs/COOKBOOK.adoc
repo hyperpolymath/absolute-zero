@@ -699,7 +699,6 @@ just verify-z3           # Run Z3
 
 # Test
 just test-all            # All tests
-just test-typescript     # TypeScript tests
 
 # Stats
 just stats               # Lines of code
@@ -716,7 +715,6 @@ just clean               # Build artifacts
 just clean-all           # Everything
 
 # Development
-just watch-typescript    # Watch mode
 just ci                  # Full CI pipeline
 just check-tools         # Check dependencies
 ----

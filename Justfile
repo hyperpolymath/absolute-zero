@@ -18,11 +18,6 @@ default:
 build-all: build-coq build-lean build-agda build-isabelle build-mizar build-idris
     @echo "✓ All builds complete"
 
-# Build AffineScript interpreters
-build-affinescript:
-    @echo "Building AffineScript interpreters..."
-    cd interpreters/affinescript && npx affinescript build
-
 # Build Coq proofs — all 14 theories (CNO + OND pillars) via coq_makefile
 build-coq:
     @echo "Building Coq proofs (14 theories, both pillars)..."
@@ -61,12 +56,6 @@ build-mizar:
 build-idris:
     @echo "Building Idris 2 ABI..."
     idris2 --build absolute-zero-abi.ipkg
-
-# Build TypeScript
-build-typescript:
-    @echo "Building TypeScript..."
-    npm run build
-    @echo "✓ TypeScript compiled"
 
 # ============================================================================
 # Verification Commands
@@ -132,46 +121,13 @@ verify-idris: build-idris
 # ============================================================================
 
 # Run all tests
-test-all: test-interpreters test-proofs
+test-all: test-proofs
     @echo "✓ All tests passed"
-
-# Test interpreters
-test-interpreters:
-    @echo "Testing Brainfuck interpreter..."
-    python3 interpreters/brainfuck/brainfuck.py
-    @echo ""
-    @echo "Testing Whitespace interpreter..."
-    python3 interpreters/whitespace/whitespace.py
 
 # Test proofs
 test-proofs:
     @echo "Testing proof verification..."
     just verify-z3
-
-# Run TypeScript tests (when available)
-test-typescript:
-    npm test
-
-# ============================================================================
-# Example Execution
-# ============================================================================
-
-# Run example CNO
-run-example LANG FILE:
-    @echo "Running {{LANG}} example: {{FILE}}"
-    @just run-{{LANG}} {{FILE}}
-
-# Run Brainfuck example
-run-brainfuck FILE:
-    python3 interpreters/brainfuck/brainfuck.py examples/brainfuck/{{FILE}}
-
-# Run Whitespace example
-run-whitespace FILE:
-    python3 interpreters/whitespace/whitespace.py examples/whitespace/{{FILE}}
-
-# Run Malbolge example (AffineScript)
-run-malbolge FILE:
-    cd interpreters/affinescript && node -e "require('./malbolgeInterpreter.bs.js').execute('$(cat ../../examples/malbolge/{{FILE}})')"
 
 # ============================================================================
 # Documentation
@@ -200,7 +156,7 @@ wiki-sync:
 # ============================================================================
 
 # Clean all build artifacts
-clean: clean-coq clean-lean clean-typescript clean-affinescript
+clean: clean-coq clean-lean
     @echo "✓ All build artifacts cleaned"
 
 # Clean Coq artifacts
@@ -217,33 +173,19 @@ clean-lean:
     @echo "Cleaning Lean artifacts..."
     cd proofs/lean4 && lake clean
 
-# Clean TypeScript artifacts
-clean-typescript:
-    @echo "Cleaning TypeScript artifacts..."
-    rm -rf node_modules dist
-
-# Clean AffineScript artifacts
-clean-affinescript:
-    @echo "Cleaning AffineScript artifacts..."
-    cd interpreters/affinescript && rm -rf lib
-
 # ============================================================================
 # Development
 # ============================================================================
 
-# Watch TypeScript for changes
-watch:
-    npm run watch
-
-# Format code
+# Format code — no formatter is configured: the AffineScript/TypeScript tree it
+# targeted was removed (#75). Fails loudly rather than reporting a no-op as success.
 format:
-    @echo "Formatting code..."
-    cd interpreters/affinescript && npx affinescript format
+    @echo "format: no formatter configured for this repository (see #75)" >&2; exit 1
 
-# Lint code
+# Lint code — no linter is configured: `npm run lint || true` targeted a package.json
+# that does not exist and could never fail (#75). Fails loudly instead.
 lint:
-    @echo "Linting TypeScript..."
-    npm run lint || true
+    @echo "lint: no linter configured for this repository (see #75)" >&2; exit 1
 
 # ============================================================================
 # CI/CD
@@ -256,32 +198,6 @@ ci: build-all test-all verify-all
 # ============================================================================
 # Installation
 # ============================================================================
-
-# Install dependencies
-install: install-npm install-python
-    @echo "✓ Dependencies installed"
-
-# Install npm dependencies
-install-npm:
-    @echo "Installing npm dependencies..."
-    npm install
-
-# Install Python dependencies
-install-python:
-    @echo "Installing Python dependencies..."
-    pip3 install --user pytest hypothesis
-
-# Install proof assistants (Fedora)
-install-provers-fedora:
-    @echo "Installing proof assistants (Fedora)..."
-    sudo dnf install -y coq z3 nodejs opam
-    npm install -g affinescript@11.1
-
-# Install proof assistants (Ubuntu)
-install-provers-ubuntu:
-    @echo "Installing proof assistants (Ubuntu)..."
-    sudo apt install -y coq z3 nodejs npm
-    npm install -g affinescript@11.1
 
 # ============================================================================
 # Container (Podman/Docker)
@@ -326,9 +242,6 @@ stats:
     @echo ""
     @echo "Proof code:"
     @find proofs -name "*.v" -o -name "*.lean" -o -name "*.agda" -o -name "*.thy" -o -name "*.miz" -o -name "*.smt2" | xargs wc -l | tail -1
-    @echo ""
-    @echo "Implementation code:"
-    @find interpreters ts -name "*.res" -o -name "*.py" -o -name "*.ts" | xargs wc -l | tail -1
     @echo ""
     @echo "Documentation:"
     @find docs -name "*.md" | xargs wc -l | tail -1
@@ -413,7 +326,6 @@ run-elm: build-elm
 clean-elm:
     @echo "Cleaning Elm artifacts..."
     rm -rf elm/dist elm/elm-stuff
-
 
 # ============================================================================
 # ECHIDNA Integration (Neurosymbolic Proof Assistant)
