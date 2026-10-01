@@ -519,27 +519,35 @@ info: 'FilesystemCNO.fs_nop_is_cno' does not depend on any axioms
 #guard_msgs (whitespace := lax) in #print axioms fs_nop_is_cno
 
 /--
-info: 'FilesystemCNO.mkdir_rmdir_is_cno' does not depend on any axioms
+info: 'FilesystemCNO.mkdir_rmdir_is_cno' depends on axioms: [FilesystemCNO.mkdir,
+ FilesystemCNO.mkdir_rmdir_inverse,
+ FilesystemCNO.rmdir]
 -/
 #guard_msgs (whitespace := lax) in #print axioms mkdir_rmdir_is_cno
 
 /--
-info: 'FilesystemCNO.create_unlink_is_cno' does not depend on any axioms
+info: 'FilesystemCNO.create_unlink_is_cno' depends on axioms: [FilesystemCNO.create,
+ FilesystemCNO.create_unlink_inverse,
+ FilesystemCNO.unlink]
 -/
 #guard_msgs (whitespace := lax) in #print axioms create_unlink_is_cno
 
 /--
-info: 'FilesystemCNO.read_write_is_cno' does not depend on any axioms
+info: 'FilesystemCNO.read_write_is_cno' depends on axioms: [FilesystemCNO.readFile,
+ FilesystemCNO.read_write_identity,
+ FilesystemCNO.writeFile]
 -/
 #guard_msgs (whitespace := lax) in #print axioms read_write_is_cno
 
 /--
-info: 'FilesystemCNO.chmod_nop_is_cno' does not depend on any axioms
+info: 'FilesystemCNO.chmod_nop_is_cno' depends on axioms: [FilesystemCNO.chmod,
+ FilesystemCNO.chmod_identity,
+ FilesystemCNO.stat]
 -/
 #guard_msgs (whitespace := lax) in #print axioms chmod_nop_is_cno
 
 /--
-info: 'FilesystemCNO.rename_nop_is_cno' does not depend on any axioms
+info: 'FilesystemCNO.rename_nop_is_cno' depends on axioms: [FilesystemCNO.rename, FilesystemCNO.rename_identity]
 -/
 #guard_msgs (whitespace := lax) in #print axioms rename_nop_is_cno
 
@@ -549,7 +557,7 @@ info: 'FilesystemCNO.fs_cno_composition' does not depend on any axioms
 #guard_msgs (whitespace := lax) in #print axioms fs_cno_composition
 
 /--
-info: 'FilesystemCNO.mkdir_alone_not_cno' does not depend on any axioms
+info: 'FilesystemCNO.mkdir_alone_not_cno' depends on axioms: [FilesystemCNO.mkdir, FilesystemCNO.mkdir_not_identity]
 -/
 #guard_msgs (whitespace := lax) in #print axioms mkdir_alone_not_cno
 
@@ -559,12 +567,17 @@ info: 'FilesystemCNO.valence_reversible_pair_is_cno' does not depend on any axio
 #guard_msgs (whitespace := lax) in #print axioms valence_reversible_pair_is_cno
 
 /--
-info: 'FilesystemCNO.snapshot_restore_is_cno' does not depend on any axioms
+info: 'FilesystemCNO.snapshot_restore_is_cno' depends on axioms: [FilesystemCNO.restore,
+ FilesystemCNO.snapshot,
+ FilesystemCNO.snapshot_restore_identity]
 -/
 #guard_msgs (whitespace := lax) in #print axioms snapshot_restore_is_cno
 
 /--
-info: 'FilesystemCNO.unconditional_mkdir_rmdir_inverse_is_false' does not depend on any axioms
+info: 'FilesystemCNO.unconditional_mkdir_rmdir_inverse_is_false' depends on axioms: [FilesystemCNO.mkdir,
+ FilesystemCNO.mkdir_idempotent,
+ FilesystemCNO.mkdir_not_identity,
+ FilesystemCNO.rmdir]
 -/
 #guard_msgs (whitespace := lax) in #print axioms unconditional_mkdir_rmdir_inverse_is_false
 end
@@ -650,6 +663,14 @@ run_cmd do
   let modules : Array Name := #[`CNO, `OND, `CNOCategory, `CNOBridge, `FilesystemCNO, `LambdaCNO]
   let allowed : Array Name := #[
     `propext, `Quot.sound,
+    `FilesystemCNO.mkdir, `FilesystemCNO.rmdir, `FilesystemCNO.create,
+    `FilesystemCNO.unlink, `FilesystemCNO.readFile, `FilesystemCNO.writeFile,
+    `FilesystemCNO.chmod, `FilesystemCNO.stat, `FilesystemCNO.rename,
+    `FilesystemCNO.mkdir_rmdir_inverse, `FilesystemCNO.create_unlink_inverse,
+    `FilesystemCNO.read_write_identity, `FilesystemCNO.chmod_identity,
+    `FilesystemCNO.rename_identity, `FilesystemCNO.mkdir_not_identity,
+    `FilesystemCNO.snapshot, `FilesystemCNO.restore,
+    `FilesystemCNO.snapshot_restore_identity, `FilesystemCNO.mkdir_idempotent,
     `LambdaCNO.y_combinator_not_identity
   ]
   let mut checked := 0
