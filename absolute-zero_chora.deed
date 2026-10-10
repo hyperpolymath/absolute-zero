@@ -1,0 +1,249 @@
+;; SPDX-License-Identifier: MPL-2.0
+;
+; The repo deed of absolute-zero: the one machine-readable description of this
+; repository (standards#837 one-deed-per-repo doctrine; owner ruling 2026-09-19,
+; Option A). It replaces the twenty .a2ml descriptiles/contractiles/bot_directives
+; files, which are archived verbatim under archive/a2ml-v1/*.a2ml.txt (D99,
+; D269c, D312, D313, D222). Contracts live in .machine_readable/contractiles/
+; <verb>/<verb>.k9.ncl; agent coordination lives in coordination.k9.
+;
+; Migration ledger, fail-closed items and per-field provenance:
+;   archive/a2ml-v1/MIGRATION-LEDGER.adoc
+; Mapping specs followed: 1-formats/deed/mappings/{meta-ecosystem-to-repo-deed,
+;   agentic-neurosym-playbook-to-repo-deed, state-v1-decision (option B),
+;   ai-manifest-decision (option A)}.adoc
+;
+; Items that did NOT translate (no table row, or no source) are kept as comments
+; in the clause they belonged to, and each one has a ledger row. Nothing was
+; invented to fill a field: identity, clade, forges, lineage and status have no
+; CLADE source in this repo and are NOT emitted (owner input required).
+(repo-deed
+  :schema-version "1.0.0"
+  :canonical-name "absolute-zero"
+  :beholding-chora #u5"estate/chora"
+  :repo-uuid #u5"github.com/hyperpolymath/absolute-zero"
+
+  ; The canon pin: which release of hyperpolymath/standards canon.lock this repo
+  ; implements. Exactly one pin (deed_canon refuses zero or two). Values copied
+  ; from standards canon.lock [canon] and [canon.artifacts] (version 2.1.2).
+  ; :lockstep-since is not emitted: it is a per-repo adoption date that the
+  ; source does not carry (ledger row C-1).
+  (canon
+    :version "2.1.2"
+    :criteria-sha256 "6a5aa8857bd0d0d58ef48827938ca17c251b6b854dacf59d306388d61694d82a"
+    :gates-sha256 "e70efd2f53c9445e30da4baf770366f04a4a84ffd844a01426e587e565b53e6a"
+    :order "spine-adopts-then-canon-releases")
+
+  ; ---- META.a2ml (family 2) ------------------------------------------------
+  ; ADR-001..ADR-014 (META [architecture-decisions]). Not emitted as clauses: the
+  ; ADR entries carry no :date, which the family-2 table requires (ledger M-2).
+  ; Text kept verbatim here so nothing is lost:
+  ;   ADR-001 accepted: ProofIrrelevance for morphism equality in category theory
+  ;   ADR-002 accepted: Dual Landauer formalization: axiom (StatMech.v) + derivation (LandauerDerivation.v)
+  ;   ADR-003 accepted: Lambda CNO = identity property only, not termination
+  ;   ADR-004 accepted: post_execution_dist specialized for CNOs (identity on distributions)
+  ;   ADR-005 accepted: Fix QuantumCNO.v Cexp: concretised as e^(i Re z) = (cos(Re z), sin(Re z)); removed the false Cconj_Cexp axiom (PR #100)
+  ;   ADR-006 accepted: state_eq excludes state_pc: PC is control-flow bookkeeping, not observable side effect (2026-05-18 rescue)
+  ;   ADR-007 accepted: Discharge eval_deterministic Axiom to Theorem via step_deterministic_strong helper (2026-05-20, PR #24); first post-T0 axiom audit win
+  ;   ADR-008 accepted: Delete unsound eval_respects_state_eq axioms; weaken logically_reversible to use =st= (observational reversibility); re-prove cno_eval_on_equal_states and cno_logically_reversible
+  ;   ADR-009 accepted: Delete unsound alignmentMatchesPlatformWord Idris2 postulate; consolidate alignedSizeCorrect into shared AbsoluteZero.ABI.Proofs.DivMod module (PR #40, Refs #27)
+  ;   ADR-010 accepted: Phase 1 per-axiom triage of 72 Coq Axioms per standards#203 (2026-05-27, PR #58): 52 TRUSTED-BASE + 17 DISCHARGE backlog + 3 PROPERTY-TEST
+  ;   ADR-011 accepted: OND (disclosure) pillar model (PR #100): operation = (state effect, timing cost); observable execution = (declared output channel, timing); observer does NOT see raw secret input
+  ;   ADR-012 accepted: OND-1..5 proved zero-axiom in Coq/Lean/Agda (+Z3 bounded); OND-3 independence anchored to the real core is_CNO; OND-6 left OPEN as a research capstone (PR #100)
+  ;   ADR-013 accepted: Remove three latent-UNSOUND axioms found during discharge (PR #100): no_cloning, Cconj_Cexp, eta_equivalence
+  ;   ADR-014 accepted: Accept a small, openly-labelled class-A axiom remainder (y_not_cno, CNOT_gate_unitary, unitary_inverse_property, fidelity_bound)
+  ; [development-practices] code-style, testing, versioning, documentation, branching
+  ; and [security], [proof-methodology], [design-rationale], [project-info] type/
+  ; languages/container-runtime/ci-platform/package-manager: no table row (ledger M-3..M-6).
+  (meta
+    :version "1.0.1"
+    :last-updated "2026-07-07"
+    :license MPL-2.0
+    :author "Jonathan D.A. Jewell (hyperpolymath)"
+    :build-tool just
+    :scoping-first #t
+    :execution-order "axis-1 > axis-2 > axis-3"
+    :axis-1 "must > intend > like"
+    :axis-2 "corrective > adaptive > perfective"
+    :axis-3 "systems > compliance > effects")
+
+  ; STATE v1 option B (state-v1-decision §2): phase is a lifecycle claim owned by
+  ; the CLADE status clause, which this repo has no source for, so phase is not
+  ; emitted (ledger S-1). Maturity is its own clause, ruled 2026-10-02. The
+  ; STATE journal (route-to-mvp, blockers, next actions, session history,
+  ; components percentages) is archived, not translated (ledger S-2..S-4).
+  (maturity :level experimental)
+
+  ; ECOSYSTEM.a2ml (family 2). [project], [position-in-ecosystem],
+  ; [what-this-is], [what-this-is-not] have no table row (ledger E-1..E-3).
+  ; [related-projects] relationships are outside the closed set (ledger E-4) and
+  ; are carried in coordination.k9 under its ecosystem section, verbatim.
+  (ecosystem
+    :project "absolute-zero"
+    :ecosystem "hyperpolymath")
+
+  ; ---- AGENTIC.a2ml (family 4) -------------------------------------------
+  ; [agent-constraints] and [automation-hooks] are comment-carried in the source.
+  ; Decision D4-1: they are template canon, so the deed carries the methodology
+  ; pointer only. Divergence from canon was NOT diffed (no canon block to hash
+  ; against here), so the text is kept below as comments (ledger A-1).
+  ;   agent-constraints: never use believe_me, assert_total, Admitted, sorry, unsafeCoerce, Obj.magic;
+  ;     never introduce a new axiom or postulate to close a goal (report instead);
+  ;     never commit secrets; never use banned languages (TypeScript, Python except SaltStack,
+  ;     Go, Node.js, Bun, npm); never place checkpoint files outside .machine_readable/;
+  ;     never relicense a file or run an automated licence sweep (LICENCE-POLICY A2);
+  ;     never assume a licence (LICENCE-POLICY rules 1-5).
+  ;   automation-hooks: on-enter read 0-AI-MANIFEST and STATE; on-exit update STATE with session outcomes;
+  ;     on-commit run just validate-rsr if available.
+  ; [proof-safety] counts (lean4-sorry-count, coq-admitted-count) are derivable
+  ; facts and are dropped by the derivable-facts doctrine (ledger A-2). [tools]
+  ; has no table row (ledger A-3).
+  (agentic
+    :version "1.0.1"
+    :last-updated "2026-07-07"
+    (permissions :source #t :tests #t :docs #t :config #t :create-files #t)
+    (integrity
+      :fail-closed #t
+      :require-evidence-per-step #t
+      :allow-silent-skip #f
+      :require-rerun-after-fix #t
+      :release-claim-requires-hard-pass #t))
+
+  ; ---- NEUROSYM.a2ml (family 4) ------------------------------------------
+  ; report-format "a2ml" is STALE: Hypatia's Logtalk output was removed on
+  ; 2026-04-12 and its output was JSON then A2ML, which is retired by D312. Kept
+  ; verbatim as a string, flagged in the ledger (N-1). [symbolic-layer],
+  ; [neural-layer], [integration] have no table row (ledger N-2..N-4);
+  ; [symbolic-rules] is commented out in the source and is not emitted.
+  (neurosym
+    :version "1.0.1"
+    :last-updated "2026-07-07"
+    (hypatia
+      :scan-enabled #t
+      :scan-depth deep
+      :report-format "a2ml"))
+
+  ; ---- PLAYBOOK.a2ml (family 4) ------------------------------------------
+  ; The five operational sections are POPULATED in this repo, not empty. The
+  ; family-4 rule is that populated sections fail closed for table extension, so
+  ; their text is kept as comments below (ledger P-1..P-4).
+  ;   [deployment]: method "library", target "library" (research repo, no deployed service).
+  ;   [build-procedures]: build "just build", test "just test", release "just release".
+  ;   [proof-procedures]: verify-all "proofs/verify-all-provers.sh" (now archived; the active gate is
+  ;     proofs/verify-active-provers.sh, see Justfile `just verify`), per-prover build recipes.
+  ;   [incident-response]: check STATE, review git log, run just validate, run just security,
+  ;     check proofs/<system>/ for Admitted/sorry.
+  ;   [release-process]: update version in STATE and META, resolve Admitted/sorry, run just build-all,
+  ;     tag and push to GitHub, update PROOF-COMPLETION-PLAN.
+  ;   [rollback]: revert the commit and re-check proof counts. [maintenance-operations]: TODO recipes.
+  ;   [contacts]: none (TODO if paper co-authors join).
+  (playbook
+    :version "1.0.1"
+    :last-updated "2026-07-07")
+
+  ; ---- 0-AI-MANIFEST.a2ml (root) — ai-manifest-decision option A ----------
+  ; The root manifest's keys are [metadata] manifest-version, [scope] purpose,
+  ; [entry-points], [machine-readable], [language-policy], [echidna-protocol],
+  ; [delivery]. None of these is in the family table (which is [metadata]
+  ; version/last-updated, [project] name/purpose, [ai-allocation], [policy],
+  ; [work-allocation]), so they fail closed (ledger G-1..G-3). Only the
+  ; last-updated date is emitted.
+  ; Language policy (verbatim, for reference): allowed AffineScript, Deno, Rust,
+  ; Tauri, Dioxus, Gleam, Bash, JavaScript (limited), Nickel, Guile Scheme, Julia,
+  ; OCaml, Ada, Idris2. Banned: TypeScript, Node.js, npm, Bun, pnpm, yarn, Go,
+  ; Python, Java, Kotlin, Swift, React Native, Flutter, Dart, Ruby, Perl.
+  ; The root manifest's [delivery] rule "architectural changes recorded in
+  ; META.scm architecture-decisions" points at a retired file: superseded by the
+  ; ADR comments above (ledger G-4).
+  (manifest
+    :last-updated "2026-05-25")
+
+  ; ---- anchor/ANCHOR.a2ml (realignment record; template anchor precedent) --
+  (anchor
+    :repo "absolute-zero"
+    :owner "hyperpolymath"
+    :id "org.hyperpolymath.absolute-zero"
+    :created "2026-06-12"
+    :last-updated "2026-06-12"
+    (realignment
+      :date "2026-06-12"
+      :title "Estate standardization + governance checkpoint"
+      :what-changed (
+        "Merged origin/estate-standardization-20260607: flat .machine_readable/contractiles/ layout, svc/k9 to self-validating/ rename, GOVERNANCE.adoc + MAINTAINERS.adoc + .github/CODEOWNERS, Guix manifest.scm, descriptiles 0-AI-MANIFEST.a2ml + README.adoc + anchor/, removal of the duplicate root .machine_readable/*.scm set and the root contractiles/ template dir, SPDX header normalization"
+        "Conflict resolution: .github/workflows/rust-ci.yml kept at origin/main's version; .claude/CLAUDE.md kept identical to origin/main"
+        "Governance checkpoint layer: bot_directives/ (README.adoc, hypatia, gitbot-fleet, git-private-farm); flat contractiles fully populated with repo-true content; descriptiles/STATE light-bump to 2026-06-12 with [recent-work]; README.md pointer-ized to canonical README.adoc; docs/archive/ index README; wiki Home.md currency fixes")
+      :why "Per-repo governance refresh aligning absolute-zero with the estate standard fully landed in echo-types (PR #185 there); checkpoint of 2026-06-12"
+      :evidence (
+        "Merge of origin/estate-standardization-20260607 on branch claude/confident-shannon-xf0Td"
+        "Upstream PRs since 2026-05-27: #68 (scorecard job-level permissions), #69 (reusable SHA repins), #71 (CodeQL cron monthly), #72 (actions bumps)"
+        "Proof-track anchor unchanged: Phase-1 axiom triage PR #58 (2026-05-27), docs/proof-debt-triage.md")))
+
+  ; ---- bot_directives/ (named clause; template bot-directives precedent) --
+  ; hypatia.a2ml -> (scanner ...) and (accepted-finding ...)
+  ; gitbot-fleet.a2ml -> (fleet ...), (branch-policy ...), (per-bot ...)
+  ; git-private-farm.a2ml -> (propagation ...), (never-propagate ...), (on-token-rotation ...)
+  ; The git-private-farm propagation surface is DISABLED (no instant-sync workflow;
+  ; propagation.enabled = #f). The secret NAME is recorded; the secret VALUE is never
+  ; in the repo.
+  (bot-directives
+    (scanner
+      :ignore-file ".hypatia-ignore"
+      :ignore-file-present #t
+      :workflow ".github/workflows/hypatia-scan.yml")
+    (accepted-finding
+      :id "banned-language-example-files"
+      :finding "cicd_rules/banned_language_file hits under examples/ (go, java, kotlin, swift, ...) and legacy AffineScript paths"
+      :reason "absolute-zero is the canonical cross-language nop-semantics demonstration repo; example files in banned languages are the point, not load-bearing code. Each accepted path is enumerated in .hypatia-ignore. After standards#180 (file_pattern glob support) the per-file entries collapse to a single examples/** pattern."
+      :status accepted)
+    (accepted-finding
+      :id "reusable-caller-timeout-minutes"
+      :finding "timeout-minutes flagged on jobs that call estate reusable workflows"
+      :reason "hypatia-scan.yml, mirror.yml and scorecard.yml call hyperpolymath/standards reusable workflows; timeout-minutes is set at the caller job level (10 minutes), which the scanner does not always attribute to the reusable's jobs. False positive."
+      :status accepted)
+    (accepted-finding
+      :id "scorecard-token-permissions"
+      :finding "token-permissions advisories on .github/workflows/scorecard.yml"
+      :reason "Deliberate: top-level permissions read-all with job-level security-events write and id-token write added in PR #68 for the reusable scorecard workflow. This is the intended least-privilege split."
+      :status accepted)
+    (accepted-finding
+      :id "stale-hypatia-ignore-affinescript-entries"
+      :finding ".hypatia-ignore lists AffineScript paths (src/AuditTrail.res, interpreters/affinescript/malbolgeInterpreter.res, examples/SafeDOMExample.res) that no longer exist in the tree"
+      :reason "Harmless staleness: ignore entries for deleted files have no effect. Cleanup is proposed as a maintainer issue rather than bot-edited, since .hypatia-ignore is security policy."
+      :status accepted-pending-cleanup)
+    (fleet
+      :bots ("rhodibot" "echidnabot" "sustainabot" "glambot" "seambot" "finishbot")
+      :roles ("rhodibot: git operations" "echidnabot: code quality" "sustainabot: dependency updates" "glambot: documentation" "seambot: integration" "finishbot: task completion"))
+    (branch-policy
+      :working-branch-pattern "bot/<botname>/<topic>"
+      :draft-prs-only #t
+      :ci-green-before-merge #t
+      :never-touch (".claude/CLAUDE.md" "proofs/" "src/abi/" ".github/workflows/" "LICENSE"))
+    (per-bot
+      (echidnabot
+        :deny ("proofs/" "src/abi/")
+        :note "Quality findings on proof code go to an issue, never an automated edit; proof-debt disposition is canonical in docs/proof-debt-triage.md.")
+      (sustainabot
+        :allow ("Cargo.toml" "Cargo.lock" "deno.json" "elm.json")
+        :deny (".github/workflows/")
+        :note "Workflow action pins are repinned by maintainer-reviewed PRs (cf. PR #69); dependency bumps for the actions group arrive via the existing dependabot grouping (cf. PR #72).")
+      (glambot
+        :allow ("docs/" "docs/wiki/" "README.adoc")
+        :deny ("docs/archive/")
+        :note "docs/archive/ is append-only historical snapshots (see docs/archive/README.adoc); do not refresh archived files."))
+    (propagation
+      :enabled #f
+      :workflow-present #f
+      :target "hyperpolymath/.git-private-farm"
+      :event-type "propagate"
+      :secret-name "FARM_DISPATCH_TOKEN"
+      :presence-gated #f)
+    (never-propagate :items ("secrets" "unmerged branches" "work-in-progress"))
+    (on-token-rotation
+      :secret-name "FARM_DISPATCH_TOKEN"
+      :note "Name only; paste the new value interactively, never commit it."))
+
+  ; ---- .machine_readable/ scope-check ------------------------------------
+  ; Contracts: .machine_readable/contractiles/{must,trust,dust,bust,adjust,intend}/<verb>.k9.ncl
+  ; Agent coordination: coordination.k9 (repo root)
+  ; Archived source: archive/a2ml-v1/
+)

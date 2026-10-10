@@ -1,0 +1,74 @@
+// SPDX-License-Identifier: MPL-2.0
+= Archive
+:toc:
+
+This directory holds material that has been retired from the live tree but
+kept for reference. Nothing here is gated by CI, and nothing here is deleted.
+
+== proofs/ — retired provers (2026-10-10)
+
+Owner ruling, 2026-10-10: the *active* proof stack is **Idris 2** (the ABI
+package) and **Agda** (CNO, OND and EchoBridge). The following provers were
+moved here with `git mv`, so their history is preserved:
+
+[cols="2,3,3",options="header"]
+|===
+| Archived path | What it was | Status
+| `archive/proofs/coq/` | Coq theories: CNO and OND pillars, 14 theories, `coq_makefile` build, Print Assumptions and axiom-tag gates | Not built or gated. Kept for reference.
+| `archive/proofs/lean4/` | Lean 4 CNO and OND libraries, `lake` build, `check-core.sh` axiom audit | Not built or gated.
+| `archive/proofs/isabelle/` | Isabelle/HOL session `AbsoluteZero-CNO` and `OND.thy` | Not built or gated.
+| `archive/proofs/mizar/` | Mizar CNO article and `dict/cno.voc` | Not built or gated.
+| `archive/proofs/verify-all-provers.six-prover.sh` | The six-prover gate (Coq, Agda, Lean, Z3, Isabelle, Mizar, Idris 2) | Superseded by `proofs/verify-active-provers.sh`.
+| `archive/proofs/tests/gate-selftest.six-prover.sh` | Self-test for the six-prover gate (stubbed toolchains, z3 mutants) | Superseded. Kept for reference only.
+|===
+
+=== Why
+
+* Owner ruling, 2026-10-10: use Idris 2 and Agda as the active proof stack, and
+  file the other provers in this archive. The owner's rationale is not restated
+  here; add it if it should be on record.
+* Archiving is reversible. A prover returns to the active tree by moving its
+  directory back and restoring its gate.
+
+=== What was NOT archived
+
+* `proofs/agda/` (active; CNO, OND, EchoBridge)
+* `proofs/z3/` (active as a *solver* of bounded, expect-annotated checks, not as a
+  proof assistant; see the flag below)
+* `proofs/observation-models/` and `proofs/residue/` (not prover trees)
+* `src/abi/` and `absolute-zero-abi.ipkg` (Idris 2 ABI)
+
+== Flags for the owner (open)
+
+. *Coq and D204.* D204 (2026-09-30) defines the CNO interface as a Coq Module
+  Type that `valence-shell` imports. Archiving Coq conflicts with that decision.
+  The ruling needed is whether the Module Type moves to Agda, or whether Coq is
+  restored for that interface alone.
+. *Agda and LANGUAGE-POLICY.* `CLAUDE.md` allows Agda. The language policy names
+  Idris 2 as the sole formal-verification option. The active stack uses both, so
+  the policy needs a standards ruling.
+. *Z3.* Kept active as a solver of bounded checks, not as a proof assistant. Flagged
+  so the choice is visible.
+. *TIERS.* TIERS names Coq and Isabelle at the Rhodium tier. Neither is in the
+  allowed-provers table. Unresolved.
+
+== Live references
+
+The archived provers still appear in the narrative documents (README,
+PROOF-STATUS, docs/*, the wiki). Those documents get an archive banner now
+and a full rewrite later as a separate follow-up. The machine-readable
+references (Justfile, `proofs.yml`, Containerfile, `.gitlab-ci.yml`, the K9
+contracts) were updated in the same change.
+
+== proofs-archive history
+
+Before the 2026-10-10 change, `proofs.yml` ran separate coq, lean4, agda and z3
+jobs. The six-prover gate history is in git for `proofs/verify-all-provers.sh`.
+
+== a2ml-v1/ — retired metadata (2026-10-10)
+
+`archive/a2ml-v1/` holds the twenty `.a2ml` files that were the repo's
+machine-readable metadata before the migration to the repo deed and the K9
+contracts. Each was moved with `git mv` and renamed to `<dir>-<name>.a2ml.txt`.
+See `archive/a2ml-v1/MIGRATION-LEDGER.adoc` for where every field went and
+what did not translate.

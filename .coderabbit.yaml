@@ -1,0 +1,19 @@
+# SPDX-License-Identifier: MPL-2.0
+# CodeRabbit configuration. Schema: https://coderabbit.ai/integrations/schema.v2.json
+#
+# Ruling D217: CodeRabbit does not push commits to PR branches. Bot commits on a
+# PR branch are unsigned and fail the estate signed-commit floor. The docstring
+# finishing touch below is the feature that commits to the branch, so it is
+# disabled here. The matching app-UI setting must also be off; it lives outside
+# this repo and is tracked in the ULTRAPLAN.
+#
+# The docstring pre-merge check stays advisory (mode: warning), as in
+# rsr-template-repo. CodeRabbit is advisory.
+reviews:
+  pre_merge_checks:
+    docstrings:
+      mode: warning
+      threshold: 80
+  finishing_touches:
+    docstrings:
+      enabled: false

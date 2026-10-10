@@ -8,6 +8,12 @@ Multi-prover formal verification of programs that provably compute
 nothing (CNO) and programs that provably reveal nothing (OND). Two
 co-equal pillars: Certified Null Effect and Certified Null Disclosure.
 
+[IMPORTANT]
+====
+*Archive notice (2026-10-10).* The active proof stack is now Idris 2 (ABI) and Agda (CNO, OND, EchoBridge), with Z3 as a bounded-check solver. Coq, Lean 4, Isabelle/HOL and Mizar are archived under `archive/proofs/` (see `archive/README.adoc`). Text that describes those provers as active is historical until the full rewrite lands.
+====
+
+
 == Overview
 
 Absolute Zero formalises two kinds of computational nothingness:

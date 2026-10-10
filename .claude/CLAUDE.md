@@ -1,14 +1,14 @@
 ## Machine-Readable Artefacts
 
-The following files in `.machine_readable/descriptiles/` contain structured
-project metadata (a2ml is TOML-flavoured, not Guile Scheme):
+A2ML is retired (standards D99, D269c, D312, D313). The old `.a2ml` sources are
+archived under `archive/a2ml-v1/` and must not be recreated or extended. Use:
 
-- `STATE.a2ml` - Current project state and progress
-- `META.a2ml` - Architecture decisions and development practices
-- `ECOSYSTEM.a2ml` - Position in the ecosystem and related projects
-- `AGENTIC.a2ml` - AI agent interaction patterns
-- `NEUROSYM.a2ml` - Neurosymbolic integration config
-- `PLAYBOOK.a2ml` - Operational runbook
+- `absolute-zero_chora.deed` - project metadata (state, ecosystem, agentic and
+  policy clauses). Deed grammar; validate with the estate deed linter.
+- `.machine_readable/contractiles/<verb>/<verb>.k9.ncl` - the six contracts
+  (must, trust, dust, bust, adjust, intend). The four Hunt contracts are unsigned
+  and must not run as Hunt until signed (ledger K-1).
+- `coordination.k9` - coordination metadata (repo root).
 
 ---
 
@@ -29,7 +29,7 @@ project metadata (a2ml is TOML-flavoured, not Guile Scheme):
 | **Bash/POSIX Shell** | Scripts, automation | Keep minimal |
 | **JavaScript** | Only where AffineScript cannot, or as per-language reference (examples/) | Avoid for new code unless integrating an external JS API |
 | **Nickel** | Configuration language | For complex configs |
-| **Guile Scheme** | Scripting where needed | (state/meta files are `.machine_readable/descriptiles/*.a2ml`, TOML-flavoured) |
+| **Guile Scheme** | Scripting where needed | (metadata is `<repo>_chora.deed`; contracts are `*.k9.ncl`; see Machine-Readable Artefacts) |
 | **Julia** | Batch scripts, data processing | Per RSR |
 | **OCaml** | AffineScript compiler | Language-specific |
 | **Ada** | Safety-critical systems | Where required |

@@ -1,0 +1,128 @@
+K9!
+# SPDX-License-Identifier: MPL-2.0
+# coordination.k9 — agent coordination for absolute-zero (K9 coordination protocol v1.1.1)
+#
+# Migrated 2026-10-10 from the a2ml descriptiles and bot_directives (archive/a2ml-v1/).
+# Grammar: 2-protocols/k9-coordination/spec/abnf/coordination-k9-grammar_v1.1.abnf
+# (standards). Full provenance: archive/a2ml-v1/MIGRATION-LEDGER.adoc.
+#
+# Invariant rules come from AGENTIC.a2ml constraints and maintenance integrity,
+# the 0-AI-MANIFEST language policy, Intentfile if-in-doubt, and bot-directives
+# never-touch lists. Ecosystem entries come from ECOSYSTEM.a2ml related-projects,
+# with the source relationship kept verbatim in each role.
+
+metadata:
+  schema: k9-coordination
+  schema_version: 1.1.1
+  generated_by: "hand-migrated from a2ml-v1 (2026-10-10); not generator output"
+  last_updated: 2026-10-10
+
+project:
+  name: "Absolute Zero"
+  description: "Formal verification of Certified Null Operations (CNOs): programs proven to compute nothing, with the OND disclosure pillar. Active proof stack: Idris 2 (ABI), Agda and Z3. Coq, Lean 4, Isabelle and Mizar are archived."
+  license: MPL-2.0
+  repo: hyperpolymath/absolute-zero
+  deed_ref: absolute-zero_chora.deed
+  languages:
+    - Idris2
+    - Agda
+    - Z3
+    - Rust
+  build_system: just
+
+invariants:
+  - id: no-dangerous-proof-patterns
+    rule: "Never use believe_me, assert_total, Admitted, sorry, unsafeCoerce or Obj.magic in load-bearing proofs or source"
+    reason: "Escape hatches defeat the proofs. AGENTIC.a2ml constraints; Trustfile dangerous-patterns section"
+    severity: critical
+  - id: no-new-axioms-to-close-goals
+    rule: "Never introduce a new axiom or postulate to close a goal. If a proof cannot be completed, leave it open and report it"
+    reason: "A silent axiom is unverified trust. The open remainder is tracked openly (ADR-014)"
+    severity: critical
+  - id: no-silent-skip
+    rule: "A check that could not run is a failure, never a pass or a skip"
+    reason: "allow-silent-skip = false in AGENTIC maintenance-integrity; the gate-that-could-never-fire defect"
+    severity: critical
+  - id: no-secrets
+    rule: "Never commit secrets or credentials"
+    reason: "Trustfile secrets section. Public history cannot be un-published"
+    severity: critical
+  - id: no-typescript-or-banned-runtimes
+    rule: "Do not introduce banned-language code (TypeScript, Node.js, npm, Bun, pnpm, yarn, Go, Python, Java, Kotlin, Swift, Dart, Ruby, Perl and the rest of the 0-AI-MANIFEST banned list) outside the enumerated carve-outs"
+    reason: "Estate language policy (0-AI-MANIFEST); carve-outs are examples/ and the .hypatia-ignore list"
+    severity: high
+  - id: no-dockerfile
+    rule: "Use Containerfile, not Dockerfile"
+    reason: "Podman is the container runtime (Mustfile no-dockerfile)"
+    severity: high
+  - id: no-licence-sweep
+    rule: "Never relicense an existing file, never run an automated licence sweep, never assume a licence"
+    reason: "LICENCE-POLICY A2 and rules 1-5. New files get correct SPDX from birth"
+    severity: high
+  - id: no-new-a2ml
+    rule: "Do not create new .a2ml files. Metadata lives in <repo>_chora.deed and contracts in *.k9.ncl"
+    reason: "a2ml is retired (D99, D269c, D312, D313)"
+    severity: high
+  - id: maintainer-gated-areas
+    rule: "Proof semantics, the Idris 2 ABI, CI workflows and LICENSE are maintainer-gated: ask before touching"
+    reason: "Intentfile if-in-doubt; bot-directives never-touch lists"
+    severity: high
+  - id: topology-never-edited
+    rule: "Never edit TOPOLOGY.adoc"
+    reason: "Estate rule (standards constraint)"
+    severity: critical
+  - id: checkpoints-under-machine-readable
+    rule: "Place agent checkpoint files only under .machine_readable/"
+    reason: "AGENTIC.a2ml constraints"
+    severity: moderate
+
+protected:
+  - path: .machine_readable/contractiles/
+    reason: "K9 contract set. The signature ceremony gates 'Hunt"
+  - path: proofs/
+    reason: "Active proof surface; semantics are maintainer-gated"
+  - path: src/abi/
+    reason: "Idris 2 ABI proof surface"
+  - path: .github/workflows/
+    reason: "CI gates, pinned to standards reusables"
+  - path: LICENSE
+    reason: "Licence is maintainer-gated"
+  - path: TOPOLOGY.adoc
+    reason: "Never edited by agents"
+  - path: coordination.k9
+    reason: "Source of truth for AI coordination"
+
+do_not_create:
+  - pattern: Dockerfile
+    reason: "Use Containerfile (Podman)"
+  - pattern: .machine_readable/**/*.a2ml
+    reason: "a2ml is retired; the deed and K9 files replace it"
+
+ecosystem:
+  depends_on:
+    - name: rsr-template-repo
+      role: "infrastructure: repository standards template"
+  consumed_by:
+    - name: januskey
+      role: "downstream-consumer: reversible file operations CLI formally verified by FilesystemCNO"
+    - name: typell
+      role: "theory-consumer: category-theoretic query verification via CNOCategory"
+  related:
+    - name: echidna
+      role: "sibling-standard: security scanning; potential CNO verifier integration"
+    - name: echidnabot
+      role: "potential-consumer: GitHub bot; could automate CNO checks in PRs"
+    - name: valence-shell
+      role: "integration-target: filesystem ops library proven in FilesystemCNO.v"
+    - name: echo-types
+      role: "bridge-target: EchoBridgeCNO.agda connects the CNO zero-loss boundary with proof-relevant fibers"
+    - name: robodog-defensive-systems-lab
+      role: "application-domain: reversible defensive maneuvers (CNO) and side-channel non-disclosure (OND)"
+    - name: robot-vacuum-cleaner
+      role: "application-domain: transactional SLAM map rollback (CNO) and privacy telemetry boundaries (OND)"
+
+coordination:
+  available:
+    - "#27: Idris 2 believe_me sites (src/abi/AbsoluteZero/ABI/Proofs/DivMod.idr and Layout.idr)"
+    - "Archive banners on the six-prover narrative docs (README, PROOF-STATUS, docs/*); full rewrite is a separate follow-up"
+    - "#182: CodeRabbit UI setting (commit-pushing off per D217); the repo-side .coderabbit.yaml is in place"

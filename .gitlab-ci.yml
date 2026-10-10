@@ -46,20 +46,6 @@ build:affinescript:
 # Verification Stage
 # ============================================================================
 
-verify:coq:
-  stage: verify
-  image: coqorg/coq:latest
-  script:
-    - cd proofs/coq/common
-    - coqc CNO.v
-    - cd ../malbolge
-    - coqc -R ../common CNO MalbolgeCore.v
-  artifacts:
-    paths:
-      - proofs/coq/**/*.vo
-    expire_in: 1 day
-  allow_failure: false
-
 verify:z3:
   stage: verify
   image: ubuntu:22.04
@@ -70,26 +56,6 @@ verify:z3:
     - z3 cno_properties.smt2
   allow_failure: false
 
-verify:lean4:
-  stage: verify
-  image: leanprover/lean4:latest
-  script:
-    - cd proofs/lean4
-    - lake build
-  artifacts:
-    paths:
-      - proofs/lean4/.lake/
-    expire_in: 1 day
-  allow_failure: true  # Lean 4 may not be fully set up
-
-verify:isabelle:
-  stage: verify
-  image: makarius/isabelle:latest
-  script:
-    - isabelle build -D proofs/isabelle
-  allow_failure: true  # Isabelle setup may vary
-
-# ============================================================================
 # Test Stage
 # ============================================================================
 
@@ -140,10 +106,8 @@ verify:summary:
     - echo "=========================================="
     - echo "Multi-Prover Verification Summary"
     - echo "=========================================="
-    - echo "Coq:      ✓ (if verify:coq passed)"
     - echo "Z3:       ✓ (if verify:z3 passed)"
-    - echo "Lean 4:   ⚠ (if verify:lean4 passed, else optional)"
-    - echo "Isabelle: ⚠ (if verify:isabelle passed, else optional)"
+    - echo "Coq, Lean 4, Isabelle: archived under archive/proofs/ (retired 2026-10-10; not gated)"
     - echo ""
     - echo "Multi-prover agreement increases confidence!"
   when: always

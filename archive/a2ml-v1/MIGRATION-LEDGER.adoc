@@ -1,0 +1,190 @@
+// SPDX-License-Identifier: MPL-2.0
+= Migration ledger: a2ml v1 to deed + K9 (absolute-zero, 2026-10-10)
+:toc:
+
+Every field that moved, did not move, or was adapted in the 2026-10-10 migration.
+Row IDs match the comments in `absolute-zero_chora.deed`, the K9 contracts and
+`coordination.k9`.
+
+Rules followed: D99, D269c, D312, D313 (a2ml retired); D222 (the 27-file
+precedent); standards `1-formats/deed/mappings/*` (proposals, binding for this
+work); `1-formats/k9/spec/K9-CONTRACT-SPEC.adoc`; MIGRATION-1058 M1; the
+coordination grammar in `2-protocols/k9-coordination`.
+
+== Archive map
+
+The twenty `.a2ml` files were moved with `git mv` into this directory, so the
+history is kept. None remain in the live tree.
+
+[cols="3,3",options="header"]
+|===
+| Source (before) | Archived as
+| `.machine_readable/descriptiles/STATE.a2ml` | `descriptiles-STATE.a2ml.txt`
+| `.machine_readable/descriptiles/META.a2ml` | `descriptiles-META.a2ml.txt`
+| `.machine_readable/descriptiles/ECOSYSTEM.a2ml` | `descriptiles-ECOSYSTEM.a2ml.txt`
+| `.machine_readable/descriptiles/AGENTIC.a2ml` | `descriptiles-AGENTIC.a2ml.txt`
+| `.machine_readable/descriptiles/NEUROSYM.a2ml` | `descriptiles-NEUROSYM.a2ml.txt`
+| `.machine_readable/descriptiles/PLAYBOOK.a2ml` | `descriptiles-PLAYBOOK.a2ml.txt`
+| `.machine_readable/descriptiles/0-AI-MANIFEST.a2ml` | `descriptiles-0-AI-MANIFEST.a2ml.txt`
+| `.machine_readable/descriptiles/anchor/ANCHOR.a2ml` | `descriptiles-anchor-ANCHOR.a2ml.txt`
+| `.machine_readable/descriptiles/anchor/0-AI-MANIFEST.a2ml` | `descriptiles-anchor-0-AI-MANIFEST.a2ml.txt`
+| `.machine_readable/bot_directives/hypatia.a2ml` | `bot_directives-hypatia.a2ml.txt`
+| `.machine_readable/bot_directives/gitbot-fleet.a2ml` | `bot_directives-gitbot-fleet.a2ml.txt`
+| `.machine_readable/bot_directives/git-private-farm.a2ml` | `bot_directives-git-private-farm.a2ml.txt`
+| `.machine_readable/contractiles/{Mustfile,Trustfile,Dustfile,Bustfile,Adjustfile,Intentfile}.a2ml` | `contractiles-<Name>.a2ml.txt` (six)
+| `0-AI-MANIFEST.a2ml` (root) | `root-0-AI-MANIFEST.a2ml.txt`
+| `audits/assail-classifications.a2ml` | `audits-assail-classifications.a2ml.txt`
+|===
+
+== Where each file went
+
+[cols="2,4",options="header"]
+|===
+| Source | Destination
+| STATE v1 | Option B (ruled in the standards decision spec). Maturity goes to the deed as `(maturity :level experimental)`. Phase is not emitted (S-1). Journal sections are archived here (S-2..S-4).
+| META | `(meta …)` and `(adr …)`-equivalent comments in the deed
+| ECOSYSTEM | `(ecosystem :project :ecosystem)` in the deed; the rest in `coordination.k9`
+| AGENTIC | `(agentic …)` in the deed; comment-carried canon (D4-1) as comments
+| NEUROSYM | `(neurosym (hypatia …))` in the deed
+| PLAYBOOK | `(playbook :version :last-updated)` in the deed; populated sections as comments
+| root 0-AI-MANIFEST | `(manifest :last-updated)` in the deed (option A); rest fails closed
+| ANCHOR | `(anchor …)` clause in the deed (template anchor precedent)
+| bot_directives | `(bot-directives …)` clause in the deed (template precedent)
+| contractiles (six) | `.machine_readable/contractiles/<verb>/<verb>.k9.ncl`
+| agent coordination (AGENTIC constraints, bot never-touch, ECOSYSTEM related) | `coordination.k9` at the repo root
+| descriptiles/0-AI-MANIFEST, anchor/0-AI-MANIFEST | archived only; they describe a directory layout that no longer exists (G-5)
+| audits/assail-classifications | archived only; it is a suppression list for `examples/haskell/Nop.hs` (ledger X-1)
+|===
+
+== Ledger rows
+
+=== Deed: canon, identity, status
+
+[cols="1,3,4",options="header"]
+|===
+| ID | Item | Disposition
+| C-1 | `[canon]` `lockstep-since` (template value 2026-09-17) | Not emitted. It is a per-repo adoption date that the source does not carry. The pin version 2.1.2 and the criteria/gates hashes were verified against standards `canon.lock`.
+| I-1 | CLADE family 1: identity, clade, forges, lineage, status | Not emitted. There is no `CLADE.a2ml` source in this repo. Owner input is required and nothing was invented.
+| S-2 | STATE `[recent-work]`, `[route-to-mvp]`, `[blockers-and-issues]`, `[critical-next-actions]`, `[session-history]`, `[components]`, `[working-features]`, `[migration-notes]` | Journal and derivable state. Archived here, not translated (v2 thin-journal doctrine). Open blockers and next actions are carried by the ultraplan and the issue list.
+| S-3 | STATE `[maintenance-status]` | Archived. The last-run fact is not current state.
+| S-4 | STATE `completion-percentage` and `[components]` percentages | Derivable from the milestone rows, so dropped (state-v1-decision §3).
+| S-1 | STATE `[position] phase` | Not emitted. Phase belongs in the `(status …)` clause, and that needs CLADE (I-1). Owner input is required.
+|===
+
+=== Deed: META and ECOSYSTEM
+
+[cols="1,3,4",options="header"]
+|===
+| ID | Item | Disposition
+| M-1 | `[metadata]` version, last-updated; `[project-info]` license, author; `[development-practices] build-tool`; `[maintenance-axes]` | Emitted, per the table.
+| M-2 | `[architecture-decisions]` ADR-001..ADR-014 | Text kept as comments. The ADR entries have no `:date`, which the table requires. Owner or the ADR history must supply dates.
+| M-3 | `[development-practices]` code-style, testing, versioning, documentation, branching | Fail closed. No table row. Kept in the archive.
+| M-4 | `[security]` principle | Fail closed. No table row.
+| M-5 | `[proof-methodology]` rules | Fail closed. No table row.
+| M-6 | `[design-rationale]` | Fail closed. No table row.
+| M-7 | `[project-info]` type, languages, container-runtime, ci-platform, package-manager | Absent from the source. Not emitted; not invented.
+| E-1 | ECOSYSTEM `[project]` name, type, role, purpose | Fail closed. No table row. Kept in the archive. The name is covered by `:project`.
+| E-2 | ECOSYSTEM `[position-in-ecosystem]` category, subcategory, unique-value | Fail closed. No table row.
+| E-3 | ECOSYSTEM `[what-this-is]` and `[what-this-is-not]` | Fail closed. No table row.
+| E-4 | ECOSYSTEM `[related-projects]` | Relationships are outside the closed set. Carried verbatim in `coordination.k9` `ecosystem:`, with the relationship label kept in each role.
+|===
+
+=== Deed: AGENTIC, NEUROSYM, PLAYBOOK, root manifest
+
+[cols="1,3,4",options="header"]
+|===
+| ID | Item | Disposition
+| A-1 | `[agent-constraints]` and `[automation-hooks]` (comment-carried) | D4-1: template canon. Kept as deed comments because the divergence diff against canon was not run. Also summarised in `coordination.k9` invariants.
+| A-2 | `[proof-safety]` counts (lean4-sorry-count, coq-admitted-count) | Dropped as derivable facts (the derivable-facts doctrine). The checks live in the K9 trust contract.
+| A-3 | `[tools]` | Fail closed. No table row.
+| N-1 | `[hypatia-config] report-format = "a2ml"` | Stale: Hypatia's Logtalk output was removed 2026-04-12, and the output format is retired. Kept verbatim, flagged.
+| N-2 | `[symbolic-layer]` | Fail closed. No table row.
+| N-3 | `[neural-layer]` | Fail closed. No table row.
+| N-4 | `[integration]` (echidna planned, verisimdb TODO) | Fail closed. No table row.
+| P-1 | `[deployment]`, `[build-procedures]`, `[proof-procedures]`, `[incident-response]`, `[release-process]`, `[rollback]`, `[maintenance-operations]`, `[contacts]` | Populated, so family-4 fails closed. Kept as deed comments.
+| P-2 | `[proof-procedures]` verify-all `proofs/verify-all-provers.sh` | Stale. The gate is archived. The active gate is `proofs/verify-active-provers.sh`, run by `just verify`.
+| P-3 | `[release-process]` update STATE and META | Stale. Both files are archived; the deed is the replacement.
+| P-4 | `[maintenance-operations]` TODO recipes (`maint-audit`, `maint-hard-pass`) | Not present in the Justfile. Left as TODO.
+| G-1 | Root manifest `manifest-version`, `[scope] purpose`, `[entry-points]`, `[machine-readable]` | Fail closed. Keys do not match the family table.
+| G-2 | `[language-policy]` allowed and banned lists | Fail closed. Kept as deed comments and in `coordination.k9` (banned-language invariant).
+| G-3 | `[echidna-protocol]` (ECHIDNA only through the BoJ MCP cartridge) | Fail closed. No table row. Kept in the archive.
+| G-4 | `[delivery]` "architectural changes recorded in META.scm" | Stale: points at a retired file. Superseded by the ADR comments.
+| G-5 | descriptiles/0-AI-MANIFEST and anchor/0-AI-MANIFEST (directory manifests) | Archived only. They describe a six-file layout that no longer exists.
+|===
+
+=== Deed: bot_directives and anchor
+
+[cols="1,3,4",options="header"]
+|===
+| ID | Item | Disposition
+| B-1 | hypatia `[[accepted-findings]]` (4 entries) | Emitted as `(accepted-finding …)` clauses. Reasons copied in full.
+| B-2 | gitbot-fleet `[fleet]`, `[branch-policy]`, `[per-bot.*]` | Emitted as `(fleet …)`, `(branch-policy …)`, `(per-bot …)`.
+| B-3 | git-private-farm `[propagation]` (disabled), `[never-propagate]`, `[on-token-rotation]` | Emitted. The secret NAME is recorded. The value is never in the repo.
+| B-4 | ANCHOR realignment 2026-06-12 | Emitted as `(anchor …)` with `(realignment …)`.
+|===
+
+=== K9 contracts
+
+[cols="1,3,4",options="header"]
+|===
+| ID | Item | Disposition
+| K-1 | 'Hunt contracts (must, trust, bust, intend) have no signature block | K9-S009 fails by design. No signing ceremony has run and the sandbox has no signing key, so no signature was fabricated. These contracts are not authorised to run as 'Hunt until the owner signs them. The 'Yard contracts (dust, adjust) do not need one.
+| K-2 | Nickel L2 typecheck (K9-N001, K9-N002) | Not run. The Nickel release binary is hosted on `release-assets.githubusercontent.com`, which is not on this sandbox's allowlist, and no Nickel build is available on the allowed registries. Run `k9-validate.sh --strict` where Nickel is installed.
+| K-3 | Leash source | The source Mustfile/Trustfile/Dustfile/Bustfile/Adjustfile/Intentfile declare no leash. Leashes come from the estate template canon for each verb: must, trust, bust, intend = 'Hunt; dust, adjust = 'Yard.
+| K-4 | Grants | 'Hunt contracts request `process.spawn` only, because their probes shell out. 'Yard contracts request nothing.
+| A-M1 | must: `proofs-tree-present` | Adapted. Checks the active tree (agda, z3, observation-models, residue) and archive/proofs/*.
+| A-M2 | must: `six-a2ml-present` | Adapted to `deed-and-coordination-present`.
+| A-M3 | must: `contractiles-flat-complete` | Adapted to `contractiles-k9-complete`. The flat layout was the a2ml layout.
+| A-M4 | must: `anchor-directory` | Adapted to `anchor-clause-present` (ANCHOR is a deed clause).
+| A-M5 | must: `bot-directives-present` | Adapted to a deed clause check.
+| A-M6 | must: `ai-manifest` | Adapted to a deed `(manifest` clause check.
+| A-M7 | must: `a2ml-parses-as-toml` | Retired. Replaced by the new check `no-live-a2ml`, which states the migration ruling.
+| A-T1 | trust: `lean4-sorry-bounded` | Path adapted to `archive/proofs/lean4/`.
+| A-T2 | trust: `coq-admitted-bounded` | Path adapted to `archive/proofs/coq/`.
+| A-T3 | trust: protected-paths | Added `TOPOLOGY.adoc` (standing rule: never edit) and `coordination.k9`. Both are additions to the source list.
+| B-5 | bust: runner | Not enabled (the source says so). The old bust.ncl runner is absent. D187 and #81 rule on dropping it.
+| D-1 | dust, adjust: `adjust fix` auto-fix and file writes | Not operative under 'Yard. The corrective actions are for humans and agents.
+| D-A1 | dust: `proof-suite-regression` asset | Updated to name the active and archived proof trees.
+| D-A2 | dust: `stale-machine-metadata` asset | Updated to name the deed, the K9 set, coordination.k9 and bot_directives.
+| A-A1 | adjust: `coq-axiom-count`, `coq-parameter-count` | Marked archived, not gated.
+| A-A2 | adjust: `physics-constant-duplication` | Marked archived (the duplicates are in archived Coq).
+| A-I1 | intend: purpose statement | Updated to the active stack (owner ruling 2026-10-10). The old six-prover statement is kept in `supersedes`.
+| A-I2 | intend: `phase-2-triage` | Narrowed to the Idris 2 postulates. The Lean item is parked.
+| A-I3 | intend: `v1-0-publication-release` | Paper scope is out of date. Parked for the owner.
+| X-1 | `injection_scope` in bust `security`; `audits/assail-classifications` | `injection_scope` is an extension field, which the spec permits. The audit suppression is archived only.
+|===
+
+=== coordination.k9
+
+[cols="1,3,4",options="header"]
+|===
+| ID | Item | Disposition
+| CO-1 | `coordination.k9` name and grammar | Verified: standards CLAUDE.md names `coordination.k9` at the repo root, and the grammar is `2-protocols/k9-coordination/spec/abnf/coordination-k9-grammar_v1.1.abnf`.
+| CO-2 | Grammar conformance | Checked by hand against the grammar (indentation levels, section order, symbol and string rules). The standards generator was NOT run: it imports from `jsr:` and this repo's toolchain does not run that loader.
+|===
+
+== Validation status (2026-10-10)
+
+[cols="3,2,5",options="header"]
+|===
+| Check | Result | Notes
+| Deed: `deed_lint` (normative grammar + filename dispatch) | PASS | Run under Node. The lint script is Bun-only, so it was copied to a `.mjs` file with its `import.meta.main` guard removed. The lint was not changed otherwise. Control: the template deed passes too.
+| K9 L0 (envelope) and L1 (structure), six contracts | PASS for dust and adjust; 4 fail only K9-S009 | See K-1.
+| K9 L2 (Nickel typecheck) | NOT RUN | See K-2.
+| coordination.k9 generator | NOT RUN | See CO-2.
+| Proof gate `proofs/verify-active-provers.sh` | NOT RUN here | Agda, Z3 and Idris 2 are not installed in this sandbox. The gate fails closed (a missing tool is a failure).
+|===
+
+== Open items (owner)
+
+. Sign the four 'Hunt contracts, or set their leash, so that K9-S009 passes (K-1).
+. CLADE input for identity, clade, forges, lineage and status (I-1, S-1).
+. Dates for the ADR entries (M-2).
+. Ruling on the 'reporting authority for intend, and on whether the root manifest keys are kept (G-1).
+. The four proof-stack flags in `archive/README.adoc`.
+. Narrative docs still describe six provers. Archive banners are the first step; a full rewrite is a follow-up.
+. CI gap: the z3 job in `proofs.yml` no longer runs the archived six-prover self-test. A self-test for `proofs/verify-active-provers.sh` (stubbed tools must turn it red) has not been written yet.
+. Containerfile line 29 still installs `coq` in the apt layer. The `coqc` build lines were removed; the package line was left for the owner to decide.
+. `.gitlab-ci.yml`: `verify:coq`, `verify:lean4` and `verify:isabelle` were removed, and the summary now says those provers are archived. No Agda job was added to GitLab.
+. Retired notes added to `.machine_readable/bot_directives/README.adoc`, `.machine_readable/descriptiles/README.adoc` and `.machine_readable/descriptiles/anchor/README.adoc`. Their bodies still describe the retired A2ML set.
+. `.claude/CLAUDE.md`: the Machine-Readable Artefacts section and the language-table row now name the deed and K9 files. The rest of that file is not reviewed.

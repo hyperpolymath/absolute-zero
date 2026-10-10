@@ -1,0 +1,927 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+= ULTRAPLAN: Absolute Zero open issues (2026-10-10, revision 2)
+:toc: left
+:toclevels: 2
+:sectnums:
+
+[NOTE]
+====
+*Status: PLAN, with uncommitted working-tree changes.* Nothing has been filed,
+edited or closed on GitHub. No PR, ruleset or workflow was changed on GitHub.
+Locally, branch `arena/6c682e29-absolute-zero` carries the changes listed in
+<<wt>>. They are not committed, not signed, not pushed and not reviewed. Every
+GitHub action below waits on the owner decisions in <<owner-decisions>>, and each
+PR goes through the estate's normal review and signing path.
+
+*Basis:* `main` @ `6010145` (PR #186) for the recon; the ten open issues of
+`hyperpolymath/absolute-zero`; `hyperpolymath/standards` (shallow clone at
+`3108c1b`, decision sheet `standards#787`); `hyperpolymath/rsr-template-repo`
+(shallow clone at `df09a6c`).
+
+*Claim labels* follow `0-canon/constitution/ASSURANCE-CONSTITUTION.adoc`.
+*Measured* means read from the repo, the GitHub API or the canon during this
+work. *Designed* means a proposal. *Assumed* means taken from a source that was
+not checked here. Nothing here is *proven*. No prover was run in this session:
+Agda, Z3 and Idris 2 are not installed in the sandbox, and the archived provers
+were not run. Prover status comes from CI on `main`, which is not proof.
+====
+
+== Summary
+
+* *Ten issues are open:* #182, #175, #171, #170, #167, #161, #81, #76, #70,
+  #27. Seventeen are closed. I checked the closed ones only where they touch
+  open work.
+* *`main` is red on three workflows:* CodeQL (startup failure), Governance
+  (`Actions lockfile verify`) and Scorecards (`Reconcile native action pins`).
+  They share one likely cause: `actions.lock` drift after Dependabot bumps #185
+  and #186. No open issue covers it. It is still the first thing to fix (<<n1>>).
+  This revision does not touch it.
+* *The owner ruled on the proof stack (2026-10-10).* The active stack is Idris 2
+  (ABI) and Agda (CNO, OND, EchoBridge), with Z3 as a bounded-check solver. Coq,
+  Lean 4, Isabelle/HOL and Mizar are archived under `archive/proofs/`. That
+  removes the subject of #171, the `coqchk` part of #161, and most of #70. It
+  creates a new conflict for #167 (<<t7>>).
+* *The A2ML-to-deed migration is done in the working tree (<<n2>>).* No tracked
+  `.a2ml` files remain. Six K9 contracts, a `_chora.deed` and `coordination.k9`
+  are in place. Still open: Nickel L2 validation, owner signing of the four Hunt
+  contracts, and an unverified author email.
+* *#27's postulate was deleted.* Its five `believe_me` sites remain, and a CI
+  build of the ABI is now in the working tree (<<n4>>), but it has not been run.
+* *Three issues have owner rulings that change their scope:* #167 (D204 rescope,
+  now also conflicting with the archive), #81 (D187 "drop the runner"), and #175
+  (D188 "rename", with no replacement term chosen).
+* *Two issues are blocked on a decision:* #76 (a template-level ruling) and #70
+  (its 2026-05-30 comment recommends deferral).
+* *One contradiction cannot be resolved locally:* the proof-assistant policy
+  (<<t1>>). The owner ruling narrows it. It does not remove it.
+
+[[wt]]
+== Working-tree changes since the recon
+
+Recorded so that the plan matches the tree. Nothing is committed. The sandbox
+commits would be unsigned, so the PR path is a signed cherry-pick (<<do-not>>).
+
+[cols="1,3,3",options="header"]
+|===
+| Area | What changed | Check status
+
+| Proof stack
+| 39 renames: `proofs/{coq,lean4,isabelle,mizar}` and the six-prover gate and
+  self-test moved to `archive/proofs/`. New active gate
+  `proofs/verify-active-provers.sh` runs Agda, Z3 and Idris 2.
+| *Measured:* run here. All three tools are missing, so the gate fails closed
+  with exit 1 and no skip. Its paths exist. Not run with the tools present.
+
+| `proofs.yml`
+| Rewritten. Jobs: `agda`, `z3`, `idris`. The `coq` and `lean` jobs are removed.
+  The z3 job no longer runs the archived self-test (no replacement yet, <<n11>>).
+  The `idris` job builds `absolute-zero-abi.ipkg` on the same digest-pinned image
+  as `pages.yml`. The `uses:` set is unchanged (`actions/checkout@v7.0.1`).
+| *Measured:* parses as YAML (js-yaml). Not run on CI. The `idris` job is
+  *designed*, not tested.
+
+| Justfile
+| Prover sections rewritten to the active stack. `contractiles/Justfile` was
+  synced, so the two copies are byte-identical again (#76 state).
+| *Measured:* `cmp` equal. `just` is not installed, so not run.
+
+| Containerfile, `.gitlab-ci.yml`
+| `coqc` RUN lines removed. `verify:coq`, `verify:lean4` and `verify:isabelle`
+  removed from GitLab CI. The apt `coq` package line is still there (<<n12>>).
+| *Measured:* GitLab YAML parses.
+
+| `.coderabbit.yaml`
+| New. Docstring pre-merge check at `mode: warning`, threshold 80, as in the
+  template. Docstring finishing touch disabled (D217).
+| *Measured:* parses. The template uses the same `reviews:` keys. The schema's
+  first chunk confirms `reviews`. The `finishing_touches` key was not verified
+  against the schema's later chunks. The app-UI setting is untouched (Q9).
+
+| A2ML and deed
+| 20 `.a2ml` sources moved to `archive/a2ml-v1/<dir>-<name>.a2ml.txt` (`git mv`).
+  `absolute-zero_chora.deed` added. Ledger: `archive/a2ml-v1/MIGRATION-LEDGER.adoc`.
+  `.claude/CLAUDE.md` artefact section now names the deed and the K9 files.
+  Retired notes on the three `.machine_readable` READMEs that described A2ML.
+| *Measured:* 0 tracked `*.a2ml`. Deed linter (a copy of the template's
+  `deed_lint.js`, run with node) passes. Template CI not run.
+
+| K9 and coordination
+| Six contracts under `.machine_readable/contractiles/<verb>/<verb>.k9.ncl`, all
+  unsigned (K-1). `coordination.k9` at the repo root.
+| *Measured:* `dust` and `adjust` pass the K9 validator. `must`, `trust`, `bust`
+  and `intend` fail `K9-S009` only. *Not run:* Nickel L2 (no Nickel binary; the
+  release download and the npm packages are blocked). The standards generator
+  was not run because it imports from `jsr:`.
+
+| Docs
+| `archive/README.adoc`. Archive notices in `README.adoc` and `PROOF-STATUS.adoc`
+  (placed after the title block, before the first section).
+| Full rewrites of README, PROOF-STATUS and `docs/*` are a separate follow-up.
+
+| Git
+| 59 renames staged. Modified and new files are unstaged or untracked. No commit.
+| *Outcome unknown until committed.*
+|===
+
+== Ground rules: the binding canon applied
+
+[cols="1,2,3",options="header"]
+|===
+| Authority | Source | What it binds for this plan
+
+| Constitution
+| `standards/0-canon/constitution/` (ESTATE, ASSURANCE, EXCEPTIONS-AND-ANCHORS,
+  KNOWN-TENSIONS, CHANGE-PROCEDURE)
+| Claims carry a label. An exception needs a full record: rule, scope, reason,
+  authority, containment, expiry, exit. A contradiction goes in the tension
+  register and is not silently resolved. Evidence does not override policy.
+
+| Owner rulings
+| `standards#787` ledger: D85–D89, D124, D187, D188, D204, D215–D218, D220,
+  D222, D239, and the 2026-10-10 proof-stack ruling
+| Binding decisions. An issue body is subordinate to a later ruling. A ruling
+  closes on the surface it governs.
+
+| Agent canon
+| `standards/AGENTS.adoc`, `standards/.claude/CLAUDE.md`
+| A2ML is retired. Do not create or extend `.a2ml`. Repo metadata goes in
+  `<repo>_chora.deed`, contracts in `*.k9.ncl`. No TypeScript, no Deno, no
+  Python outside enumerated carve-outs. Do not sweep licence headers.
+
+| Signing
+| `standards/docs/SIGNING-POLICY.adoc` (D215–D218)
+| Every commit on a PR branch is signed. Bots do not push commits to PR
+  branches. The remedy is a signed cherry-pick into a new PR, not a force-push
+  and not an admin merge. Squash-merge only.
+
+| Language
+| `standards/0-canon/rsr/LANGUAGE-POLICY.adoc` v1.6.0
+| Bun is tier 1 and Deno is banned (ruling 2026-09-22). All Python is banned
+  (the SaltStack exception was removed 2026-01-03). The policy says Idris 2 is the
+  only formal-verification language. The owner's 2026-10-10 ruling makes Idris 2
+  and Agda the active stack (<<t1>>).
+
+| RSR criteria
+| `standards/0-canon/rsr/RSR-SPEC-v2.adoc`, `rsr-criteria-v2.a2ml` (2.1.0-draft)
+| *DRAFT. Do not cite as ratified.* Used as a checklist only, and labelled as
+  draft. Some gates still name A2ML (<<t2>>).
+
+| Template
+| `rsr-template-repo`: `.github/workflows/`, `.github/rulesets/`,
+  `.coderabbit.yaml`, `scripts/check-lock-sync.sh`
+| The worked model. It ships `lock-sync-gate.yml`, `estate-rules.yml`,
+  `runtime-policy.yml`, `deed-validate.yml`, and `rsr-template-repo_chora.deed`
+  with no `.a2ml` files. Its own `.coderabbit.yaml` enables a docstring
+  finishing touch (<<t3>>).
+
+| Local policy
+| `absolute-zero/.claude/CLAUDE.md`, `RSR_COMPLIANCE.adoc`
+| `CLAUDE.md` artefact section updated in the working tree. `RSR_COMPLIANCE.adoc`
+  is still stale. Local policy cannot override estate canon (<<n7>>).
+|===
+
+== Recon: the ten open issues against the current repo
+
+The "Measured state" column is the recon at `main` @ `6010145`. The "Verdict"
+column is revised for the working tree.
+
+[cols="1,2,3,3",options="header"]
+|===
+| Issue | Title (short) | Measured state (recon, `main` @ `6010145`) | Verdict (revision 2)
+
+| #182
+| CodeRabbit pushes unsigned bot commits
+| No `.coderabbit.yaml` in this repo. D217 rules CodeRabbit commit-pushing off.
+  The app-level setting is not visible from the repo.
+| *Repo half in the working tree; app half open (Q9).* Not verified applied.
+
+| #175
+| "residue list" collides with the glossary
+| The phrase appears in 17 files outside `archive/`, including this plan:
+  `CITATION.cff`, `EXPLAINME.adoc`, `EXPLAINME.-new.adoc`, `GLOSSARY.adoc`,
+  `README.adoc`, `ROADMAP.adoc`, four `docs/` files, `proofs/agda/OND.agda`,
+  `proofs/observation-models/*`, `proofs/residue/*`. D188 rules "rename" and
+  approves the two map rows. No replacement term was chosen.
+| *Ruled, awaiting a term (Q1).* The Coq, Lean and Isabelle copies are archived
+  and no longer need changing, apart from historical notes.
+
+| #171
+| Coq tag grammar and census
+| `proofs.yml` ran the Coq assumption gates, the axiom-tag gate and the census.
+| *Subject archived.* The Coq gates and the census moved to `archive/proofs/`
+  with Coq. Close with a receipt that cites the last green `main` run, unless
+  the owner keeps Coq active (Q10).
+
+| #170
+| Scorecard: five high alerts
+| Job-level token permissions for `publish-container.yml` and `hypatia-scan.yml`.
+  Alert 508 is the reusable-workflow call. Branch-Floor (`23869372`) has
+  `non_fast_forward` with no bypass. No owner row for Code-Review (alert 25).
+  Scorecard fails at its reconcile step on `main`. The code-scanning alert API
+  returns HTTP 403 to my token, so counts are unverified.
+| *Partly landed, blocked on <<n1>>.* Owner row needed for alert 25 (<<q6>>).
+
+| #167
+| Lean port of the Coq filesystem model
+| `FilesystemCNO.lean` was restored by #177. D124 says "#167 keeps the port".
+  D204 (2026-09-30, later) says `FilesystemCNO.v` "retires or becomes a toy
+  instance" and that #167 becomes an abstract CNO interface. D204 asks for a Coq
+  `Module Type`.
+| *Superseded by D204, and now in conflict with the archive (<<t7>>, Q2, Q10).*
+
+| #161
+| `Proofs` is not a gate
+| `push` has no `paths:` filter; `pull_request` does. The Z3 step has no `|| true`.
+  The Coq assumption gates ran with controls. No `coqchk` step existed.
+| *Mostly landed; Coq part moot.* Remainder: the always-run change on the active
+  jobs (D85), and a gate for the Agda and Idris jobs (<<n11>>).
+
+| #81
+| Bustfile runner decision
+| `Bustfile.a2ml` was present, with no runner file. `Mustfile.a2ml` required it.
+  D187 says "drop the Bustfile runner".
+| *Changed.* The migration created `contractiles/bust/bust.k9.ncl`, disabled, as
+  the K9 form of the Bustfile. `must.k9.ncl` probes for it. The old `Mustfile`
+  check is archived (<<t5>>, Q3).
+
+| #76
+| `contractiles/Justfile` duplicates `Justfile`
+| Byte-identical at the recon.
+| *Identical again after the sync (working tree).* The duplication is still a
+  template-level ruling (Q4).
+
+| #70
+| Proof-debt triage
+| The 2026-05-30 comment assessed four quick-win candidates as not tractable, and
+  recommends deferral. It cites `docs/proof-debt-triage.md`, which is
+  `docs/proof-debt-triage.adoc` on disk. Five `believe_me` sites in `src/abi`.
+| *Premise stale. Most candidates are Coq, and Coq is archived.* Defer, or close
+  as moot (Q5).
+
+| #27
+| Idris 2 postulates in `Layout.idr`
+| The unsound postulate `alignmentMatchesPlatformWord` is deleted. Five
+  `believe_me` sites remain. No CI job built the ABI.
+| *Premise changed.* A CI build exists in the working tree (`idris` job, not
+  run). The live issue is the `believe_me` sites and the advisory-only count
+  (<<n4>>).
+|===
+
+== Tensions and contradictions
+
+Record these in the estate tension register (`KNOWN-TENSIONS.adoc`) or in the
+owner's decision list. None is fixed by a local edit.
+
+[[t1]]
+=== T1 — Proof-assistant policy (contradiction, narrowed)
+
+* `LANGUAGE-POLICY.adoc` v1.6.0: "Idris2 is the only formal-verification
+  language. ATS2 is rejected."
+* `.claude/CLAUDE.md` (standards) lists Agda as a formal-verification tool, used
+  by echo-types.
+* `0-canon/rsr/TIERS.adoc` names "Formal verification (SPARK, Coq, Isabelle)" in
+  its Rhodium list.
+* *Owner ruling 2026-10-10:* absolute-zero's active stack is Idris 2 and Agda,
+  with Z3 as a bounded-check solver (not a proof assistant). Coq, Lean 4,
+  Isabelle/HOL and Mizar are archived.
+
+*Still open:* Agda is not in LANGUAGE-POLICY's list, and TIERS still names Coq and
+Isabelle. *Why it matters:* the constitution requires a full exception record, or
+a policy change through the change procedure. *Action:* standards ruling (<<q7>>).
+
+[[t2]]
+=== T2 — A2ML retirement vs. the criteria file (contradiction, estate-level)
+
+`rsr-criteria-v2.a2ml` (2.1.0-draft) still names `.a2ml` descriptiles in its
+gates. `AGENTS.adoc` and `CLAUDE.md` retired A2ML. *Action:* standards
+maintainers, not this repo.
+
+[[t3]]
+=== T3 — Template `.coderabbit.yaml` vs. D217 (architectural tension)
+
+The template enables `finishing_touches.docstrings` under `reviews:`. D217 says
+CodeRabbit commit-pushing is off. The repo's `.coderabbit.yaml` now disables it,
+using the same key placement as the template. Whether the key placement is
+fully valid is still open: the schema's first chunk confirms `reviews` only.
+*Action:* check the rest of CodeRabbit's live schema before the template is
+changed. The template fix belongs upstream.
+
+[[t4]]
+=== T4 — D124 vs. D204 for #167 (superseded ruling)
+
+D124 and D204 are both dated 2026-09-30. D204 is the later ruling, and it
+rescopes #167. The 1:1 Lean port is what D124 kept. *Action:* the owner confirms
+which governs (<<q2>>). The later ruling should govern unless the owner says
+otherwise. T7 now adds the archive.
+
+[[t5]]
+=== T5 — "Drop the Bustfile runner" vs. the canonical six-set (changed)
+
+D187 can mean "delete the Bustfile declaration" or "stop the runner and keep the
+declaration disabled". The working tree now has `contractiles/bust/bust.k9.ncl`,
+which the must contract's `contractiles-k9-complete` probe requires. Deleting it
+breaks that probe, and the old flat-file check is archived with the Mustfile.
+*Action:* <<q3>>.
+
+[[t6]]
+=== T6 — Scorecard is a required code-scanning tool with no analysis on `main` (live risk)
+
+D85(b) keeps Scorecard in the `code_scanning` rule of ruleset `18110203` until
+#168's analyses are restored. The Scorecard job on `main` fails at its reconcile
+step. A rule that waits for a tool's results cannot be satisfied if the tool
+produces none. I have not confirmed a blocked PR. *Action:* check the first PR
+after the fix. Treat any block as a symptom of <<n1>>.
+
+[[t7]]
+=== T7 — Archived Coq vs. D204's Coq CNO interface (contradiction, new)
+
+D204 asks absolute-zero to factor out an abstract CNO interface as a Coq
+`Module Type`, so that valence-shell can import it. The owner's 2026-10-10 ruling
+archives Coq. The two cannot both hold as written. Options are in <<q10>>.
+*Action:* owner ruling. Do not write the interface until it is made.
+
+== Per-issue plans
+
+[[i182]]
+=== #182 — CodeRabbit unsigned bot commits
+
+*Problem.* A bot commit on a PR branch is unsigned, and the signed-commit floor
+(D215, D216) rejects it.
+
+*Plan.*
+
+. *Owner, app-level:* in CodeRabbit's organisation settings for this repo, turn
+  off autofix, committable suggestions, "Commit to this branch", Autopilot, and
+  any docstring generation that commits to the branch. This implements D217.
+  Confirm first (<<q9>>).
+. *Repo (done in working tree):* `.coderabbit.yaml` with the docstring finishing
+  touch disabled. Its comment does not cite a signing-policy file that does not
+  exist in this repo. It names the estate floor and D217 only.
+. *Positive control:* open a throwaway PR where CodeRabbit makes a suggestion.
+  Confirm no bot commit appears in `pulls/N/commits`, and that every commit
+  reports `verification.verified == true`.
+. *Do not* add CodeRabbit to a required check.
+
+*Acceptance (revised).*
+
+* AC1: no bot commit on any PR branch of this repo, shown by the positive control.
+* AC2: CodeRabbit accepts the `.coderabbit.yaml` with no config-error comment.
+* AC3: every commit on every PR head is signed.
+* AC4: no PR is blocked on signatures by a bot commit for 30 days.
+
+*Size:* S.
+
+[[i175]]
+=== #175 — "residue list" terminology
+
+*Problem.* "Residue" already has a sense in the estate glossary and in numerical
+work (residual). OND's "residue list" is a third sense: out-of-scope observables.
+
+*Plan.* After <<q1>> is answered:
+
+. One mechanical PR renames the phrase in prose, comments and asciidoc, in the
+  17 active files. It also renames `proofs/residue/` and `*.residue` to match,
+  with a link check. Archived files keep their wording as history.
+. Add a one-line fence to `GLOSSARY.adoc` for the new term, stating the sense it
+  does not have.
+. Do not touch proof logic. Re-run the Agda and Idris jobs, since comments change.
+. Register the approved map rows with `nextgen-typing` (cross-repo; D188
+  approved them).
+
+*Acceptance (revised).*
+
+* AC1: grep for the old phrase finds nothing outside history and `archive/`.
+* AC2: the new term has a glossary fence in the same PR.
+* AC3: the proof workflow is green after the change.
+
+*Size:* S, mechanical.
+
+[[i171]]
+=== #171 — Coq axiom tags and census
+
+*Plan.* The Coq gates and census are archived with Coq. Close with a receipt that
+cites the last green `main` run that included them, and a pointer to
+`archive/proofs/`. The 73-theorem triage is Coq work, so it is moot while Coq is
+archived. If the owner reopens Coq (Q10), the advisory-to-gate step and the triage
+return with it, and both must be re-scoped.
+
+*Acceptance (revised).* Closed with a receipt, or re-scoped under Q10.
+
+*Size:* S to close.
+
+[[i170]]
+=== #170 — Scorecard high alerts
+
+*Plan.*
+
+. Land <<n1>> first, so Scorecard runs on `main` and refreshes its alerts.
+. Alerts 510 and 509: already fixed in the tree. Confirm they close on the next
+  analysis.
+. Alert 508: dismiss as "won't fix", with a comment that points at the callee's
+  SARIF upload (`hyperpolymath/standards/.github/workflows/scorecard-reusable.yml`
+  at `0f13f51`). Keep `security-events: write` at job level, because the callee
+  needs it. Removing it brings back the startup failure fixed in #169.
+. Alert 25 (Code-Review): an owner row on `standards#787` is required. The sole
+  maintainer cannot approve their own PRs on GitHub, so the honest options are
+  "waive with reason" or "gate on something else" (<<q6>>).
+. Alert 1 (Branch-Protection): confirm that Branch-Floor (`23869372`) clears the
+  force-push finding on the next analysis.
+
+*Acceptance (revised).* Zero open `high` alerts, or each remaining one is
+dismissed with a stated reason. The Scorecard analysis on `refs/heads/main` is
+newer than the fix. My token cannot read code-scanning alerts (HTTP 403), so an
+owner or CI must confirm the counts.
+
+*Size:* S, once <<n1>> lands.
+
+[[i167]]
+=== #167 — Abstract CNO interface (rescope blocked by T7)
+
+*Problem.* The issue as written asks for a 1:1 Lean port of the concrete Coq
+filesystem model, so that the model's axioms become theorems. D204 (2026-09-30)
+says the concrete model "retires or becomes a toy instance". It asks for an
+abstract CNO interface, and valence-shell would import it and prove `is_CNO` over
+its own model. A 1:1 port would be spent on a model D204 says will retire.
+
+The owner's archive ruling removes Coq, and D204's interface is a Coq Module Type.
+So the rescope has no home until Q10 is answered.
+
+*Plan (conditional on <<q2>> and <<q10>>).*
+
+. If the owner rescopes to an Idris 2 or Agda interface (recommended), rewrite
+  #167 around that interface. Its deliverable is a module that type-checks in the
+  active stack, with a witness instance. The cross-repo acceptance (valence-shell
+  imports it and proves `is_CNO`) goes in valence-shell's issue, not here.
+. `FilesystemCNO.lean` is archived with Lean. Its axioms remain audited only in
+  the archive. Add no new work to it.
+. If the owner keeps Coq for this interface (a bounded exception), record it as
+  an exception under T1, and un-archive only the interface file.
+
+*Acceptance (rescoped).* The interface type-checks in CI. The retire-or-toy
+decision is recorded for `FilesystemCNO`. The cross-repo items are filed in
+valence-shell.
+
+*Size:* M. Cross-repo.
+
+[[i161]]
+=== #161 — Proofs is not a gate
+
+*Plan.*
+
+. Make the active Proofs jobs run on `pull_request` and `push`, with an internal
+  change check that reports success cheaply on PRs touching no proof file. This
+  is the always-run-with-internal-skip pattern that D85 prescribes.
+. Give the Agda and Idris jobs a positive control: a mutant with a type error must
+  turn them red (<<n11>>).
+. Only after step 1 is green on a PR that touches no proof file does the owner add
+  the prover contexts to the ruleset.
+. `coqchk` is dropped from this plan. Coq is archived (Q10 can reinstate it).
+
+*Acceptance (revised).* Proofs runs on every PR and reports success on proof-free
+PRs. The Agda and Idris jobs have controls.
+
+*Size:* M.
+
+[[i81]]
+=== #81 — Bustfile runner
+
+*Plan.* Depends on <<q3>>.
+
+* *Keep (recommended):* `contractiles/bust/bust.k9.ncl` stays, disabled and
+  documented, as it is now. The issue closes as "no runner in this repo". Nothing
+  else changes.
+* *Delete:* remove `bust.k9.ncl`, and update `must.k9.ncl`'s
+  `contractiles-k9-complete` probe from six files to five, in the same PR. This
+  diverges from the canonical INDEX.
+
+*Acceptance.* The chosen state, with a green `k9-validate` run on the contracts.
+
+*Size:* S.
+
+[[i76]]
+=== #76 — `contractiles/Justfile` duplicates `Justfile`
+
+*Plan.* No further local change until the template ruling (<<q4>>). The two copies
+were re-synced in the working tree, so they stay identical. If the owner says "by
+design", close as by-design. If the template pointerises or removes its copy,
+follow it here at the next template sync. Any edit to one copy must edit both.
+
+*Size:* S, blocked.
+
+[[i70]]
+=== #70 — Proof-debt triage
+
+*Plan.* Recommended: defer, or close as moot. The 2026-05-30 comment already
+recommends deferral. Most candidates were Coq DISCHARGE items, and Coq is archived.
+Fold the five `believe_me` sites into #27. Correct the body's path (`.md` to `.adoc`)
+and its site count (five code sites in `src/abi`), if the issue stays open.
+
+*Size:* S, to close or defer.
+
+[[i27]]
+=== #27 — Idris 2 `believe_me` in the ABI proofs
+
+*Problem.* The unsound postulate is gone. Five `believe_me` sites remain in
+`src/abi`. RSR's draft criterion 5.2.2 forbids `believe_me` in load-bearing proofs.
+The count is printed by the `idris` job, but only as an advisory. Nothing stops a
+sixth.
+
+*Plan.*
+
+. <<n4>> first: run the `idris` job on `main` and confirm it is green. Its
+  image is the one `pages.yml` already pins by digest.
+. A discharge spike for `programStateAlignmentValid`. The 2026-05-30 comment on
+  #70 says it is blocked by Idris 2 0.8.0's non-reduction of `mod`. Test that claim
+  before relying on it, for example by a case-split on `Platform`.
+. The `DivMod.idr` lemmas: discharge them if the spike works. If Idris 2 cannot
+  reduce them, record the sites in the known-limitations register, labelled
+  *assumed*, with the reason and an exit (an Idris upgrade). Do not describe them
+  as proven.
+. Turn the `believe_me` count into a gate with a positive control (<<n11>>).
+
+*Acceptance (revised).* The ABI builds in CI. A grep gate on `believe_me` in
+`src/abi` (excluding comments) has a positive control. The count is zero, or each
+residual site is in the known-limitations register with the required fields.
+
+*Owner input:* <<q5>>, <<q7>>. *Size:* M to L, depending on the spike.
+
+== New issues to file (proposed, not filed)
+
+[[n1]]
+=== N1 (P0) — `actions.lock` drift turns `main` red
+
+*Evidence (measured, recon).*
+
+[cols="1,2,2",options="header"]
+|===
+| Entry | Workflow `uses:` | `actions.lock` records
+
+| `hyperpolymath/smtp-notify-action`
+| `@c1c9fa0` (v0.5.0), bumped by #186, merged 2026-10-09
+| `@22e7bdb` (v0.3.0)
+
+| `github/codeql-action`
+| `init` and `analyze` at `@v4.38.2`, bumped by #185, merged 2026-10-02
+| `@v4.38.1`
+|===
+
+The three `main` reds all involve the lock. Governance fails its `Verify
+actions.lock` job. Scorecard fails `Fail if reconciliation did not succeed` after
+`Reconcile native action pins`. CodeQL fails with a startup failure. The job-log
+download returns EOF, so this is a strong inference from step names and the
+comparison, not a log-confirmed cause.
+
+*Plan (per D220).* Regenerate the lock in a fresh clone with
+`standards/scripts/update-actions-lock.sh`, which D220 names. Land the regenerated
+lock. Regenerate lock entries for Dependabot bumps with `regen-dependabot-locks.sh`.
+Add the estate's lock-sync gate to CI (`lock-sync-gate.yml` in the template). It
+needs `gawk`, which the runner must install. The local `scripts/check-lock-sync.sh`
+exits "FATAL: needs gawk" here, so I could not run it.
+
+*Acceptance.* Governance, Scorecard and CodeQL are green on `main`. The lock matches
+the `uses:` set. The next Dependabot bump either regenerates the lock or is blocked
+by the gate.
+
+*Size:* S. *Owner input:* none. D220 already rules this arm.
+
+[[n2]]
+=== N2 (P1) — A2ML to deed and K9 migration (mostly done, uncommitted)
+
+*Evidence (measured).* Recon: 20 `.a2ml` files and zero `.deed`. Working tree:
+0 tracked `.a2ml`; 20 sources in `archive/a2ml-v1/`; `absolute-zero_chora.deed`;
+six K9 contracts; `coordination.k9`; `.claude/CLAUDE.md` artefact section updated.
+
+*Done (working tree).* Migration per D99, D269c, D312 and D313. Contracts follow
+the standard's leash and authority per verb. Every unmapped field is recorded in
+the ledger. The ledger lists IDs (C-1 to CO-2) that the K9 headers cite.
+
+*Still open.*
+
+* Nickel L2 validation of the six K9 files has not run (no binary; blocked).
+* `must`, `trust`, `bust` and `intend` fail `K9-S009` only. The unsigned pedigree
+  (K-1) is the expected cause, not re-verified. These are Hunt contracts, which
+  need owner signing before they can run.
+* The K9 `author` email is unverified against the template.
+* ADR entries have no dates (ledger M-2). Owner or ADR history must supply them.
+* The `coordination.k9` generator was not run, because it imports from `jsr:`.
+* The README in `archive/` and the three `.machine_readable` READMEs are
+  notice-only. Full rewrites are a follow-up.
+
+*Acceptance.* Zero tracked `.a2ml`. A `_chora.deed` that passes the template's
+`deed-validate.yml` (not yet run). Coordination in `coordination.k9`. `.claude/CLAUDE.md`
+no longer names A2ML (done).
+
+*Owner input:* <<q8>>, <<q11>>. *Size:* remaining S, plus signing.
+
+[[n3]]
+=== N3 (P2) — Record the proof-assistant contradiction (T1, narrowed)
+
+Add a `KNOWN-TENSIONS` entry in standards for Agda and for the TIERS naming, and an
+exception record or policy change for absolute-zero, after <<q7>>. This is an
+estate-level change, so the constitutional change procedure applies.
+
+*Size:* S to record; L to resolve.
+
+[[n4]]
+=== N4 (P2) — The ABI is never built in CI (addressed in working tree, not run)
+
+The working tree adds the `idris` job to `proofs.yml`. It builds
+`absolute-zero-abi.ipkg` on the pinned image and prints the `believe_me` count. It
+has no positive control, and it has not run. `src/abi` was type-checked only by the
+local gate before this.
+
+*Acceptance.* The job is green on `main`, and the control is red on a mutant.
+
+*Size:* S for the control.
+
+[[n5]]
+=== N5 (P2) — Container base and dead interpreter references
+
+*Evidence (measured).* `Containerfile` line 12: `FROM registry.fedoraproject.org/fedora:39`.
+Lines 131–132 run `chmod +x interpreters/...`, and the comments around line 222 run
+`python3 interpreters/brainfuck/brainfuck.py`. `interpreters/` does not exist. The
+`coqc` build lines were removed in the working tree.
+
+*Plan.* Move to a Wolfi-style base. Remove the Python and `interpreters/`
+references. Confirm the `publish-container` build still produces its attestation.
+
+*Size:* M.
+
+[[n6]]
+=== N6 (P3) — `language-policy.yml` enforces a stale policy
+
+*Evidence (measured).* The workflow still exempts "salt". The SaltStack exception
+was removed on 2026-01-03 (LANGUAGE-POLICY v1.6.0). It checks only added files
+(`--diff-filter=A HEAD~1`), so an existing banned file is never seen.
+
+*Plan.* Replace it with the estate's reusable gate. The template ships
+`estate-rules.yml` and `runtime-policy.yml`.
+
+*Size:* S.
+
+[[n7]]
+=== N7 (P3) — Refresh local policy docs
+
+`RSR_COMPLIANCE.adoc` (dated 2026-05-25) predates the A2ML, signing and
+proof-assistant rulings. `.claude/CLAUDE.md` artefact section is updated; the rest
+of that file is not reviewed. Refresh both from the canon, and cite the canon as
+the source.
+
+*Size:* S.
+
+[[n8]]
+=== N8 (P3) — RSR shape gaps (guidance, against a draft)
+
+* No `guix.scm`. `manifest.scm` is present. The canon's criterion 8.1.4 (draft)
+  rejects a scaffold-stub `guix.scm`, so the approach needs an owner decision,
+  not a stub.
+* No `.tool-versions`. `mise.toml` is present.
+* Actions are pinned by tag (23 `uses:` references) and held by the lock file, not
+  by SHA in the `uses:` line. Criterion 4.1.3 (draft) says SHA-pinned. Decide with
+  the estate which form counts.
+
+*Size:* M. Mostly guidance. Treat the criteria as draft.
+
+[[n9]]
+=== N9 (P3) — Ruleset 18110203 allows merge and rebase methods
+
+*Evidence (measured).* Ruleset `18110203` lists `allowed_merge_methods`: `squash`,
+`rebase`, `merge`. The repo settings have merge commits and rebase merges off.
+D89 and D216 require squash only where signatures are required.
+
+*Plan.* Align the ruleset to squash-only, after confirming the owner's intent.
+
+*Size:* S.
+
+[[n10]]
+=== N10 (P1) — Migration verification gaps (new)
+
+Things the migration claims that have not been checked:
+
+* Nickel L2 for the six K9 files. Not run.
+* The template's `deed-validate.yml` against `absolute-zero_chora.deed`. Not run;
+  only the local copy of the linter was run.
+* The four Hunt contracts. Signing is an owner act.
+* `.coderabbit.yaml` against CodeRabbit's full schema.
+
+*Plan.* Run each check where the tools exist (CI, or the owner's machine), and
+record the result in the ledger. Do not mark the migration verified until they pass.
+
+*Size:* S.
+
+[[n11]]
+=== N11 (P2) — Proof gates for the active stack (new)
+
+* `proofs/verify-active-provers.sh` has no self-test. The archived six-prover
+  self-test was removed from the z3 job with no replacement. A replacement must
+  stub the tools and show the gate turn red.
+* The Agda and Idris jobs have no positive control.
+* The `believe_me` count is advisory (<<i27>>).
+
+*Plan.* Write a self-test for the active gate, with stubs for `agda`, `z3` and
+`idris2`. Add a mutant control for each. Make the `believe_me` count a gate once
+#27's sites are discharged or recorded.
+
+*Size:* S for the self-test; M for the controls.
+
+[[n12]]
+=== N12 (P3) — Containerfile apt `coq` package (new)
+
+The apt layer still installs `coq`, although the `coqc` build lines were removed.
+Remove the package with the rest of the Coq toolchain, once the owner has ruled
+(Q10). Otherwise the image keeps a dead dependency.
+
+*Size:* S.
+
+== Owner decisions {#owner-decisions}
+
+Each has a recommended default. Nothing is taken without an answer.
+
+[[q1]]
+*Q1 (#175) — replacement term for "residue list".* Options: `exclusion list` (the
+issue's first suggestion), `boundary list`, `out-of-scope list`. *Recommended:
+`exclusion list`.* I did not check the estate glossary (in `nextgen-typing`) for
+collisions with the chosen term. Check before the rename.
+
+[[q2]]
+*Q2 (#167) — which ruling governs?* (a) D204: rescope to an abstract CNO
+interface, and stop the 1:1 Lean port. *Recommended,* in an Idris 2 or Agda form
+(see Q10). (b) D124: keep the port (archived; would need Q10 first).
+
+[[q3]]
+*Q3 (#81) — what does "drop the Bustfile runner" mean?* (a) Keep
+`bust.k9.ncl` disabled; close as "no runner in this repo". *Recommended; it matches
+the canonical six-set.* (b) Delete `bust.k9.ncl` and update the `must` probe.
+
+[[q4]]
+*Q4 (#76) — the template duplicate.* (a) By design: keep the copy in both, and close
+#76. (b) The template pointerises, and absolute-zero follows. (c) Remove the copy
+from both. *Recommended: (a) now, with (b) as a later template task.*
+
+[[q5]]
+*Q5 (#70 / #27) — the Idris and Coq debt.* (a) Defer or close #70 as moot; re-scope
+#27 to the five `believe_me` sites, with the `idris` job green first. *Recommended.*
+(b) Approve a multi-hour spike on the Idris side now.
+
+[[q6]]
+*Q6 (#170 alert 25) — Code-Review.* (a) Waive with a recorded reason on
+`standards#787`. `required_approving_review_count` is 0 on `18110203`, and the sole
+maintainer cannot approve their own PRs. *Recommended.* (b) Gate the metric with a
+second reviewer, which cannot be satisfied today.
+
+[[q7]]
+*Q7 (T1) — proof assistants, after the 2026-10-10 ruling.* The ruling settles the
+active stack. Still open: whether Agda is added to LANGUAGE-POLICY, and whether
+TIERS is corrected. (a) Amend LANGUAGE-POLICY to list Agda, with a dated
+rationale. *Recommended.* (b) Keep LANGUAGE-POLICY as Idris 2 only, and record
+Agda as an exception for absolute-zero, with containment and expiry. (c) Ask the
+constitutional authority to settle the policy text first.
+
+[[q8]]
+*Q8 (N2) — how to land the migration.* (a) One squash PR, after <<n10>> passes.
+*Recommended.* (b) Three PRs: archive, deed, K9. Each would need its own signed
+cherry-pick.
+
+[[q9]]
+*Q9 (#182) — the CodeRabbit app setting.* Confirm that D217's setting is applied to
+this repo in the CodeRabbit app. I cannot see it from here. If it is not applied,
+apply it before any repo change is merged.
+
+[[q10]]
+*Q10 (T7, #167, #171, #70, N12) — Coq after the archive. Owner choice 2026-10-10: (b).* (a) Keep Coq archived.
+D204's interface is rescoped to Idris 2 or Agda (Q2a). Retire the Coq apt package.
+*Recommended.* (b) *Chosen.* Un-archive only the abstract CNO interface as a bounded Coq
+exception, with containment and expiry. Not yet done: no interface file exists
+yet, and the exception record is still to be written under T1. (c) Ask standards
+to amend D204.
+
+[[q11]]
+*Q11 (N2, N10) — signing the Hunt contracts.* The four Hunt contracts (must, trust,
+bust, intend) need an owner signature before they can run as Hunt (K-1). Options:
+(a) the owner signs them locally, and the signed commit goes in the migration PR.
+*Recommended.* (b) Keep them as declarations until a later PR signs them. In that
+case they stay disabled.
+
+== Sequencing
+
+[cols="1,3,3,2",options="header"]
+|===
+| Wave | Work | Exit criteria | Gate
+
+| 0 — restore `main`
+| N1
+| Governance, Scorecard and CodeQL green on `main`. Lock matches the `uses:` set.
+| Owner merge. Squash only.
+
+| 1 — decide
+| Q1–Q11
+| Each answer recorded as a row on `standards#787`, naming the surface it governs.
+| Owner
+
+| 2 — land what is in the tree
+| The proof-stack archive and the active gate (one PR, after N11's self-test);
+  the migration (Q8); `.coderabbit.yaml` (after Q9)
+| Each PR: signed commits, rule-suite `pass`, positive control where the issue
+  asks for one.
+| Squash auto-merge when every rule passes (D87). No bypass.
+
+| 3 — small PRs
+| #182 (S); #175 (S, after Q1); #81 and #76 (after Q3/Q4); #161 always-run (M);
+  #170 dismissals (after N1); #171 close; #70 close or defer; N9 (S); N12 (S, after
+  Q10)
+| As above.
+| As above.
+
+| 4 — proofs and ABI
+| N4 (run the `idris` job on `main`), then the #27 spike, then #167 rescoped to
+  the interface (after Q10)
+| ABI green in CI. Zero `believe_me` in `src/abi`, or known limitations recorded.
+  Abstract interface type-checks.
+| Owner, for the Idris version and the T1 and T7 decisions
+
+| 5 — hygiene
+| N5 (container), N6 (language gate), N7 (docs), N8 (criteria), N10 (migration
+  checks)
+| Container on a Wolfi-style base. Stale gate retired. Docs match canon.
+| Owner for N10 and N5 timing
+
+| 6 — estate (not this repo)
+| T2; T3 (template `.coderabbit.yaml`); the template `Justfile` (Q4); the N3 tension
+  record
+| Entries in standards and in the template.
+| Standards and template maintainers
+|===
+
+== Verification protocol
+
+For every PR in this plan:
+
+. Run the local gate that exists for the area. For the active stack:
+  `proofs/verify-active-provers.sh` (needs `agda`, `z3` and `idris2` on the path).
+  `proofs/z3/verify.sh` runs alone. The archived gates are in `archive/proofs/` and
+  are not run.
+. For the migration: `k9-validate.sh --strict` (standards) on each K9 file, the
+  template's `deed-validate.yml` on the deed, and a Nickel L2 run when a binary is
+  available.
+. For YAML: parse each changed workflow and `.gitlab-ci.yml` (the sandbox used
+  js-yaml from npm).
+. For the Justfile copies: `cmp Justfile .machine_readable/contractiles/Justfile`.
+. After merge, check `gh run list --branch main` for the fix commit, and confirm
+  each workflow the PR touched has `jobs > 0`.
+. Check signatures: `gh api repos/.../pulls/N/commits`, and each commit's
+  `verification.verified`.
+. Check that the ruleset rule-suite entry reads `pass`. Do not use a bypass merge.
+. Check the grep counts named in the acceptance criteria (`believe_me`, the old
+  residue phrase, `.a2ml`).
+
+== Limits of this recon
+
+* *Code-scanning alerts:* HTTP 403 with this token. Alert counts are unverified.
+* *Job logs:* the download returns EOF. Root causes are inferred from step names and
+  from comparing `actions.lock` with the workflow `uses:` lines.
+* *Provers:* Agda, Z3, Idris 2 and the archived provers are not installed here. The
+  active gate fails closed in this sandbox. CI status on `main` is the evidence for
+  prover claims, and CI status is not proof.
+* *Nickel:* no binary. The release download and npm packages are blocked. L2 is not run.
+* *CodeRabbit:* app settings are not visible. Key placement is partly checked (T3).
+* *Standards:* shallow clones. RSR criteria are draft (2.1.0-draft, 2026-09-19).
+  `/tmp` is not persistent across sessions.
+* *Issue bodies* in some cases describe an older tree. Where a comment contradicts a
+  body, I followed the comment and the code.
+
+[[do-not]]
+== Do-not list
+
+* Do not force-push a PR branch to fix a signature. Use a signed cherry-pick into a
+  new PR.
+* Do not bypass-merge. Use squash auto-merge, and read the rule-suite entry (D87).
+* Do not create or extend an `.a2ml` file. Do not add TypeScript, Deno or Python.
+* Do not add CodeRabbit to a required check (D86).
+* Do not sweep licence headers in bulk. Do not change a licence file without owner
+  approval.
+* Do not describe a `believe_me`, an axiom, a draft criterion or a passing CI run as
+  "proven".
+* Do not un-archive Coq, Lean, Isabelle or Mizar without Q10 (or the owner's
+  equivalent ruling).
+* Do not run the standards generator for `coordination.k9`. It imports from `jsr:`.
+* Do not file, close or edit issues or rulesets from this plan without the owner's
+  go-ahead.
+
+== Evidence commands
+
+The recon used read-only commands. Reproduce with:
+
+[source,bash]
+----
+gh issue list --repo hyperpolymath/absolute-zero --state all --limit 100
+gh issue view <N> --repo hyperpolymath/absolute-zero --json title,body,labels,comments
+gh api repos/hyperpolymath/absolute-zero/rulesets/18110203
+gh api repos/hyperpolymath/absolute-zero/rulesets/23869372
+gh run list --repo hyperpolymath/absolute-zero --branch main --limit 12
+gh api repos/hyperpolymath/standards/issues/787/comments --paginate
+grep -rn 'believe_me' src --include=*.idr
+grep -rli 'residue list' --exclude-dir=.git --exclude-dir=archive .
+grep -rhoE 'uses: *[^ #]+' .github/workflows/*.yml
+cmp Justfile .machine_readable/contractiles/Justfile
+bash proofs/verify-active-provers.sh
+----

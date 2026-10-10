@@ -13,44 +13,18 @@ default:
 # ============================================================================
 # Build Commands
 # ============================================================================
+# Active proof stack (owner ruling 2026-10-10): Idris 2 (ABI) and Agda (CNO +
+# OND), plus Z3 bounded checks. Coq, Lean 4, Isabelle/HOL and Mizar are archived
+# under archive/proofs/ and are not built or gated here.
 
-# Build everything (all six prover backends + the Idris ABI)
-build-all: build-coq build-lean build-agda build-isabelle build-mizar build-idris
+# Build the active provers and the Idris ABI
+build-all: build-agda build-idris
     @echo "✓ All builds complete"
-
-# Build Coq proofs — all 14 theories (CNO + OND pillars) via coq_makefile
-build-coq:
-    @echo "Building Coq proofs (14 theories, both pillars)..."
-    @if command -v coqc >/dev/null 2>&1; then \
-        cd proofs/coq && coq_makefile -f _CoqProject -o Makefile.all >/dev/null && \
-        make -f Makefile.all -j"$(nproc)" && \
-        echo "✓ Coq proofs compiled (CNO + OND)"; \
-    else \
-        echo "⚠ coqc not found, skipping Coq build"; \
-    fi
-
-# Build Lean 4 proofs (CNO libs + OND; needs Mathlib cache)
-build-lean:
-    @echo "Building Lean 4 proofs..."
-    cd proofs/lean4 && lake build
 
 # Build Agda proofs (CNO + OND + EchoBridge, 4 modules, --safe --without-K)
 build-agda:
     @echo "Building Agda proofs..."
     cd proofs/agda && agda --safe --without-K CNO.agda && agda --safe --without-K OND.agda && agda --safe --without-K EchoBridgeScaffold.agda && agda --safe --without-K EchoBridgeCNO.agda
-
-# Build Isabelle/HOL proofs (CNO + OND session)
-build-isabelle:
-    @echo "Building Isabelle/HOL proofs..."
-    isabelle build -d proofs/isabelle AbsoluteZero-CNO
-
-# Build Mizar article (needs MIZFILES + proofs/mizar/dict/cno.voc)
-build-mizar:
-    @echo "Building Mizar CNO article..."
-    @if command -v verifier >/dev/null 2>&1; then \
-        cd proofs/mizar && accom CNO && verifier CNO && \
-        { test -s CNO.err && { echo "✗ Mizar errors (CNO.err)"; exit 1; } || echo "✓ Mizar verified"; }; \
-    else echo "⚠ mizar verifier not found, skipping"; fi
 
 # Build the Idris 2 ABI package
 build-idris:
@@ -61,23 +35,13 @@ build-idris:
 # Verification Commands
 # ============================================================================
 
-# Verify BOTH pillars across ALL six provers + the Idris ABI (canonical gate).
-# Single source of truth; prints ALL-PROVERS-GREEN on success.
+# Canonical gate: Agda + Z3 + Idris 2 ABI. Prints ACTIVE-PROVERS-GREEN on success.
 verify:
-    @proofs/verify-all-provers.sh
+    @proofs/verify-active-provers.sh
 
-# Verify all proofs (per-prover targets; `just verify` is the canonical one-shot)
-verify-all: verify-coq verify-z3 verify-lean verify-agda verify-isabelle verify-mizar verify-idris verify-gate-selftest
+# Verify all active proofs (per-prover targets; `just verify` is the canonical one-shot)
+verify-all: verify-z3 verify-agda verify-idris
     @echo "✓ All verifications complete"
-
-# Verify Coq proofs: build, then the Print Assumptions gate and its control
-verify-coq: build-coq
-    bash proofs/coq/check-assumptions.sh
-    bash proofs/coq/check-assumptions.sh --control
-    bash proofs/coq/check-axiom-tags.sh
-    bash proofs/coq/check-axiom-tags.sh --control
-    bash proofs/coq/census-assumptions.sh
-    @echo "✓ Coq proofs verified (17 named theorems closed, tags verified, census generated)"
 
 # Verify Z3 SMT properties: every (check-sat) verdict must match its `; expect` annotation (no skip-as-pass)
 verify-z3:
@@ -86,31 +50,9 @@ verify-z3:
     bash proofs/z3/verify.sh
     @echo "✓ Z3 verification complete"
 
-# Verify Lean 4 proofs
-verify-lean:
-    @echo "Verifying Lean 4 proofs..."
-    cd proofs/lean4 && lake build
-
-# Verify the Mathlib-free Lean core + axiom audit (what the CI `lean` job runs; no Mathlib needed)
-verify-lean-core:
-    @echo "Verifying Lean 4 core (6 modules + AxiomAudit.lean)..."
-    bash proofs/lean4/check-core.sh
-
 # Verify Agda proofs
 verify-agda: build-agda
     @echo "✓ Agda proofs verified"
-
-# Verify Isabelle/HOL proofs
-verify-isabelle: build-isabelle
-    @echo "✓ Isabelle/HOL proofs verified"
-
-# Verify the Mizar CNO article
-verify-mizar: build-mizar
-    @echo "✓ Mizar proofs verified"
-
-# Self-test the prover gate: stubbed toolchains + z3 mutants must turn it red
-verify-gate-selftest:
-    bash proofs/tests/gate-selftest.sh
 
 # Verify the Idris 2 ABI package
 verify-idris: build-idris
@@ -162,16 +104,16 @@ clean: clean-coq clean-lean
 # Clean Coq artifacts
 clean-coq:
     @echo "Cleaning Coq artifacts..."
-    find proofs/coq -name "*.vo" -delete
-    find proofs/coq -name "*.vok" -delete
-    find proofs/coq -name "*.vos" -delete
-    find proofs/coq -name "*.glob" -delete
-    find proofs/coq -name ".*.aux" -delete
+    find archive/proofs/coq -name "*.vo" -delete
+    find archive/proofs/coq -name "*.vok" -delete
+    find archive/proofs/coq -name "*.vos" -delete
+    find archive/proofs/coq -name "*.glob" -delete
+    find archive/proofs/coq -name ".*.aux" -delete
 
 # Clean Lean artifacts
 clean-lean:
     @echo "Cleaning Lean artifacts..."
-    cd proofs/lean4 && lake clean
+    cd archive/proofs/lean4 && lake clean
 
 # ============================================================================
 # Development
@@ -254,8 +196,8 @@ proof-status:
     @echo "=== Proof Completion Status ==="
     @echo ""
     @echo "Coq proofs:"
-    @admitted=$$(grep -r "Admitted\." proofs/coq/ 2>/dev/null | wc -l); \
-    total=$$(grep -r "Theorem\|Lemma\|Corollary" proofs/coq/ 2>/dev/null | wc -l); \
+    @admitted=$$(grep -r "Admitted\." archive/proofs/coq/ 2>/dev/null | wc -l); \
+    total=$$(grep -r "Theorem\|Lemma\|Corollary" archive/proofs/coq/ 2>/dev/null | wc -l); \
     if [ $$total -gt 0 ]; then \
         complete=$$((total - admitted)); \
         percent=$$((complete * 100 / total)); \
@@ -268,8 +210,8 @@ proof-status:
     fi
     @echo ""
     @echo "Lean 4 proofs:"
-    @sorry=$$(grep -r "sorry" proofs/lean4/ 2>/dev/null | wc -l); \
-    total=$$(grep -r "theorem\|lemma" proofs/lean4/ 2>/dev/null | wc -l); \
+    @sorry=$$(grep -r "sorry" archive/proofs/lean4/ 2>/dev/null | wc -l); \
+    total=$$(grep -r "theorem\|lemma" archive/proofs/lean4/ 2>/dev/null | wc -l); \
     if [ $$total -gt 0 ]; then \
         complete=$$((total - sorry)); \
         percent=$$((complete * 100 / total)); \
