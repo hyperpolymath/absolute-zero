@@ -6,12 +6,12 @@
 
 [NOTE]
 ====
-*Status: PLAN, with uncommitted working-tree changes.* Nothing has been filed,
-edited or closed on GitHub. No PR, ruleset or workflow was changed on GitHub.
-Locally, branch `arena/6c682e29-absolute-zero` carries the changes listed in
-<<wt>>. They are not committed, not signed, not pushed and not reviewed. Every
-GitHub action below waits on the owner decisions in <<owner-decisions>>, and each
-PR goes through the estate's normal review and signing path.
+*Status (2026-10-10): PLAN, with changes published in draft
+https://github.com/hyperpolymath/absolute-zero/pull/187[PR #187].*
+The changes listed in <<wt>> were committed as `d74e907`, which is unsigned.
+They still require a signed cherry-pick into a new PR branch (<<do-not>>).
+Remaining GitHub actions follow the owner decisions in <<owner-decisions>>
+and the estate's normal review and signing path.
 
 *Basis:* `main` @ `6010145` (PR #186) for the recon; the ten open issues of
 `hyperpolymath/absolute-zero`; `hyperpolymath/standards` (shallow clone at
@@ -56,10 +56,11 @@ were not run. Prover status comes from CI on `main`, which is not proof.
   (<<t1>>). The owner ruling narrows it. It does not remove it.
 
 [[wt]]
-== Working-tree changes since the recon
+== Working-tree changes since the recon (history: 2026-10-10, before PR #187)
 
-Recorded so that the plan matches the tree. Nothing is committed. The sandbox
-commits would be unsigned, so the PR path is a signed cherry-pick (<<do-not>>).
+The table records the earlier, uncommitted working-tree state and its checks
+on 2026-10-10. Those changes are now in draft PR #187 at unsigned commit
+`d74e907`; the signed cherry-pick remains outstanding (<<do-not>>).
 
 [cols="1,3,3",options="header"]
 |===
@@ -352,10 +353,14 @@ archives Coq. The two cannot both hold as written. Options are in <<q10>>.
 
 . *Owner, app-level:* in CodeRabbit's organisation settings for this repo, turn
   off autofix, committable suggestions, "Commit to this branch", Autopilot, and
-  any docstring generation that commits to the branch. This implements D217.
+  any docstring generation that commits to the branch. Disable *Fix failing CI*
+  (`fix_ci`, including direct-commit requests) and *Resolve merge conflict*
+  (`resolve_merge_conflict`) so neither action can commit to a PR branch.
+  This implements D217.
   Confirm first (<<q9>>).
-. *Repo (done in working tree):* `.coderabbit.yaml` with the docstring finishing
-  touch disabled. Its comment does not cite a signing-policy file that does not
+. *Repo:* `.coderabbit.yaml` disables the docstring, `fix_ci` and
+  `resolve_merge_conflict` finishing touches. The docstring setting is unchanged.
+  Its comment does not cite a signing-policy file that does not
   exist in this repo. It names the estate floor and D217 only.
 . *Positive control:* open a throwaway PR where CodeRabbit makes a suggestion.
   Confirm no bot commit appears in `pulls/N/commits`, and that every commit
@@ -784,8 +789,10 @@ cherry-pick.
 
 [[q9]]
 *Q9 (#182) — the CodeRabbit app setting.* Confirm that D217's setting is applied to
-this repo in the CodeRabbit app. I cannot see it from here. If it is not applied,
-apply it before any repo change is merged.
+this repo in the CodeRabbit app, including disabling `fix_ci` and
+`resolve_merge_conflict`. App-side settings remain unverified: this checkout
+contains no app implementation and no app-settings connection is available.
+Apply and verify these settings before any repo change is merged.
 
 [[q10]]
 *Q10 (T7, #167, #171, #70, N12) — Coq after the archive. Owner choice 2026-10-10: (b).* (a) Keep Coq archived.

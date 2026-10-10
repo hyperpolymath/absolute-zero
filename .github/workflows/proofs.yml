@@ -18,7 +18,10 @@ on:
   pull_request:
     paths:
       - 'proofs/**'
-      - 'src/abi/**'
+      - 'src/**'
+      - 'scripts/check-proof-patterns.sh'
+      - 'tests/check-proof-patterns.sh'
+      - '.machine_readable/contractiles/trust/trust.k9.ncl'
       - 'absolute-zero-abi.ipkg'
       - '.github/workflows/proofs.yml'
       - 'Justfile'
@@ -33,6 +36,14 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
+  proof-patterns:
+    name: Proof escape-hatch baseline
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - run: bash scripts/check-proof-patterns.sh
+      - run: bash tests/check-proof-patterns.sh
+
   agda:
     name: Agda — CNO + OND + EchoBridge
     runs-on: ubuntu-24.04
@@ -92,7 +103,3 @@ jobs:
           idris2 --version
           idris2 --build absolute-zero-abi.ipkg
           echo "✓ Idris 2: absolute-zero-abi.ipkg builds"
-      - name: Advisory — believe_me sites in src/abi (issue #27; not gated)
-        run: |
-          n=$(grep -rn 'believe_me' src/abi --include='*.idr' | grep -v -- '--' | wc -l)
-          echo "believe_me code sites in src/abi: $n (tracked in #27; advisory, not a gate)"

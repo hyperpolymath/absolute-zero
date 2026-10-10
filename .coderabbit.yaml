@@ -2,10 +2,10 @@
 # CodeRabbit configuration. Schema: https://coderabbit.ai/integrations/schema.v2.json
 #
 # Ruling D217: CodeRabbit does not push commits to PR branches. Bot commits on a
-# PR branch are unsigned and fail the estate signed-commit floor. The docstring
-# finishing touch below is the feature that commits to the branch, so it is
-# disabled here. The matching app-UI setting must also be off; it lives outside
-# this repo and is tracked in the ULTRAPLAN.
+# PR branch are unsigned and fail the estate signed-commit floor. Docstrings,
+# fix_ci and resolve_merge_conflict finishing touches are disabled here.
+# The matching app-UI settings must also be off; they live outside
+# this repo and are tracked in the ULTRAPLAN.
 #
 # The docstring pre-merge check stays advisory (mode: warning), as in
 # rsr-template-repo. CodeRabbit is advisory.
@@ -16,4 +16,8 @@ reviews:
       threshold: 80
   finishing_touches:
     docstrings:
+      enabled: false
+    fix_ci:
+      enabled: false
+    resolve_merge_conflict:
       enabled: false

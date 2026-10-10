@@ -95,8 +95,12 @@ protected:
 do_not_create:
   - pattern: Dockerfile
     reason: "Use Containerfile (Podman)"
-  - pattern: .machine_readable/**/*.a2ml
+  - pattern: "*.a2ml"
     reason: "a2ml is retired; the deed and K9 files replace it"
+  - pattern: "**/*.a2ml"
+    reason: "a2ml is retired; the deed and K9 files replace it"
+  - pattern: .machine_readable/**/*.a2ml
+    reason: "Keep hidden metadata covered when glob matching excludes dot directories"
 
 ecosystem:
   depends_on:

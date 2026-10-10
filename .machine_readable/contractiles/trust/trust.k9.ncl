@@ -16,8 +16,9 @@ K9!
 # ceremony has run, and this sandbox has no signing key. This contract is NOT
 # authorised to run as 'Hunt until the owner signs it. Ledger row K-1.
 #
-# Probes are the source `run` strings with TOML escapes decoded. No runner
-# executes them yet, so they are documentation-grade until a runner is wired.
+# Probes are the source `run` strings with TOML escapes decoded, except for the
+# dangerous-patterns probe below. Its shared script is enforced separately in
+# proofs.yml, independently of this disabled contract runner.
 #
 # Adaptations (ledger rows A-T1, A-T2): the Lean and Coq "bounded" checks point
 # at archive/proofs/ because those provers are archived (2026-10-10).
@@ -130,8 +131,10 @@ K9!
       {
         id = "no-dangerous-proof-patterns",
         section = "dangerous-patterns",
-        description = "No believe_me, assert_total, unsafeCoerce, Obj.magic in non-proof source",
-        probe = "! grep -rE 'believe_me|assert_total|unsafeCoerce|Obj\\\\.magic' --include='*.idr' --include='*.ml' --include='*.hs' --include='*.rs' . 2>/dev/null | head -1 | grep -q .",
+        description = "At most five believe_me code occurrences in src/abi Idris files; none elsewhere in src. No assert_total, unsafeCoerce or Obj.magic in src",
+        probe = "bash scripts/check-proof-patterns.sh",
+        baseline = 5,
+        baseline_note = "Issue #27: four sites in Proofs/DivMod.idr and one in Layout.idr. Enforced by the shared script in CI even while this runner is disabled.",
         severity = "critical",
       },
       {
