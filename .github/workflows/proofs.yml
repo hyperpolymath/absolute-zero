@@ -1,23 +1,15 @@
 # This workflow is managed by gh actions-lock.
 # SPDX-License-Identifier: MPL-2.0
-# This workflow is managed by gh actions-lock.
-# This workflow is managed by gh actions-lock.
 # Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 #
-# Proof verification CI. Runs the LIGHTWEIGHT provers that are fast and reliable
-# on a standard GitHub runner — Coq (both pillars, all 14 theories), Agda (CNO +
-# OND), and Z3 (CNO + OND bounded instances). Each is an INDEPENDENT job, so one
-# flaking never blocks the others.
+# Proof verification CI for the ACTIVE proof stack (owner ruling 2026-10-10):
+#   * Agda      — CNO + OND + EchoBridge (--safe --without-K)
+#   * Z3        — CNO + OND bounded checks (expect-annotated)
+#   * Idris 2   — the ABI package (absolute-zero-abi.ipkg)
+# Each is an INDEPENDENT job, so one flaking never blocks the others.
 #
-# The Mathlib-free Lean core (CNO, OND, CNOCategory, CNOBridge, FilesystemCNO,
-# LambdaCNO) is built here too, with the toolchain pinned in
-# proofs/lean4/lean-toolchain, and proofs/lean4/AxiomAudit.lean pins the
-# signature of every axiom and the axiom list of every theorem (issue #125).
-#
-# The heavy provers (Lean + multi-GB Mathlib for QuantumCNO/StatMech, Isabelle
-# ~1.2 GB, Mizar i386 + MML, Idris 2 from source) are NOT run here — they are
-# covered by the local/container gate `proofs/verify-all-provers.sh`
-# (ALL-PROVERS-GREEN). See PROOF-STATUS.adoc.
+# Coq, Lean 4, Isabelle/HOL and Mizar are ARCHIVED under archive/proofs/ and are
+# not gated here. See archive/README.adoc for the archive and its status.
 name: Proofs
 
 on:
@@ -26,11 +18,14 @@ on:
   pull_request:
     paths:
       - 'proofs/**'
+      - 'src/**'
+      - 'scripts/check-proof-patterns.sh'
+      - 'tests/check-proof-patterns.sh'
+      - '.machine_readable/contractiles/trust/trust.k9.ncl'
       - 'absolute-zero-abi.ipkg'
       - '.github/workflows/proofs.yml'
       - 'Justfile'
       - '*.agda-lib'
-      - 'lakefile*'
 
 permissions:
   contents: read
@@ -41,37 +36,16 @@ concurrency:
   cancel-in-progress: true
 
 jobs:
-  coq:
-    name: Coq — CNO + OND (14 theories)
+  proof-patterns:
+    name: Proof escape-hatch baseline
     runs-on: ubuntu-24.04
     steps:
       - uses: actions/checkout@v7.0.1
-      - name: Install Coq
-        run: sudo apt-get update && sudo apt-get install -y coq
-      - name: Build all theories via coq_makefile
-        working-directory: proofs/coq
-        run: |
-          coqc --version
-          coq_makefile -f _CoqProject -o Makefile.all
-          make -f Makefile.all -j"$(nproc)"
-          echo "✓ Coq: 14/14 theories compiled (CNO + OND)"
-      - name: Print Assumptions gate (17 named theorems closed) + control
-        working-directory: proofs/coq
-        run: |
-          bash check-assumptions.sh
-          bash check-assumptions.sh --control
-      - name: Axiom tag grammar gate + control (issue #171)
-        working-directory: proofs/coq
-        run: |
-          bash check-axiom-tags.sh
-          bash check-axiom-tags.sh --control
-      - name: Axiom dependency census (issue #171)
-        working-directory: proofs/coq
-        run: |
-          bash census-assumptions.sh
+      - run: bash scripts/check-proof-patterns.sh
+      - run: bash tests/check-proof-patterns.sh
 
   agda:
-    name: Agda — CNO + OND
+    name: Agda — CNO + OND + EchoBridge
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     steps:
@@ -114,25 +88,18 @@ jobs:
           z3 --version
           bash proofs/z3/verify.sh
           echo "✓ Z3: every (check-sat) verdict matched its ; expect annotation"
-      - name: Gate self-test (stub provers + z3 mutants must turn the gate red)
-        run: bash proofs/tests/gate-selftest.sh
 
-  lean:
-    name: Lean — core CNO (6 modules + axiom audit)
-    runs-on: ubuntu-24.04
-    timeout-minutes: 20
+  idris:
+    name: Idris 2 — ABI package (absolute-zero-abi.ipkg)
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    container:
+      # Same pinned idris2-pack image as pages.yml (digest-pinned).
+      image: ghcr.io/stefan-hoeck/idris2-pack@sha256:f0758996a931fb35d9ecb1de273c4d59dabe2a09b433afc7e357f65a08b7e1ff
     steps:
       - uses: actions/checkout@v7.0.1
-      - name: Install elan v4.2.4 (sha256-verified) and the pinned toolchain
-        # elan is fetched as a release tarball and checksum-verified rather than
-        # via a third-party action, so the repo's Actions allow-list is not in
-        # play. The toolchain itself comes from proofs/lean4/lean-toolchain.
+      - name: Build the ABI package (type-checks every src/abi module)
         run: |
-          curl -fsSL --retry 3 -o elan.tgz \
-            https://github.com/leanprover/elan/releases/download/v4.2.4/elan-x86_64-unknown-linux-gnu.tar.gz
-          echo "42b94d4244e8353142c456ec0e4ca6528fd898a6c604d4059f494e706e431f63  elan.tgz" | sha256sum -c -
-          tar -xzf elan.tgz
-          ./elan-init -y --no-modify-path --default-toolchain none
-          echo "$HOME/.elan/bin" >> "$GITHUB_PATH"
-      - name: Build the six Mathlib-free modules and run the axiom audit
-        run: bash proofs/lean4/check-core.sh
+          idris2 --version
+          idris2 --build absolute-zero-abi.ipkg
+          echo "✓ Idris 2: absolute-zero-abi.ipkg builds"

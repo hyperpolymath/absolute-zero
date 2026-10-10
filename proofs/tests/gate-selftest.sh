@@ -1,130 +1,235 @@
 #!/usr/bin/env bash
 # SPDX-License-Identifier: MPL-2.0
-# Absolute Zero — self-test for the prover gate.
-#
-# Proves that proofs/verify-all-provers.sh and proofs/z3/verify.sh turn RED when
-# they should, using a stub toolchain on a private PATH (no real prover needed),
-# plus two mutants under a REAL z3 (required on PATH). Every negative case must
-# fail with the expected reason string, not merely a non-zero exit — a parse
-# error would otherwise pass as a kill.
-# HOME is overridden because the gate prepends $HOME/.local/bin:$HOME/.elan/bin.
-set -uo pipefail
+# Unit tests for verify-active-provers.sh, plus its Z3 checker integration.
+# Run: bash proofs/tests/gate-selftest.sh (no real provers or network needed).
+# All mutations are confined to a disposable fixture; archived proofs are unused.
+set -euo pipefail
+
 HERE="$(cd "$(dirname "$0")" && pwd)"
 PROOFS="$(cd "$HERE/.." && pwd)"
-GATE="$PROOFS/verify-all-provers.sh"
-Z3CHECK="$PROOFS/z3/verify.sh"
-REAL_SMT2="$PROOFS/z3/ond/OND_checks.smt2"
-SCRATCH="$(mktemp -d "${TMPDIR:-/tmp}/az-gate-selftest.XXXXXX")"
+BASH_BIN="$(command -v bash)"
+ENV_BIN="$(command -v env)"
+SCRATCH="$(mktemp -d "${TMPDIR:-/tmp}/az-active-gate-selftest.XXXXXX")"
 trap 'rm -rf "$SCRATCH"' EXIT
-STUB="$SCRATCH/bin"; mkdir -p "$STUB" "$SCRATCH/home"
-cases=0; fails=0
-# pass <label>: record and report a successful test case.
-pass()  { cases=$((cases+1)); echo "PASS: $1"; }
-# flunk <label>: record and report a failed test case.
-flunk() { cases=$((cases+1)); fails=$((fails+1)); echo "FAIL: $1"; }
+# Spaces exercise quoting in the gate's path resolution and subprocess calls.
+FIXTURE="$SCRATCH/repo with spaces"
+STUB="$SCRATCH/bin"
+TRACE="$SCRATCH/trace"
+mkdir -p "$STUB" "$SCRATCH/home" "$SCRATCH/unrelated cwd" "$FIXTURE/proofs"
+cp "$PROOFS/verify-active-provers.sh" "$FIXTURE/proofs/"
 
-for s in "$GATE" "$Z3CHECK"; do bash -n "$s" || { echo "FAIL: $s does not parse"; exit 1; }; done
-
-# mkstub <tool> [body]: create an executable stub, defaulting to success.
-mkstub() { printf '#!/bin/sh\n%s\n' "${2:-exit 0}" > "$STUB/$1"; chmod +x "$STUB/$1"; }
-for t in coqc coq_makefile make agda lake isabelle accom verifier idris2; do mkstub "$t"; done
-# z3_stub <verdicts>: replace the z3 stub with the supplied solver output.
-z3_stub() { mkstub z3 "case \"\${1:-}\" in --version) echo \"Z3 version stub\";; *) printf '$1';; esac"; }
-z3_stub 'sat\nunsat\nsat\n'
-# coqc must answer `Print Assumptions` faithfully, or the audit inside the gate
-# (proofs/coq/check-assumptions.sh) cannot be exercised: one "Closed under the
-# global context" per Print Assumptions line, except the control's target
-# (landauer_limit_positive), which rests on the tagged axiom kB_positive.
-# COQC_STUB_MODE=axioms  -> every theorem reports an axiom (case O)
-# COQC_STUB_MODE=closed  -> every theorem reports closed, control included (case P)
-cat > "$STUB/coqc" <<'COQC'
-#!/bin/sh
-f=""; for a in "$@"; do case "$a" in *.v) f=$a;; esac; done
-[ -n "$f" ] && [ -r "$f" ] || exit 0
-grep '^Print Assumptions' "$f" | while IFS= read -r line; do
-  id=${line#Print Assumptions }; id=${id%.}
-  case "${COQC_STUB_MODE:-}:$id" in
-    axioms:*|:*landauer_limit_positive*) printf 'Axioms:\nPhysicsConstants.kB_positive : (0 < kB)%%R\n';;
-    *) echo "Closed under the global context";;
-  esac
+# No system PATH fallback: missing-prover cases must stay missing even on a
+# developer's machine with all provers installed. Only checker utilities escape.
+for utility in bash dirname find sort awk grep diff sed tail tr; do
+  ln -s "$(command -v "$utility")" "$STUB/$utility"
 done
-exit 0
-COQC
-chmod +x "$STUB/coqc"
-for s in "$STUB"/*; do sh -n "$s" || { echo "FAIL: stub $s does not parse"; exit 1; }; done
 
-OUT=""; RC=0
-# run_gate: capture the gate's output and exit status with the stub toolchain.
-run_gate() { OUT="$(HOME="$SCRATCH/home" PATH="$STUB:/usr/bin:/bin" MIZFILES="${MIZ-$SCRATCH/miz}" SKIP_ISABELLE="${SKIP_ISABELLE:-0}" SKIP_MIZAR="${SKIP_MIZAR:-0}" bash "$GATE" 2>&1)"; RC=$?; }
-# expect <label> <exit-wanted> <must-contain> <must-not-contain>
-expect() {
-  local label=$1 want=$2 must=$3 mustnot=$4
-  if [ "$RC" -ne "$want" ]; then flunk "$label — exit $RC, wanted $want"; printf '%s\n' "$OUT" | tail -6 | sed 's/^/    /'; return; fi
-  if [ -n "$must" ] && ! printf '%s\n' "$OUT" | grep -qF -- "$must"; then flunk "$label — output lacks '$must'"; printf '%s\n' "$OUT" | tail -6 | sed 's/^/    /'; return; fi
-  if [ -n "$mustnot" ] && printf '%s\n' "$OUT" | grep -qF -- "$mustnot"; then flunk "$label — output contains '$mustnot'"; return; fi
-  pass "$label"
+cat > "$STUB/agda" <<'AGDA'
+#!/bin/sh
+printf 'agda|%s|%s\n' "$PWD" "$*" >> "$TRACE"
+[ "$#" -eq 3 ] && [ "$1" = --safe ] && [ "$2" = --without-K ] || exit 90
+[ -f "$3" ] || exit 91
+[ "$3" != "$AGDA_FAIL" ] || exit 7
+AGDA
+cat > "$STUB/idris2" <<'IDRIS'
+#!/bin/sh
+printf 'idris2|%s|%s\n' "$PWD" "$*" >> "$TRACE"
+[ "$#" -eq 2 ] && [ "$1" = --build ] && [ "$2" = absolute-zero-abi.ipkg ] || exit 90
+[ -f "$2" ] || exit 91
+exit "$IDRIS_RC"
+IDRIS
+cat > "$STUB/z3" <<'Z3'
+#!/bin/sh
+printf 'z3|%s|%s\n' "$PWD" "$*" >> "$TRACE"
+[ "$#" -eq 1 ] || exit 90
+if [ "$1" = --version ]; then
+  echo 'Z3 version stub'
+  exit 0
+fi
+[ -f "$1" ] || exit 91
+printf '%s\n' "$Z3_OUTPUT"
+exit "$Z3_RC"
+Z3
+# Retirement is a behavior: even available archived tools must never be called.
+for retired in coqc coq_makefile make lake lean isabelle accom verifier; do
+  cat > "$STUB/$retired" <<'RETIRED'
+#!/bin/sh
+printf 'ARCHIVED TOOL CALLED: %s\n' "$0" >> "$TRACE"
+exit 99
+RETIRED
+done
+chmod +x "$STUB/"{agda,idris2,z3,coqc,coq_makefile,make,lake,lean,isabelle,accom,verifier}
+
+MODULES=(CNO OND EchoBridgeScaffold EchoBridgeCNO)
+cases=0
+fails=0
+
+reset_fixture() {
+  local module
+  rm -rf "$FIXTURE/proofs/agda" "$FIXTURE/proofs/z3"
+  mkdir -p "$FIXTURE/proofs/agda" "$FIXTURE/proofs/z3/ond"
+  for module in "${MODULES[@]}"; do
+    cp "$PROOFS/agda/$module.agda" "$FIXTURE/proofs/agda/"
+  done
+  cp "$PROOFS/z3/verify.sh" "$FIXTURE/proofs/z3/"
+  cp "$PROOFS/../absolute-zero-abi.ipkg" "$FIXTURE/"
+  # The solver is stubbed, so a small annotated fixture is sufficient to test
+  # the gate/checker boundary without coupling it to theorem contents.
+  printf '(check-sat) ; expect sat\n(check-sat) ; expect unsat\n(check-sat) ; expect sat\n' \
+    > "$FIXTURE/proofs/z3/ond/checks.smt2"
+  AGDA_FAIL=''
+  IDRIS_RC=0
+  Z3_RC=0
+  Z3_OUTPUT=$'sat\nunsat\nsat'
+  EXPECTED=''
 }
 
-# A. positive control: every stub present and green
-run_gate; expect "A all provers present -> ALL-PROVERS-GREEN" 0 "ALL-PROVERS-GREEN" "SOME PROVERS FAILED"
-# B. isabelle absent must FAIL (pre-2026-09-23: printed 'skipped', stayed green)
-mv "$STUB/isabelle" "$SCRATCH/isabelle.off"; run_gate
-expect "B isabelle absent -> fail" 1 "isabelle missing" "ALL-PROVERS-GREEN"
-# B2. isabelle absent with SKIP_ISABELLE=1 succeeds (issue #161)
-SKIP_ISABELLE=1 run_gate
-expect "B2 isabelle absent with SKIP_ISABELLE=1 -> pass" 0 "Isabelle/HOL skipped (SKIP_ISABELLE=1)" "SOME PROVERS FAILED"
-unset SKIP_ISABELLE
-mv "$SCRATCH/isabelle.off" "$STUB/isabelle"
-# C. mizar verifier absent must FAIL
-mv "$STUB/verifier" "$SCRATCH/verifier.off"; run_gate
-expect "C mizar verifier absent -> fail" 1 "mizar verifier / MIZFILES missing" "ALL-PROVERS-GREEN"
-# C2. mizar absent with SKIP_MIZAR=1 succeeds (issue #161)
-SKIP_MIZAR=1 run_gate
-expect "C2 mizar absent with SKIP_MIZAR=1 -> pass" 0 "Mizar skipped (SKIP_MIZAR=1)" "SOME PROVERS FAILED"
-unset SKIP_MIZAR
-mv "$SCRATCH/verifier.off" "$STUB/verifier"
-# D. MIZFILES unset must FAIL
-MIZ="" run_gate; expect "D MIZFILES unset -> fail" 1 "mizar verifier / MIZFILES missing" "ALL-PROVERS-GREEN"
-# E. z3 verdict drift (second verdict sat instead of unsat) must FAIL
-z3_stub 'sat\nsat\nsat\n'; run_gate
-expect "E z3 verdict mismatch -> fail" 1 "verdicts differ from annotations" "ALL-PROVERS-GREEN"
-# F. z3 (error ...) line must FAIL even when the verdicts match
-z3_stub 'sat\n(error "boom")\nunsat\nsat\n'; run_gate
-expect "F z3 (error line -> fail" 1 "z3 reported an error" "ALL-PROVERS-GREEN"
-# G. z3 'unknown' must FAIL
-z3_stub 'sat\nunknown\nsat\n'; run_gate
-expect "G z3 unknown verdict -> fail" 1 "verdicts differ from annotations" "ALL-PROVERS-GREEN"
-z3_stub 'sat\nunsat\nsat\n'
-# H. a prover that runs but fails must FAIL
-mkstub idris2 'exit 3'; run_gate; expect "H idris2 exit 3 -> fail" 1 "IDRIS FAILED" "ALL-PROVERS-GREEN"; mkstub idris2
-# O. Coq builds but a theorem rests on an axiom: the audit must turn the gate red
-#    (pre-2026-09-23 the canonical gate never ran the audit, so this was green)
-export COQC_STUB_MODE=axioms; run_gate; unset COQC_STUB_MODE
-expect "O coq audit sees Axioms: -> fail" 1 "COQ ASSUMPTIONS FAILED" "ALL-PROVERS-GREEN"
-# P. an audit that calls EVERYTHING closed, the control's target included, must FAIL
-export COQC_STUB_MODE=closed; run_gate; unset COQC_STUB_MODE
-expect "P coq control passes wrongly -> fail" 1 "COQ ASSUMPTIONS-CONTROL FAILED" "ALL-PROVERS-GREEN"
-# I. after the mutants, the positive control is green again (no state leaked)
-run_gate; expect "I positive control repeats green" 0 "ALL-PROVERS-GREEN" "SOME PROVERS FAILED"
+expect_agda() {
+  local module
+  for module in "$@"; do
+    EXPECTED+="agda|$FIXTURE/proofs/agda|--safe --without-K $module.agda"$'\n'
+  done
+}
+expect_z3() {
+  EXPECTED+="z3|$SCRATCH/unrelated cwd|--version"$'\n'
+  EXPECTED+="z3|$SCRATCH/unrelated cwd|$FIXTURE/proofs/z3/ond/checks.smt2"$'\n'
+}
+expect_idris() {
+  EXPECTED+="idris2|$FIXTURE|--build absolute-zero-abi.ipkg"$'\n'
+}
+expect_all() { expect_agda "${MODULES[@]}"; expect_z3; expect_idris; }
 
-# ---- the expect-checker under a REAL z3 ------------------------------------
-if ! command -v z3 >/dev/null; then flunk "J-M need a real z3 on PATH"; else
-  # J. positive control: the committed file matches its annotations
-  OUT="$(bash "$Z3CHECK" 2>&1)"; RC=$?; expect "J real z3, committed OND_checks.smt2 -> OK" 0 "Z3-CHECK OK" "Z3-CHECK FAILED"
-  # K. expect-flipped mutant: 'expect unsat' -> 'expect sat' must FAIL
-  mkdir -p "$SCRATCH/k"; sed 's/; expect unsat/; expect sat/' "$REAL_SMT2" > "$SCRATCH/k/mutant.smt2"
-  grep -q '; expect unsat' "$SCRATCH/k/mutant.smt2" && flunk "K mutant not applied"
-  OUT="$(bash "$Z3CHECK" "$SCRATCH/k" 2>&1)"; RC=$?; expect "K real z3, expect-flipped mutant -> fail" 1 "verdicts differ from annotations" "Z3-CHECK OK"
-  # L. an unannotated (check-sat) must FAIL
-  mkdir -p "$SCRATCH/l"; sed 's/; expect .*$//' "$REAL_SMT2" > "$SCRATCH/l/bare.smt2"
-  OUT="$(bash "$Z3CHECK" "$SCRATCH/l" 2>&1)"; RC=$?; expect "L real z3, (check-sat) without expect -> fail" 1 "without an '; expect sat|unsat' annotation" "Z3-CHECK OK"
-  # M. a root with no .smt2 must FAIL (vacuous)
-  mkdir -p "$SCRATCH/m"; OUT="$(bash "$Z3CHECK" "$SCRATCH/m" 2>&1)"; RC=$?; expect "M no .smt2 files -> fail" 1 "no .smt2 files" "Z3-CHECK OK"
-  # N. a file whose assertions are unsatisfiable where 'sat' is expected: z3 says unsat -> FAIL
-  mkdir -p "$SCRATCH/n"; printf '(declare-const x Int)\n(assert (< x 0))\n(assert (> x 0))\n(check-sat) ; expect sat\n' > "$SCRATCH/n/contra.smt2"
-  OUT="$(bash "$Z3CHECK" "$SCRATCH/n" 2>&1)"; RC=$?; expect "N real z3, contradictory assertions vs expect sat -> fail" 1 "verdicts differ from annotations" "Z3-CHECK OK"
+run_gate() {
+  : > "$TRACE"
+  RC=0
+  # A clean child environment also removes exported shell functions, BASH_ENV,
+  # user-local toolchains, and legacy skip flags from the host test environment.
+  OUT="$(cd "$SCRATCH/unrelated cwd" && "$ENV_BIN" -i \
+    HOME="$SCRATCH/home" PATH="$STUB" LC_ALL=C TRACE="$TRACE" \
+    AGDA_FAIL="$AGDA_FAIL" IDRIS_RC="$IDRIS_RC" Z3_RC="$Z3_RC" Z3_OUTPUT="$Z3_OUTPUT" \
+    "$BASH_BIN" "$FIXTURE/proofs/verify-active-provers.sh" 2>&1)" || RC=$?
+}
+
+# Require the specific failure diagnostic AND final status AND exact tool
+# invocations: an unrelated shell error must never satisfy a negative case.
+expect() {
+  local label=$1 want=$2 reason problem='' actual
+  shift 2
+  cases=$((cases + 1))
+  [ "$RC" -eq "$want" ] || problem+="exit $RC, wanted $want; "
+  for reason in "$@"; do
+    [[ "$OUT" == *"$reason"* ]] || problem+="missing '$reason'; "
+  done
+  if [ "$want" -eq 0 ]; then
+    [[ "$OUT" == *ACTIVE-PROVERS-GREEN ]] || problem+='missing green summary; '
+    [[ "$OUT" != *'SOME ACTIVE PROVERS FAILED'* ]] || problem+='failure on success; '
+  else
+    [[ "$OUT" == *'SOME ACTIVE PROVERS FAILED' ]] || problem+='missing failure summary; '
+    [[ "$OUT" != *ACTIVE-PROVERS-GREEN* ]] || problem+='false green; '
+  fi
+  actual="$(cat "$TRACE")"
+  [[ "$actual" == "${EXPECTED%$'\n'}" ]] || problem+='tool calls differ; '
+  if [ -z "$problem" ]; then
+    printf 'PASS: %s\n' "$label"
+  else
+    fails=$((fails + 1))
+    printf 'FAIL: %s — %s\n%s\nExpected calls:\n%sActual calls:\n%s\n' \
+      "$label" "$problem" "$OUT" "$EXPECTED" "$actual"
+  fi
+}
+
+reset_fixture; expect_all; run_gate
+expect 'all active provers pass; archived tools unused; cwd and flags correct' 0 'Z3-CHECK OK'
+
+for tool in agda z3 idris2; do
+  reset_fixture
+  mv "$STUB/$tool" "$SCRATCH/$tool.off"
+  if [ "$tool" != agda ]; then expect_agda "${MODULES[@]}"; fi
+  if [ "$tool" != z3 ]; then expect_z3; fi
+  if [ "$tool" != idris2 ]; then expect_idris; fi
+  run_gate
+  expect "$tool missing fails while other provers still run" 1 "$tool missing"
+  mv "$SCRATCH/$tool.off" "$STUB/$tool"
+done
+
+reset_fixture
+for tool in agda z3 idris2; do mv "$STUB/$tool" "$SCRATCH/$tool.off"; done
+run_gate
+expect 'all missing provers are reported together' 1 'agda missing' 'z3 missing' 'idris2 missing'
+for tool in agda z3 idris2; do mv "$SCRATCH/$tool.off" "$STUB/$tool"; done
+
+for index in "${!MODULES[@]}"; do
+  module=${MODULES[$index]}
+  reset_fixture
+  AGDA_FAIL="$module.agda"
+  expect_agda "${MODULES[@]:0:index+1}"; expect_z3; expect_idris
+  run_gate
+  expect "$module rejects: stop Agda at that module, continue other provers" 1 'AGDA FAILED'
+
+  reset_fixture
+  rm "$FIXTURE/proofs/agda/$module.agda"
+  expect_agda "${MODULES[@]:0:index}"; expect_z3; expect_idris
+  run_gate
+  expect "$module missing: never invoke Agda on a missing module" 1 "$module.agda MISSING"
+done
+
+reset_fixture
+rm -rf "$FIXTURE/proofs/agda"
+expect_z3; expect_idris; run_gate
+expect 'missing Agda directory fails without checking from the wrong cwd' 1 'AGDA FAILED'
+
+reset_fixture
+IDRIS_RC=3
+expect_all; run_gate
+expect 'Idris build failure normalizes to gate exit 1' 1 'IDRIS FAILED'
+
+reset_fixture
+rm "$FIXTURE/absolute-zero-abi.ipkg"
+expect_all; run_gate
+expect 'missing ABI package propagates the build failure' 1 'IDRIS FAILED'
+
+# These are integration cases for the new gate's delegation to the existing
+# expect-checker; a solver exiting zero alone must never make the gate green.
+for mode in mismatch unknown error nonzero empty truncated extra; do
+  reset_fixture
+  reason='verdicts differ from annotations'
+  case "$mode" in
+    mismatch) Z3_OUTPUT=$'sat\nsat\nsat';;
+    unknown) Z3_OUTPUT=$'sat\nunknown\nsat';;
+    error) Z3_OUTPUT=$'sat\n(error "boom")\nunsat\nsat'; reason='z3 reported an error';;
+    nonzero) Z3_RC=4; reason='z3 exit 4';;
+    empty) Z3_OUTPUT='';;
+    truncated) Z3_OUTPUT=$'sat\nunsat';;
+    extra) Z3_OUTPUT=$'sat\nunsat\nsat\nsat';;
+  esac
+  expect_all; run_gate
+  expect "Z3 $mode fails the active gate and still runs Idris" 1 "$reason" 'Z3 FAILED'
+done
+
+reset_fixture
+rm "$FIXTURE/proofs/z3/ond/checks.smt2"
+expect_agda "${MODULES[@]}"
+EXPECTED+="z3|$SCRATCH/unrelated cwd|--version"$'\n'
+expect_idris; run_gate
+expect 'empty solver fixture cannot pass vacuously' 1 'no .smt2 files'
+
+reset_fixture
+rm "$FIXTURE/proofs/z3/verify.sh"
+expect_agda "${MODULES[@]}"; expect_idris; run_gate
+expect 'missing delegated checker fails even with z3 available' 1 'Z3 FAILED'
+
+reset_fixture
+AGDA_FAIL=CNO.agda; Z3_RC=4; IDRIS_RC=3
+expect_agda CNO; expect_z3; expect_idris; run_gate
+expect 'multiple failures preserve a failing result after every prover runs' 1 \
+  'AGDA FAILED' 'Z3 FAILED' 'IDRIS FAILED'
+
+reset_fixture; expect_all; run_gate
+expect 'positive control after negative cases: no fixture state leaks' 0 'Z3-CHECK OK'
+
+if [ "$fails" -eq 0 ]; then
+  printf 'GATE-SELFTEST OK: %s/%s cases\n' "$cases" "$cases"
+  exit 0
 fi
-
-echo
-if [ "$fails" -eq 0 ]; then echo "GATE-SELFTEST OK: $cases/$cases cases"; exit 0; fi
-echo "GATE-SELFTEST FAILED: $fails of $cases cases"; exit 1
+printf 'GATE-SELFTEST FAILED: %s failures in %s cases\n' "$fails" "$cases"
+exit 1

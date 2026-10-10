@@ -122,9 +122,6 @@ COPY . .
 # Build TypeScript
 RUN npm run build || echo "TypeScript build not configured"
 
-# Build Coq proofs
-RUN cd proofs/coq/common && coqc CNO.v
-RUN cd proofs/coq/malbolge && coqc -R ../common CNO MalbolgeCore.v
 
 # Make scripts executable
 RUN chmod +x proofs/z3/verify.sh
@@ -215,7 +212,7 @@ CMD ["just", "verify-all"]
 #   podman run --rm -it absolute-zero /bin/bash
 #
 # Run specific verification:
-#   podman run --rm absolute-zero just verify-coq
+#   podman run --rm absolute-zero just verify-agda
 #   podman run --rm absolute-zero just verify-z3
 #
 # Run interpreter tests:

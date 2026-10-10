@@ -2,6 +2,9 @@
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 # A2ML Anchor Directory
 
+NOTE: Retired 2026-10-10. The A2ML files described below are archived under `archive/a2ml-v1/` (see `archive/a2ml-v1/MIGRATION-LEDGER.adoc`). Repository metadata now lives in `absolute-zero_chora.deed`, and contracts live in `.machine_readable/contractiles/<verb>/<verb>.k9.ncl`. The text below describes the retired set and is kept as history until it is rewritten.
+
+
 This directory contains ANCHOR.a2ml files for project recalibration and scope intervention.
 
 ## Files

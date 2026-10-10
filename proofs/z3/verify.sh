@@ -14,7 +14,7 @@
 # Before 2026-09-23 this script ran `z3 cno_properties.smt2` (a file that did
 # not exist), CI wrapped it in `|| true`, and the only other check was z3's
 # exit code — which is 0 for sat AND unsat, so a broken theorem never failed.
-# Self-test (mutants that must turn this red): proofs/tests/gate-selftest.sh.
+# Self-test: the archived six-prover self-test (archive/proofs/tests/) no longer covers this gate; a replacement is open (ULTRAPLAN N11).
 set -uo pipefail
 HERE="$(cd "$(dirname "$0")" && pwd)"
 ROOT="${1:-$HERE}"

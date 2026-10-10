@@ -26,6 +26,11 @@ longer say no, turns it red. `proofs/tests/gate-selftest.sh` proves both gates t
 each absent or failing prover, for each verdict mutant and for both audit mutants (16 cases, run in CI).
 ====
 
+[IMPORTANT]
+====
+*Archive notice (2026-10-10).* The active proof stack is now Idris 2 (ABI) and Agda (CNO, OND, EchoBridge), with Z3 as a bounded-check solver. Coq, Lean 4, Isabelle/HOL and Mizar are archived under `archive/proofs/` (see `archive/README.adoc`). Text that describes those provers as active is historical until the full rewrite lands.
+====
+
 == Coq — VERIFIED (this environment)
 
 * `coqc` **8.18.0**; clean build from scratch (all `.vo`/`.glob` deleted first),
