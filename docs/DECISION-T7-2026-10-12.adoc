@@ -1,0 +1,21 @@
+= T7 — D204's Coq `Module Type` for the valence-shell interface, after the archive ruling
+:revdate: 2026-10-12
+
+*Conflict.* D204 specifies the valence-shell interface as a Coq `Module
+Type`; the 2026-10-10 ruling archived Coq.
+
+*Resolution (recommended, pending owner sign-off).* The interface is a
+*proof-level* contract, so it belongs with the kernel: an Agda `record`
+under `proofs/agda/` (the same shape `ResourceAlgebra` uses — fields for
+the operations, fields for the laws). Where the interface crosses into
+runtime, the Idris2 ABI carries a *mirror* record with the laws omitted
+and a named correspondence obligation, exactly as resource-algebra's M-2
+treats Lean. D204 is amended, not withdrawn: its content survives, its
+prover does not.
+
+*Why not Idris2 for the interface itself.* Laws as fields need a kernel
+with `--safe`; Idris2's escape hatches are in live use in this repo's ABI
+(10 `believe_me`). The ruling draws the line there on purpose.
+
+*Falsifier.* If some law in D204 cannot be stated under `--without-K`
+(the ruling's standing falsifier), T7 reopens with evidence.
