@@ -182,7 +182,7 @@ Mirrored
 
 [NOTE]
 ====
-2026-10-12: the Coq, Lean 4, Isabelle/HOL and Mizar developments are archived under `archive/` (owner ruling 2026-10-10); the 61 axioms are theirs. The active stack is Idris2 (ABI) + Agda (`proofs/agda/`: CNO, OND, EchoBridgeCNO), zero axioms, with Z3 for bounded checks. See link:docs/EXCEPTION-T1-2026-10-12.adoc[] for the LANGUAGE-POLICY exception and the open T7 ruling.
+2026-10-12: the Coq, Lean 4, Isabelle/HOL and Mizar developments are archived under `archive/` (owner ruling 2026-10-10); the 61 axioms are theirs. The active stack is Idris2 (ABI) + Agda (`proofs/agda/`: CNO, OND, EchoBridgeCNO), zero axioms, with Z3 for bounded checks. See link:docs/EXCEPTION-T1-2026-10-12.adoc[] for the LANGUAGE-POLICY exception and link:docs/DECISION-T7-2026-10-12.adoc[] for the T7 ruling.
 ====
 
 
