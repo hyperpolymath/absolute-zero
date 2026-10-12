@@ -1,10 +1,10 @@
-= T7 — D204's Coq `Module Type` for the valence-shell interface, after the archive ruling
+= T7 (ruled) — D204's Coq `Module Type` for the valence-shell interface, after the archive ruling
 :revdate: 2026-10-12
 
 *Conflict.* D204 specifies the valence-shell interface as a Coq `Module
 Type`; the 2026-10-10 ruling archived Coq.
 
-*Resolution (recommended, pending owner sign-off).* The interface is a
+*Resolution (RULED by the owner, 2026-10-12).* The interface is a
 *proof-level* contract, so it belongs with the kernel: an Agda `record`
 under `proofs/agda/` (the same shape `ResourceAlgebra` uses — fields for
 the operations, fields for the laws). Where the interface crosses into
