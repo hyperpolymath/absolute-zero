@@ -1,0 +1,23 @@
+// SPDX-License-Identifier: CC-BY-SA-4.0
+// For absolute-zero: resolves ULTRAPLAN-OPEN-ISSUES T1 (proof-assistant policy).
+= Exception record — LANGUAGE-POLICY v1.6.0 §formal verification
+:revdate: 2026-10-12
+
+*Policy text:* "Idris2 is the only formal-verification language."
+
+*Exception:* Agda (`--safe --without-K`) is the family proof kernel per
+nextgen-typing D-2026-10-12; Idris2 remains the ABI/FFI layer (src/abi,
+`absolute-zero-abi.ipkg`). Z3 is a bounded-check solver, not a prover.
+
+*Scope:* `proofs/agda/` (CNO.agda, OND.agda, EchoBridgeCNO.agda,
+EchoBridgeScaffold.agda). Coq, Lean 4, Isabelle/HOL and Mizar stay under
+`archive/proofs/` (owner ruling 2026-10-10).
+
+*Open consequence:* T7 — D204's Coq `Module Type` for valence-shell cannot
+be written under this ruling. Owner to choose: Agda record interface,
+Idris2 interface, or withdraw D204.
+
+*Housekeeping tied to this record:* README.adoc still advertises
+multi-prover verification and "61 axioms" (which live only in
+`archive/`); TIERS.adoc still names Coq and Isabelle. Both to be brought
+into line with the artefact (three-layer rule).
