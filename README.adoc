@@ -180,6 +180,12 @@ Mirrored
 
 == *Axioms are unproven assumptions, not theorems.* The Coq CNO development rests on 61 axioms (e.g., quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws). "`Machine-checked`" means checked _relative to those axioms_—not an axiom-free proof. The OND pillar (OND-1..5) is axiom-free. Discharging the CNO axioms is the next major obligation.
 
+[NOTE]
+====
+2026-10-12: the Coq, Lean 4, Isabelle/HOL and Mizar developments are archived under `archive/` (owner ruling 2026-10-10); the 61 axioms are theirs. The active stack is Idris2 (ABI) + Agda (`proofs/agda/`: CNO, OND, EchoBridgeCNO), zero axioms, with Z3 for bounded checks. See link:docs/EXCEPTION-T1-2026-10-12.adoc[] for the LANGUAGE-POLICY exception and link:docs/DECISION-T7-2026-10-12.adoc[] for the T7 ruling.
+====
+
+
 == [CAUTION]
 
 == *Z3, Isabelle, and Mizar are generated but not yet run.* The artefacts exist in-tree but are not part of the CI gate. Only Coq, Lean 4, and Agda are machine-checked in CI.
