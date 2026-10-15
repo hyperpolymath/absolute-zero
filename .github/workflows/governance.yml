@@ -35,4 +35,4 @@ permissions:
 
 jobs:
   governance:
-    uses: hyperpolymath/standards/.github/workflows/governance-reusable.yml@fad242d35291de1898242d6737ba02b74a59a2f2 # main 2026-09-07 (post-#742; live-policy advisory, SPDX comment-block predicate)
+    uses: hyperpolymath/standards/.github/workflows/governance-reusable.yml@94572e612a7bf11f8e6343d19adadf17ef2a3de3 # main 2026-09-07 (post-#742; live-policy advisory, SPDX comment-block predicate)

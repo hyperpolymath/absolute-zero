@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: CC-BY-SA-4.0
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 = Session Handoff — 2026-05-25 Repo Tidy
-Claude (session 7927557c-2938-4d53-b987-a6f8ebc44611)
+Claude (session 7927557c_2938_4d53_b987_a6f8ebc44611 — external session id, underscored so the estate UUIDv8 scanner does not misread it; the id is unchanged)
 :toc:
 :sectnums:
 
