@@ -37,4 +37,4 @@ jobs:
       contents: read
       security-events: write
       id-token: write
-    uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@0f13f51fafe9d2b670252aa2a18993223bffdece
+    uses: hyperpolymath/standards/.github/workflows/scorecard-reusable.yml@94572e612a7bf11f8e6343d19adadf17ef2a3de3
