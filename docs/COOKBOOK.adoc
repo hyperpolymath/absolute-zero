@@ -746,27 +746,38 @@ _Status: Proofs verified ✓ | Theorems established ✓ | More work to do ✓_
 
 The pillars earn their keep on real reporting rules. Two worked cases from
 MetaManifold (https://github.com/JoshuaJewell/MetaManifold-WebUI), an
-amplicon-sequencing pipeline in production use:
+amplicon-sequencing pipeline in production use. In the app today both rules
+are enforced engineering: status symbols and guarded code paths, held by
+tests. What this repository adds is the machine-checked account of *why
+those rules are the right ones* --
+link:../proofs/agda/OND.agda[OND.agda] and
+link:../proofs/agda/CNO.agda[CNO.agda] -- and the type-level treatment they
+model. The typed form is the proposal, checked here; it is not a claim
+about the app's present code.
 
-* *OND, the disclosure side.* Its significance tests carry a status:
-`:computed`, `:r_unavailable`, `:no_paired_samples`, `:test_failed`. The
-engineering rule the app enforces by tests is exactly an OND claim -- a
-result whose test did not run reveals nothing, and must never be published
-as a null result. Modelled with the OND discipline, the statuses become a
-type: the numbers exist only in the constructor whose status is `computed`,
-and a "publish" function requires evidence the test ran. The untested branch
-cannot produce a number at all; the typechecker refuses it, where a test can
-only assert it.
+* *OND, the disclosure side.* MetaManifold's significance tests carry a
+status: `:computed`, `:r_unavailable`, `:no_paired_samples`, `:test_failed`
+(https://github.com/hyperpolymath/MetaManifold-WebUI/blob/7d5e9a4/src/analysis/analysis.jl[src/analysis/analysis.jl],
+pinned on the fork's `main` at 7d5e9a4). The engineering rule the app
+enforces by tests is exactly an OND claim -- a result whose test did not
+run reveals nothing, and must never be published as a null result. Modelled
+with the OND discipline, the statuses become a type: the numbers exist only
+in the constructor whose status is `computed`, and a "publish" function
+requires evidence the test ran. The untested branch cannot produce a number
+at all; the typechecker refuses it, where a test can only assert it.
 
 * *CNO, the operation side.* The app refuses to fit a negative-binomial GLM
-when one group has no reads at all (complete separation): the fold change
-is unbounded and the Wald p-value collapses towards 1 despite reported
-convergence. That refusal is a CNO in the flesh -- the degenerate fit is an
-operation that provably computes nothing of value, and certifying it as
-null turns a guarded code path into a typed guarantee that the funny
-result can never be produced.
+when one group has no reads at all (complete separation) -- asserted by
+https://github.com/hyperpolymath/MetaManifold-WebUI/blob/7d5e9a4/test/unit/test_differential.jl[test/unit/test_differential.jl]:
+the fold change is unbounded and the Wald p-value collapses towards 1
+despite reported convergence. That refusal is a CNO in the flesh -- the
+degenerate fit is an operation that provably computes nothing of value,
+which is what link:../proofs/agda/CNO.agda[CNO.agda] machine-checks.
+Certifying it as null would turn a guarded code path into a typed
+guarantee that the funny result can never be produced; that typed
+guarantee is the modelled endpoint, not the app's implementation.
 
 The real-world value is where tests are weakest: the silent failure paths.
 A user asking "is this safe and sound, or will it produce funny results?"
-gets a machine-checked answer for exactly the paths where the damage never
+gets a machine-checked account of exactly the paths where the damage never
 reaches a log.
