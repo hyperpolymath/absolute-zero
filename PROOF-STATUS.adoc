@@ -11,12 +11,13 @@ records the *actually reproduced* verification state in this environment, prover
 by prover, and is explicit about which axioms remain and why.
 
 [IMPORTANT]
-.2026-07-07 — both pillars machine-checked across six provers
+.2026-07-07 — both pillars machine-checked across six provers (HISTORICAL since 2026-10-10)
 ====
-All six provers are installed and were *reproduced in this environment*. A single
-gate, `proofs/verify-all-provers.sh`, builds every prover and prints
-`ALL-PROVERS-GREEN`: *Coq, Agda, Lean 4 (+Mathlib), Z3, Isabelle/HOL, Mizar*,
-plus the *Idris 2* ABI. Both the CNO and OND pillars are covered.
+*Historical (superseded by the 2026-10-10 archive ruling below):* all six
+provers were reproduced in this environment via `proofs/verify-all-provers.sh`
+(`ALL-PROVERS-GREEN`): *Coq, Agda, Lean 4 (+Mathlib), Z3, Isabelle/HOL, Mizar*,
+plus the *Idris 2* ABI. Today only Agda, Z3 (bounded) and the Idris 2 ABI are
+active — see the canonical table below. Both the CNO and OND pillars were covered.
 An absent prover is a *failure*, never a skip (since 2026-09-23 — before that Isabelle
 and Mizar printed "skipped" and the gate could say GREEN on four of six), and Z3
 verdicts are compared with the `; expect sat|unsat` annotation on every `(check-sat)`
@@ -29,6 +30,123 @@ each absent or failing prover, for each verdict mutant and for both audit mutant
 [IMPORTANT]
 ====
 *Archive notice (2026-10-10).* The active proof stack is now Idris 2 (ABI) and Agda (CNO, OND, EchoBridge), with Z3 as a bounded-check solver. Coq, Lean 4, Isabelle/HOL and Mizar are archived under `archive/proofs/` (see `archive/README.adoc`). Text that describes those provers as active is historical until the full rewrite lands.
+====
+
+== Canonical proof-status reconciliation (2026-11-01)
+
+This table is the *single canonical statement* of proof status in this
+repository. Where older prose (README, EXPLAINME, ROADMAP, `docs/*`) quotes
+counts such as "115 Qed / 0 Admitted / 61 Axioms", those figures describe
+the *archived* Coq tree under `archive/proofs/coq/` only. They are
+historical, they are not active, and they are **not estate-wide proof-status
+ground truth** — see "Role of this repository" below.
+
+*Grading scheme.* Statuses below use the closed proof-ledger vocabulary of
+`hyperpolymath/standards` (`3-practice/PROOF-POLICY.adoc` §5 and
+`docs/README-EXPLAINME-STANDARD.adoc` §5): `proven`, `proven-with-postulates`,
+`tested-only`, `argued`, `open` — recorded exactly, never flattened into a
+percentage. Estate grades follow mathesis's `estate-mathematical-architecture`
+§5–6: **Grade 3** = type-checks locally in Agda under strict flags but not yet
+translated to an independent foundational system; **Grade 2i/2ii** =
+translation to one/two independent foundations (2ii requires a non-DTT
+second system, e.g. Isabelle/HOL); **Grade 1** = headless CI via verified
+checker APIs. Verification receipts are tied to commit hashes; superseded
+claims are marked historical, not silently dropped, and axiom dependence
+(`Print Assumptions` / `#print axioms`) is tracked per row.
+
+[cols="2,1,2,3",options="header"]
+|===
+| Artefact / claim | Stack status | Proof status (ledger token — estate grade) | Scope and assumptions
+
+| `proofs/agda/` — `CNO.agda`, `OND.agda`, `EchoBridgeScaffold.agda`, `EchoBridgeCNO.agda`
+| ACTIVE (CI `agda` job; `proofs/verify-active-provers.sh`)
+| `proven` — **Grade 3**: type-checked locally in Agda, zero postulates, every file `{-# OPTIONS --safe --without-K #-}`; EchoBridge takes funext as an *explicit hypothesis*, not a global postulate. Not translated to any independent foundation, so not Grade 2+
+| Domain formalisation of both pillars; discharges OND-1..5; contains no OND-6. Open obligation: recheck under the 2026-11-01 canonical profile `agda --safe --without-K --cubical-compatible` (standards PROOF-POLICY §2.1) — prior `--safe --without-K` receipts are not receipts for the combined profile
+
+| `proofs/z3/` — `ond/OND_checks.smt2` via `proofs/z3/verify.sh`
+| ACTIVE as bounded-check solver (CI `z3` job)
+| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat|unsat` annotation. Receipt reproduced in this sandbox 2026-11-01 (z3 5.3.3, `Z3-CHECK OK`, sat/unsat/sat) — see receipts below
+| Bounds: finite/bounded programs under a finite declared `O`; not a general proof
+
+| `src/abi/` + `absolute-zero-abi.ipkg` (Idris 2)
+| ACTIVE (CI `idris` job)
+| `argued` — engineering-path interface artefact; type-checks, proves nothing
+| ABI/FFI boundary only; carries `believe_me` escape hatches (T7 ruling) — not evidence for any theorem
+
+| `archive/proofs/coq/` — 14 theories
+| ARCHIVED 2026-10-10 — not built, not gated
+| `proven-with-postulates` — *historical, superseded*: headline "115 Qed / 0 Admitted / 61 Axioms"; census 109/182 top-level theorems closed under the global context, 73 resting on stdlib classical axioms and/or tagged parameters; 17 headline theorems zero-axiom. At best a Grade 2i *candidate* (Coq is DTT-family like Agda); receipts predate the archive ruling and are not CI evidence
+| Counts describe this archived tree only; class-A / METAL-BOUNDARY tag grammar as recorded in the tree
+
+| `archive/proofs/lean4/`
+| ARCHIVED 2026-10-10 — not built, not gated
+| `proven-with-postulates` — *historical*: 52 Lean axioms incl. the strengthened `FilesystemCNO` preconditions and the class-A `y_combinator_not_identity`. Lean is DTT-family, so this leg adds no foundational diversity toward Grade 2ii
+| Historical counts describe this tree only
+
+| `archive/proofs/isabelle/`, `archive/proofs/mizar/`
+| ARCHIVED 2026-10-10 — not built, not gated
+| *Historical receipts*: proved in their day (Isabelle: no `sorry`/`oops`; Mizar: empty `CNO.err`). Isabelle/HOL is the non-DTT (HOL/LCF) leg that could have supported Grade 2ii diversity — but it is archived and unexecuted, so it confers no current grade
+| Not evidence in the active gate
+
+| `archive/proofs/verify-all-provers.six-prover.sh` + `archive/proofs/tests/gate-selftest.six-prover.sh`
+| ARCHIVED — superseded by `proofs/verify-active-provers.sh`
+| GENERATED gate script — historical
+| Former six-prover gate (Coq, Agda, Lean, Z3, Isabelle, Mizar + Idris ABI)
+
+| OND-6 — conditional composition (research capstone)
+| OPEN in every stack
+| `open` — not proved, not assumed; no `Admitted`/postulate smuggled in anywhere in the active stack
+| `docs/OND-ROADMAP.adoc`; deliberately open research fork
+
+| `proofs/observation-models/`, `proofs/residue/`
+| ACTIVE inputs
+| `argued` — declarative/generate proof inputs and honesty registers, not proofs
+| Declared observation models `+O+` and residue lists; every OND certificate is relative to its declared `+O+`
+|===
+
+=== Reproduction receipts (this environment, 2026-11-01)
+
+* *Z3 — REPRODUCED HERE.* `z3` 5.3.3 (64-bit, via the `z3-solver` PyPI wheel,
+the only package host reachable from this sandbox) running
+`bash proofs/z3/verify.sh` → `Z3-CHECK OK`: 1 file
+(`proofs/z3/ond/OND_checks.smt2`), 3 `(check-sat)` verdicts `sat unsat sat`,
+all matching their `; expect` annotations, exit 0. Receipt commit: working
+tree on branch `arena/1a7659fe-absolute-zero` over `bb46232`.
+* *Agda, Idris 2, Coq, Lean 4, Isabelle/HOL, Mizar, Rust/Creusot — NOT
+RUNNABLE HERE.* The sandbox egress allowlist (github.com, codeload.github.com,
+api.github.com, registry.npmjs.org, pypi.org, files.pythonhosted.org) blocks
+apt mirrors, static.rust-lang.org, opam.ocaml.org and Hackage, so none of
+these toolchains can be installed in this session. Per standards
+`3-practice/PROOF-POLICY.adoc` §6, a leg that cannot run is *said so*, never
+reported as passing: the Agda `--safe --without-K` checks, the
+`--cubical-compatible` recheck (open obligation, above), and the Idris 2 ABI
+build remain CI receipts (`proofs.yml`: `agda`, `z3`, `idris` jobs), not
+sandbox receipts. Archived provers stay archived and unexecuted.
+
+=== Role of this repository (consumer, not estate-wide ground truth)
+
+absolute-zero is a *consumer and domain formalisation*: it applies standard
+results (Landauer 1961, Bennett 1973, the non-interference literature,
+category theory) to its own CNO/OND domain concepts. Its historical prover
+counts (above) are evidence about its own archived trees only, and must not
+be cited as proof status for any other repository.
+
+*Cross-repo note (2026-11-01).* `epistemic-types` (at `5422cd5`) is an
+*independent* proof library with **no dependency on absolute-zero**. Any
+cross-repo claim must therefore name the exact theorem, its scope, and its
+assumptions (e.g. "OND-1..5, `proven`, Grade 3, Agda `--safe --without-K`,
+relative to a declared `O`") — never a bare count imported from this repo.
+Mathesis (the estate mathematical knowledge commons) may *catalogue* these
+receipts and grades, but per its own architecture the original repositories
+remain the sovereign owners of their mathematics; this file is the local
+proof-status record of record.
+
+[NOTE]
+====
+The per-prover sections below this table are *historical* for Coq, Lean 4,
+Isabelle/HOL and Mizar (archived 2026-10-10) and *active* only for Agda, Z3
+(bounded) and the Idris 2 ABI. They are kept for the record; the table above
+is the canonical summary.
 ====
 
 == Coq — VERIFIED (this environment)

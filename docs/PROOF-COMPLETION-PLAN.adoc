@@ -8,10 +8,11 @@
 .HISTORICAL PLAN — largely executed (2026-07-06, PR #100)
 ====
 This strategy (dated 2026-02-05) has since been carried out and superseded.
-There are now **0 `Admitted`** across the Coq development, both pillars are
-machine-checked across six provers + Idris, and the CNO axiom base was cut
-98→small. Current status: `PROOF-STATUS.adoc`; reproduce with
-`proofs/verify-all-provers.sh`. The plan below is kept for provenance.
+The historical Coq development reached **0 `Admitted`** and both pillars were
+machine-checked across six provers + Idris; since the 2026-10-10 archive
+ruling the *active* stack is Agda + Z3 (bounded) + Idris 2 ABI. Current
+status: `PROOF-STATUS.adoc` (canonical active-vs-archived table); reproduce
+with `proofs/verify-active-provers.sh`. The plan below is kept for provenance.
 ====
 
 == Date: 2026-02-05

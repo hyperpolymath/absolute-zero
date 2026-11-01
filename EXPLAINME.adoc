@@ -7,6 +7,11 @@
 
 This file backs every factual claim in link:README.adoc[README.adoc] with code paths and honest caveats. Read it if you are doing due diligence on whether the story matches the code.
 
+[IMPORTANT]
+====
+*Archive notice (2026-10-10, reconciled 2026-11-01).* The active proof stack is Agda (`proofs/agda/`, `--safe --without-K`, zero postulates) + Z3 as a bounded-check solver + the Idris 2 ABI. Coq, Lean 4, Isabelle/HOL and Mizar now live under `archive/proofs/`; paths below of the form `proofs/coq/…` / `proofs/lean4/…` refer to the *archived* trees (`archive/proofs/coq/…` etc.), and counts such as "115 Qed / 61 Axioms" are *historical* figures of those archived trees. The canonical active-vs-archived proof-status table is link:PROOF-STATUS.adoc[PROOF-STATUS.adoc], which also records the estate proof grades (mathesis `estate-mathematical-architecture` §5) and the closed ledger vocabulary of `hyperpolymath/standards` (`proven` / `proven-with-postulates` / `tested-only` / `argued` / `open`): the active Agda proofs are `proven` at **Grade 3** (local strict-flag check, no independent-foundation translation), the Z3 bounded checks are `tested-only`, and OND-6 is `open`.
+====
+
 == Claim-to-implementation map
 
 === CNO and OND are logically independent
@@ -16,19 +21,19 @@ ____
 The two pillars are logically independent (a proved theorem, with witnesses).
 ____
 
-How this is implemented::
-The independence theorem is proved in Coq, anchored to the core `is_CNO` definition. Witnesses demonstrating that CNO does not entail OND and OND does not entail CNO are constructed.
+How this was implemented::
+The independence theorem was proved in Coq (`archive/proofs/coq/ond/OND.v`, anchored to the core `is_CNO` definition, with witnesses that CNO does not entail OND and OND does not entail CNO); the active Agda `OND.agda` carries the same obligation zero-postulate.
 
 Caveat::
 None currently known for the independence proof itself. However, the *coupling dial* between them (connecting a thing to the trace it casts) is explicitly framing, not theorem.
 
 === OND-1..5 are proved with zero axioms
 
-[quote, README.adoc]
-____OND obligations OND-1..5 are proved with zero axioms in Coq (proofs/coq/ond/OND.v, every theorem Closed under the global context)____
+[quote, README.adoc (active stack)]
+____OND obligations OND-1..5 are proved with zero postulates in Agda (`proofs/agda/OND.agda`, `--safe --without-K`)____
 
 How this is implemented::
-`link:proofs/coq/ond/OND.v[]` contains the proofs. CI verifies that the global context is closed (no axioms admitted). Mirrored in Lean 4, Agda, and Z3.
+`link:proofs/agda/OND.agda[]` contains the active proofs; CI (`proofs.yml`, `agda` job) type-checks all four Agda modules under `--safe --without-K`. The historical Coq proof (`archive/proofs/coq/ond/OND.v`, every theorem `Closed under the global context`) and the Lean 4 mirror are archived; Z3 confirms the bounded instances (`proofs/z3/ond/OND_checks.smt2`, expect-annotated).
 
 Caveat::
 OND proofs are axiom-free *relative to the declared observation model `O`*. The choice of `O` is a proof input, not a proof output. If `O` omits a real-world observable channel (e.g., power analysis), the OND proof is sound but physically incomplete. The residue list in `link:proofs/residue/[]` records this gap.
@@ -100,17 +105,17 @@ This is a standard result. The practical consequence is that the verified CNOs i
 
 [CAUTION]
 ====
-**61 Coq + 52 Lean axioms are unproven.** The CNO pillar is machine-checked *relative to these axioms*. Key axioms: quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws. Discharging these is the next major obligation.
+**61 Coq + 52 Lean axioms are unproven — in the ARCHIVED stack.** The archived CNO development (`archive/proofs/`) was machine-checked *relative to these axioms* (quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws). These are historical counts of the archived trees, not active proof status and not estate-wide ground truth. The *active* Agda stack is zero-postulate.
 ====
 
 [CAUTION]
 ====
-**Z3, Isabelle, and Mizar artefacts are not run.** They exist in-tree but are not part of the CI gate. Only Coq, Lean 4, and Agda are currently machine-checked evidence.
+**Coq, Lean 4, Isabelle/HOL and Mizar artefacts are archived and not run.** `archive/proofs/` is not built or gated. The active machine-checked evidence is Agda (`proofs/agda/`), Z3 bounded checks (`proofs/z3/`), and the Idris 2 ABI build — via `proofs/verify-active-provers.sh`.
 ====
 
 [CAUTION]
 ====
-**OND-6 (conditional composition) is open.** OND-1..5 are proved. The capstone composition theorem is deferred.
+**OND-6 (conditional composition) is OPEN — not proved, not assumed.** OND-1..5 are proved (zero postulates, active Agda). The capstone composition theorem remains the deliberate research fork; no `Admitted` or postulate stands in for it anywhere in the active stack.
 ====
 
 [CAUTION]
@@ -129,26 +134,26 @@ This is a standard result. The practical consequence is that the verified CNOs i
 |===
 | Path | Proves
 
-| `proofs/coq/common/CNO.v`
-| Core CNO framework (115 Qed, 61 Axioms)
+| `proofs/agda/` (CNO, OND, EchoBridge)
+| ACTIVE: both pillars, OND-1..5, zero postulates (`--safe --without-K`)
 
-| `proofs/coq/ond/OND.v`
-| OND-1..5 (zero axioms)
+| `proofs/z3/` + `proofs/verify-active-provers.sh`
+| ACTIVE: bounded expect-checked instances; one-shot active gate
 
-| `proofs/coq/physics/StatMech.v`
-| Landauer's principle, thermodynamic reversibility
+| `archive/proofs/coq/common/CNO.v`
+| ARCHIVED: core CNO framework (historical 115 Qed, 61 Axioms)
 
-| `proofs/coq/category/CNOCategory.v`
-| Universal CNO definition, model independence
+| `archive/proofs/coq/ond/OND.v`
+| ARCHIVED: OND-1..5 (zero axioms)
 
-| `proofs/lean4/`
-| Lean 4 mirrors (Phases 1–4, 52 Axioms)
+| `archive/proofs/coq/physics/StatMech.v`
+| ARCHIVED: Landauer's principle, thermodynamic reversibility
 
-| `proofs/agda/`
-| Agda Phase 1
+| `archive/proofs/coq/category/CNOCategory.v`
+| ARCHIVED: universal CNO definition, model independence
 
-| `proofs/verify-all-provers.sh`
-| One-shot gate script
+| `archive/proofs/lean4/`
+| ARCHIVED: Lean 4 mirrors (historical Phases 1–4, 52 Axioms)
 
 | `proofs/observation-models/`
 | Declared `O` inputs for OND

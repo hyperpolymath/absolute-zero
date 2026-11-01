@@ -2,12 +2,14 @@
 // Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 # Machine Verification Guide
 
-> **STATUS 2026-07-07 (PR #100):** This guide's *method* still applies, but its
-> illustrative pass/fail examples below are historical. The estate now verifies
-> **clean across all six provers + the Idris ABI** (0 `Admitted`/`sorry`); run
-> `proofs/verify-all-provers.sh` for `ALL-PROVERS-GREEN`, and see
-> `PROOF-STATUS.adoc` for the reproduced prover-by-prover status. Treat the
-> counts in the examples that follow as pedagogical, not current.
+> **STATUS 2026-07-07 (PR #100), reconciled 2026-11-01:** This guide's *method*
+> still applies, but its illustrative pass/fail examples below are historical.
+> The *active* stack — Agda (`--safe --without-K`, zero postulates) + Z3 bounded
+> checks + the Idris 2 ABI — verifies clean; run `proofs/verify-active-provers.sh`
+> for `ACTIVE-PROVERS-GREEN`. Coq/Lean 4/Isabelle/Mizar are archived under
+> `archive/proofs/`. See `PROOF-STATUS.adoc` for the canonical active-vs-archived
+> proof-status table. Treat the counts in the examples that follow as pedagogical,
+> not current.
 
 ## Current Status: PARTIAL VERIFICATION (historical example)
 

@@ -67,42 +67,42 @@ composition, the research capstone) remains open by design.
 --
 Landauer’s principle / reversible computing
 Standard (Landauer 1961, Bennett 1973)
-`+proofs/coq/physics/+`, `+proofs/lean4/StatMech.lean+`
+`+archive/proofs/coq/physics/+`, `+archive/proofs/lean4/StatMech.lean+` (archived)
 --
 
 [verse]
 --
 Non-interference / observational determinism
 Standard (security literature)
-OND pillar
+OND pillar (`+proofs/agda/OND.agda+`, active)
 --
 
 [verse]
 --
 Identity morphisms in category theory
 Standard
-`+proofs/coq/category/+`
+`+archive/proofs/coq/category/+` (archived)
 --
 
 [verse]
 --
-Multi-prover cross-validation
+Active prover gate (Agda + Z3 bounded + Idris 2 ABI)
 Standard methodology
-`+proofs/verify-all-provers.sh+`
+`+proofs/verify-active-provers.sh+`"
 --
 
 [verse]
 --
 CNO formalisation (termination + state preservation + purity + reversibility)
 *Novel assembly*
-`+proofs/coq/common/CNO.v+`
+`+proofs/agda/CNO.agda+` (active); `+archive/proofs/coq/common/CNO.v+` (archived)
 --
 
 [verse]
 --
 OND formalisation with declared `+O+` and residue lists
 *Novel formalisation*
-`+proofs/coq/ond/OND.v+`
+`+proofs/agda/OND.agda+` (active); `+archive/proofs/coq/ond/OND.v+` (archived)
 --
 
 [verse]
@@ -130,55 +130,72 @@ Status | OND Status
 --
 Coq 8.19
 Constructive type theory
-115 Qed, 0 Admitted, 61 Axioms
-OND-1..5: zero axioms
+*ARCHIVED 2026-10-10* (`archive/proofs/coq/`) — historical: 115 Qed, 0 Admitted, 61 Axioms
+OND-1..5: zero axioms (archived)
 --
 
 [verse]
 --
 Lean 4
 Dependent type theory + Mathlib
-Phases 1–4 complete, 52 Axioms
-Mirrored
+*ARCHIVED 2026-10-10* (`archive/proofs/lean4/`) — historical: Phases 1–4, 52 Axioms
+Mirrored (archived)
 --
 
 [verse]
 --
 Agda 2.6
 Dependent types
-CNO + OND + EchoBridge (`EchoBridgeCNO.agda`, `--safe --without-K`)
-Mirrored
+*ACTIVE* — CNO + OND + EchoBridge (`EchoBridgeCNO.agda`, `--safe --without-K`, zero postulates)
+OND-1..5 proved (mirrored)
 --
 
 [verse]
 --
 Z3 4.13
 SMT solving
-10 theorems encoded
-Mirrored
+*ACTIVE as bounded-check solver* — expect-annotated `sat`/`unsat` on bounded instances only
+Mirrored (bounded instances)
 --
 
 [verse]
 --
 Isabelle/HOL
 Higher-order logic
-Phase 1 complete
-Mirrored
+*ARCHIVED 2026-10-10* (`archive/proofs/isabelle/`) — historical: Phase 1
+Mirrored (archived)
 --
 
 [verse]
 --
 Mizar
 Set theory
-Phase 1 complete
-Mirrored
+*ARCHIVED 2026-10-10* (`archive/proofs/mizar/`) — historical: Phase 1
+Mirrored (archived)
+--
+
+[verse]
+--
+Idris 2
+Dependent types (ABI)
+*ACTIVE* — ABI/FFI boundary only (`absolute-zero-abi.ipkg`); interface artefact, proves nothing
+—
 --
 
 |===
 
+The *canonical* proof-status table — separating active, archived, proved,
+axiomatic and generated artefacts, with OND-6 explicitly open — lives in
+link:PROOF-STATUS.adoc[PROOF-STATUS.adoc]. Figures quoted above for archived
+provers are historical counts of those archived trees, not active status.
+Estate proof grades (mathesis `estate-mathematical-architecture` §5) are
+recorded there too: the active Agda proofs are **Grade 3** (local,
+strict-flag, zero-postulate — not yet translated to an independent
+foundation), the Z3 checks are `tested-only` (bounded), and OND-6 is `open`.
+
 == [CAUTION]
 
-== *Axioms are unproven assumptions, not theorems.* The Coq CNO development rests on 61 axioms (e.g., quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws). "`Machine-checked`" means checked _relative to those axioms_—not an axiom-free proof. The OND pillar (OND-1..5) is axiom-free. Discharging the CNO axioms is the next major obligation.
+== *Axioms are unproven assumptions, not theorems.* The *archived* Coq CNO development (`archive/proofs/coq/`) rests on 61 axioms (e.g., quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws). "`Machine-checked`" there meant checked _relative to those axioms_—not an axiom-free proof. The active Agda OND pillar (OND-1..5) is axiom-free. Discharging the archived CNO axioms remains a recorded obligation of that historical tree.
 
 [NOTE]
 ====
@@ -188,7 +205,7 @@ Mirrored
 
 == [CAUTION]
 
-== *Z3, Isabelle, and Mizar are generated but not yet run.* The artefacts exist in-tree but are not part of the CI gate. Only Coq, Lean 4, and Agda are machine-checked in CI.
+== *Active gate = Agda + Z3 (bounded) + Idris 2 ABI build.* `proofs/verify-active-provers.sh` (→ `ACTIVE-PROVERS-GREEN`) is the one-shot active gate; CI (`proofs.yml`) runs the Agda `--safe --without-K` checks, the expect-annotated Z3 bounded checks, and the Idris 2 ABI build. Coq, Lean 4, Isabelle/HOL and Mizar are archived under `archive/` and are not machine-checked.
 
 == Known scope boundaries
 
@@ -252,8 +269,8 @@ Malbolge (AffineScript), Brainfuck (Python), Whitespace (Python) with CNO detect
 
 [verse]
 --
-`+proofs/verify-all-provers.sh+`
-One-shot gate: both pillars, all six provers + Idris ABI
+`+proofs/verify-active-provers.sh+`
+One-shot ACTIVE gate: Agda + Z3 (bounded) + Idris 2 ABI (`ACTIVE-PROVERS-GREEN`)
 --
 
 |===
@@ -262,17 +279,17 @@ One-shot gate: both pillars, all six provers + Idris ABI
 
 === [source,bash]
 
-== One-shot: both pillars, all provers
+== One-shot: active provers (Agda + Z3 bounded + Idris 2 ABI)
 
-proofs/verify-all-provers.sh
+proofs/verify-active-provers.sh
 
 == Or via task runner
 
 just verify
 
-== Individual provers
+== Individual active provers
 
-just build-coq just verify-agda —-
+just verify-agda just verify-z3 just verify-idris —-
 
 == Documentation
 
