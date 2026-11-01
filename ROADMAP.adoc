@@ -33,9 +33,12 @@ prover run in a known environment, not a reading of in-file comments.
 
 == Honest Current State
 
-Updated 2026-07-07 (PR #100). Both pillars are now machine-checked across six
-provers plus the Idris ABI; reproduce with `proofs/verify-all-provers.sh`
-(`ALL-PROVERS-GREEN`). See `PROOF-STATUS.adoc` for the prover-by-prover detail.
+Updated 2026-07-07 (PR #100); reconciled 2026-11-01. The active stack — Agda
+(CNO, OND, EchoBridge; `--safe --without-K`, zero postulates), Z3 bounded
+expect-checked instances, and the Idris 2 ABI — is machine-checked; reproduce
+with `proofs/verify-active-provers.sh` (`ACTIVE-PROVERS-GREEN`). The former
+six-prover gate is archived (`archive/proofs/verify-all-provers.six-prover.sh`).
+See `PROOF-STATUS.adoc` for the canonical active-vs-archived proof-status table.
 
 === What genuinely verifies
 
