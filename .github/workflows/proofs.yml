@@ -20,6 +20,7 @@ on:
       - 'proofs/**'
       - 'src/**'
       - 'scripts/check-proof-patterns.sh'
+      - 'scripts/provision-agda-stdlib.sh'
       - 'tests/check-proof-patterns.sh'
       - '.machine_readable/contractiles/trust/trust.k9.ncl'
       - 'absolute-zero-abi.ipkg'
@@ -56,16 +57,11 @@ jobs:
         # version-matched stdlib from git instead (validated locally).
         run: sudo apt-get update && sudo apt-get install -y agda
       - name: Fetch + register agda-stdlib v1.7.3 (matches Agda 2.6.3)
-        run: |
-          git clone -q --depth 1 --branch v1.7.3 \
-            https://github.com/agda/agda-stdlib.git "$HOME/agda-stdlib"
-          # The upstream manifest is named `standard-library-1.7.3`; the repo's
-          # absolute-zero.agda-lib depends on `standard-library`, so align it.
-          sed -i 's/^name: .*/name: standard-library/' \
-            "$HOME/agda-stdlib/standard-library.agda-lib"
-          mkdir -p "$HOME/.agda"
-          echo "$HOME/agda-stdlib/standard-library.agda-lib" > "$HOME/.agda/libraries"
-          echo "standard-library" > "$HOME/.agda/defaults"
+        # Same script for CI and local runs: clones tag v1.7.3, fails unless it
+        # resolves to the pinned commit, renames the manifest to
+        # `standard-library` (what absolute-zero.agda-lib depends on), and writes
+        # ~/.agda/libraries + ~/.agda/defaults.
+        run: bash scripts/provision-agda-stdlib.sh
       - name: Type-check CNO + OND + EchoBridge (4 modules, --safe --without-K)
         working-directory: proofs/agda
         run: |

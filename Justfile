@@ -21,6 +21,11 @@ default:
 build-all: build-agda build-idris
     @echo "✓ All builds complete"
 
+# Register the pinned Agda standard library (v1.7.3) — same script CI runs.
+# Writes $AGDA_DIR/libraries and defaults (AGDA_DIR defaults to ~/.agda).
+provision-agda-stdlib:
+    bash scripts/provision-agda-stdlib.sh
+
 # Build Agda proofs (CNO + OND + EchoBridge, 4 modules, --safe --without-K)
 build-agda:
     @echo "Building Agda proofs..."

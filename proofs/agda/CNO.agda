@@ -162,6 +162,18 @@ eval (i ∷ is) s = eval is (step s i)
 
 -- A program terminates if evaluation produces a result
 -- For finite programs, this is always true
+--
+-- SCOPE NOTE (2026-11-09) — `terminates` is DEFINITIONAL, not a result.
+-- `eval` is a total, structurally recursive Agda function over a finite list
+-- (no loop: `Jump` only sets the pc and execution still walks the list), so
+-- `eval p s` always exists and `terminates p s = ∃ s' . eval p s ≡ s'` is
+-- inhabited by `(eval p s , refl)` for EVERY program and state.
+-- What it establishes: nothing beyond Agda accepting `eval` as total.
+-- What it does NOT establish: termination of any machine with real control
+-- flow (jumps that loop, a halting PC semantics), nor any property that
+-- distinguishes a CNO from a non-CNO. The `cno-terminates` field of `IsCNO`
+-- is therefore satisfiable by every program. See PROOF-STATUS.adoc,
+-- "Scope of the Agda CNO fields".
 terminates : Program → ProgramState → Set
 terminates p s = ∃ λ s' → eval p s ≡ s'
 
@@ -198,6 +210,21 @@ reversible p = ∃ λ p-inv → ∀ s → eval p-inv (eval p s) ≡ s
 ----------------------------------------------------------------------------
 
 -- Energy dissipated (simplified model)
+--
+-- SCOPE NOTE (2026-11-09) — `energy-dissipated` is the CONSTANT 0 and
+-- `thermodynamically-reversible` is VACUOUS.
+-- `energy-dissipated _ _ _ = zero` ignores its program and both states, so
+-- `thermodynamically-reversible p` reduces to `∀ s → zero ≡ zero` and holds for
+-- EVERY program by `λ s → refl` — including programs that erase memory.
+-- What it establishes: nothing about energy, heat, Landauer's bound or
+-- physical reversibility; the `cno-reversible` field of `IsCNO` and
+-- `cno-thermo-rev` carry no information.
+-- What it does NOT establish: that a CNO dissipates no energy, or any link
+-- between information erasure and dissipation. (No energy model exists in
+-- the active Agda stack; the archived Coq physics files postulated Landauer
+-- as a METAL-BOUNDARY axiom.) Note also that `IsCNO` does not use the
+-- non-trivial `reversible` predicate above. See PROOF-STATUS.adoc,
+-- "Scope of the Agda CNO fields".
 energy-dissipated : Program → ProgramState → ProgramState → ℕ
 energy-dissipated _ _ _ = zero
 
@@ -211,6 +238,11 @@ thermodynamically-reversible p =
 ----------------------------------------------------------------------------
 
 -- A Certified Null Operation
+--
+-- Of the four fields, only `cno-identity` constrains `p` (`cno-pure` is
+-- implied by it: purity is the io + memory part of `state-eq`).
+-- `cno-terminates` and `cno-reversible` hold for every program (see the
+-- SCOPE NOTEs on `terminates` and `energy-dissipated`).
 record IsCNO (p : Program) : Set where
   field
     cno-terminates : ∀ s → terminates p s

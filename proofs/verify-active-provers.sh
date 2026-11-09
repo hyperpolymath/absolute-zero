@@ -9,7 +9,8 @@
 #
 # Every active prover is REQUIRED: an absent toolchain is a failure, never a skip.
 # Needs on PATH: agda, z3, idris2. The Agda standard library is registered via
-# ~/.agda/libraries (see .github/workflows/proofs.yml for the pinned setup).
+# ~/.agda/libraries: run scripts/provision-agda-stdlib.sh first (pinned v1.7.3,
+# the same script CI runs).
 set -uo pipefail
 export PATH="$HOME/.local/bin:$HOME/.elan/bin:$PATH"
 HERE="$(cd "$(dirname "$0")" && pwd)"

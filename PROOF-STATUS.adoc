@@ -14,7 +14,7 @@ by prover, and is explicit about which axioms remain and why.
 .2026-07-07 — both pillars machine-checked across six provers (HISTORICAL since 2026-10-10)
 ====
 *Historical (superseded by the 2026-10-10 archive ruling below):* all six
-provers were reproduced in this environment via `proofs/verify-all-provers.sh`
+provers were reproduced in this environment via `proofs/verify-all-provers.sh` (now archived as `archive/proofs/verify-all-provers.six-prover.sh`)
 (`ALL-PROVERS-GREEN`): *Coq, Agda, Lean 4 (+Mathlib), Z3, Isabelle/HOL, Mizar*,
 plus the *Idris 2* ABI. Today only Agda, Z3 (bounded) and the Idris 2 ABI are
 active — see the canonical table below. Both the CNO and OND pillars were covered.
@@ -23,7 +23,7 @@ and Mizar printed "skipped" and the gate could say GREEN on four of six), and Z3
 verdicts are compared with the `; expect sat|unsat` annotation on every `(check-sat)`
 (`proofs/z3/verify.sh`). Since 2026-09-23 the gate also runs the Coq `Print Assumptions` audit and
 its `--control` after the build, so a theorem resting on an axiom, or an audit that can no
-longer say no, turns it red. `proofs/tests/gate-selftest.sh` proves both gates turn red for
+longer say no, turns it red. The six-prover self-test (now `archive/proofs/tests/gate-selftest.six-prover.sh`) proved both gates turn red for
 each absent or failing prover, for each verdict mutant and for both audit mutants (16 cases, run in CI).
 ====
 
@@ -61,11 +61,11 @@ claims are marked historical, not silently dropped, and axiom dependence
 | `proofs/agda/` — `CNO.agda`, `OND.agda`, `EchoBridgeScaffold.agda`, `EchoBridgeCNO.agda`
 | ACTIVE (CI `agda` job; `proofs/verify-active-provers.sh`)
 | `proven` — **Grade 3**: type-checked locally in Agda, zero postulates, every file `{-# OPTIONS --safe --without-K #-}`; EchoBridge takes funext as an *explicit hypothesis*, not a global postulate. Not translated to any independent foundation, so not Grade 2+
-| Domain formalisation of both pillars; discharges OND-1..5; contains no OND-6. Open obligation: recheck under the 2026-11-01 canonical profile `agda --safe --without-K --cubical-compatible` (standards PROOF-POLICY §2.1) — prior `--safe --without-K` receipts are not receipts for the combined profile
+| Domain formalisation of both pillars; discharges OND-1..5; contains no OND-6. In `CNO.agda` the `IsCNO` fields `cno-terminates` and `cno-reversible` are *definitional / vacuous* (hold for every program) — only `cno-identity` constrains a program; see "Scope of the Agda CNO fields" below. Canonical profile `agda --safe --without-K --cubical-compatible` (standards PROOF-POLICY §2.1): exit 0 on all four modules locally on 2026-11-09 (Agda 2.6.3, stdlib v1.7.3, see receipts); CI still runs `--safe --without-K` only, so the combined profile is not yet a CI receipt
 
 | `proofs/z3/` — `ond/OND_checks.smt2` via `proofs/z3/verify.sh`
 | ACTIVE as bounded-check solver (CI `z3` job)
-| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat|unsat` annotation. Receipt reproduced in this sandbox 2026-11-01 (z3 5.3.3, `Z3-CHECK OK`, sat/unsat/sat) — see receipts below
+| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat\|unsat` annotation. Latest receipt 2026-11-09 (z3 4.8.12, `Z3-CHECK OK`, 5 verdicts sat/unsat/sat/sat/sat) — see receipts below. The 2026-11-01 receipt (z3 5.3.3, sat/unsat/sat) predates the fix to the OND-3 dir 2 block, whose `unsat` was then vacuous
 | Bounds: finite/bounded programs under a finite declared `O`; not a general proof
 
 | `src/abi/` + `absolute-zero-abi.ipkg` (Idris 2)
@@ -123,6 +123,53 @@ reported as passing: the Agda `--safe --without-K` checks, the
 build remain CI receipts (`proofs.yml`: `agda`, `z3`, `idris` jobs), not
 sandbox receipts. Archived provers stay archived and unexecuted.
 
+=== Reproduction receipts (this environment, 2026-11-09)
+
+Working tree on branch `claude/ephapax-architecture-plan-gzyctr` over `cbe9ae9`.
+
+* *Z3 — REPRODUCED HERE.* `Z3 version 4.8.12 - 64 bit` (not the 4.16.0 the
+section below records for 2026-07-07, nor the 5.3.3 of 2026-11-01).
+`z3 proofs/z3/ond/OND_checks.smt2` prints `sat unsat sat sat sat` (+ the OND-5
+model `s1 = 2, s2 = 3, pub = 0`), exit 0; `bash proofs/z3/verify.sh` →
+`ok: ond/OND_checks.smt2 — 5 (check-sat) verdict(s) match`, `Z3-CHECK OK`, exit 0.
+Mutation check: replacing `writer_step` by a step that copies the secret to
+the output cell turns the OND-3 dir 2 verdict from `unsat` to `sat`, so the
+check is no longer vacuous (see the Z3 section).
+* *Agda — REPRODUCED HERE.* `Agda version 2.6.3`, stdlib registered by
+`scripts/provision-agda-stdlib.sh` (agda-stdlib `v1.7.3` =
+`0817da6877aa045932221134913d8511caa78d97`, into a scratch `AGDA_DIR`).
+`agda --safe --without-K` on `CNO.agda`, `OND.agda`, `EchoBridgeScaffold.agda`,
+`EchoBridgeCNO.agda`: exit 0 each. `agda --safe --without-K --cubical-compatible`
+on the same four: exit 0 each. (The stdlib modules themselves were checked under
+the stdlib's own pragmas, not re-checked under `--cubical-compatible`.)
+* *Gate self-test.* `bash proofs/tests/gate-selftest.sh` → `GATE-SELFTEST OK: 27/27 cases`.
+* *Idris 2* — not run here.
+
+=== Scope of the Agda CNO fields (`proofs/agda/CNO.agda`)
+
+Two of the four `IsCNO` fields hold for *every* program, so they certify
+nothing about a particular program. This is stated beside the definitions too.
+
+* `terminates p s = ∃ s' . eval p s ≡ s'` — *definitional*. `eval` is a total,
+structurally recursive function over a finite instruction list (`Jump` only
+sets the pc; execution still walks the list), so `(eval p s , refl)` inhabits
+it for all `p`, `s` (`terminates-always`). It establishes only that Agda
+accepts `eval` as total. It does *not* establish termination of any machine
+with real control flow, and does not separate CNOs from non-CNOs.
+* `energy-dissipated _ _ _ = zero` and `thermodynamically-reversible p = ∀ s →
+energy-dissipated p s (eval p s) ≡ zero` — *vacuous*. The right-hand side is the
+constant `0`, so the field reduces to `0 ≡ 0` and is `λ s → refl` for every
+program, including ones that erase memory. It establishes nothing about energy,
+heat, Landauer's bound or physical reversibility; `cno-thermo-rev` carries no
+information. No energy model exists in the active Agda stack (the archived Coq
+physics files postulated Landauer as a `METAL-BOUNDARY` axiom).
+* `IsCNO` does not use the non-trivial `reversible` predicate (existence of an
+inverse program). `cno-pure` is implied by `cno-identity`. So the content of
+`IsCNO p` is exactly `cno-identity`: `eval p s` agrees with `s` on memory
+(pointwise), registers, I/O and pc.
+* Claims such as "CNO terminates and is thermodynamically reversible" must not be
+cited as established by the Agda development.
+
 === Role of this repository (consumer, not estate-wide ground truth)
 
 absolute-zero is a *consumer and domain formalisation*: it applies standard
@@ -149,11 +196,11 @@ Isabelle/HOL and Mizar (archived 2026-10-10) and *active* only for Agda, Z3
 is the canonical summary.
 ====
 
-== Coq — VERIFIED (this environment)
+== Coq — ARCHIVED (historical receipt, 2026-07-07; not built or gated since 2026-10-10)
 
 * `coqc` **8.18.0**; clean build from scratch (all `.vo`/`.glob` deleted first),
   via `coq_makefile -f _CoqProject` over **14/14 theories → zero errors**.
-* Reproduce: `cd proofs/coq && coq_makefile -f _CoqProject -o Makefile.all && make -f Makefile.all -j`.
+* Reproduce (historical; the tree is archived): `cd archive/proofs/coq && coq_makefile -f _CoqProject -o Makefile.all && make -f Makefile.all -j`.
 
 [cols="1,3",options="header"]
 |===
@@ -214,9 +261,9 @@ of these, each documented in-file with its blocker:
 These are the analogue of the OND-6 research fork: openly labelled, not silently
 assumed. `Print Assumptions` on each of the 17 theorems this document names in backticks
 prints `Closed under the global context` — no stdlib axiom and no project axiom (measured
-2026-09-23, Coq 8.18). That is CI-gated: `proofs/coq/audit/Assumptions.v` lists the 17 and
-`proofs/coq/check-assumptions.sh` (Coq job of `proofs.yml`, and the canonical
-`proofs/verify-all-provers.sh` gate since 2026-09-23) fails on any `Axioms:` block or a
+2026-09-23, Coq 8.18). That WAS CI-gated until the 2026-10-10 archive ruling (no longer run): `archive/proofs/coq/audit/Assumptions.v` lists the 17 and
+`archive/proofs/coq/check-assumptions.sh` (formerly the Coq job of `proofs.yml`, and the then-canonical
+`proofs/verify-all-provers.sh` gate, now `archive/proofs/verify-all-provers.six-prover.sh`) failed on any `Axioms:` block or a
 missing line; its `--control` mode proves the gate bites by requiring that
 `landauer_limit_positive`, which rests on `kB_positive`, is rejected. The wider tree is not
 closed — 109 of 182 top-level theorems are; the other 73 rest on stdlib classical axioms
@@ -224,7 +271,7 @@ and/or the tagged parameters — see #171 for the census and the tag-grammar wor
 
 === Reversibility <-> CNO bridge (2026-07-16, the theorem MAA cites)
 
-`proofs/coq/common/CNO.v` now carries the bridge between `reversible` and the
+`archive/proofs/coq/common/CNO.v` now carries the bridge between `reversible` and the
 "composes to a no-op" characterisation the MAA framework (aletheia) cites. All five
 new results are **`Closed under the global context` (zero axioms)**:
 
@@ -253,7 +300,7 @@ whereas the contract is two-sided. The in-file section header documents all thre
 This is a genuine statement-shape finding: it tells the aletheia contract to be
 stated two-sided and `=st=`-relative, not a proof dodged.
 
-*Lean mirror — `proofs/lean4/CNOBridge.lean` (UNVERIFIED in this environment).*
+*Lean mirror — `archive/proofs/lean4/CNOBridge.lean` (UNVERIFIED in this environment).*
 A functional-model mirror of the five bridge results was written for Lean 4, but
 it could **not** be machine-checked here: the Lean toolchain and Mathlib cache
 download from GitHub release assets, which the egress policy blocked (HTTP 403).
@@ -265,9 +312,9 @@ total function and `ProgramState.eq` includes the PC), a stronger/cleaner form
 than the Coq `=st=`-relative statement — a disclosed cross-model difference, not
 a claim of literal equivalence.
 
-== OND — VERIFIED (this environment), the disclosure pillar
+== OND — the disclosure pillar (Coq/Lean legs ARCHIVED; Agda + Z3 legs active)
 
-`proofs/coq/ond/OND.v` discharges roadmap obligations *OND-1..OND-5* with **zero
+`archive/proofs/coq/ond/OND.v` discharges roadmap obligations *OND-1..OND-5* with **zero
 axioms** — every theorem is `Closed under the global context`:
 
 * OND-1 `is_OND O o` — nullity parameterised by an observation model `O` over an
@@ -279,7 +326,7 @@ axioms** — every theorem is `Closed under the global context`:
 * OND-5 — a non-composition counterexample (two ONDs whose composite leaks by
   state-chaining).
 
-Mirrored in *Lean 4* (`proofs/lean4/OND.lean`), *Agda* (`proofs/agda/OND.agda`),
+Mirrored in *Lean 4* (`archive/proofs/lean4/OND.lean`), *Agda* (`proofs/agda/OND.agda`),
 and *Z3* (`proofs/z3/ond/OND_checks.smt2`, the bounded/finite instances). OND-7's
 residue register carries its first real instance
 (`proofs/residue/ct_select.residue`). *OND-6* (conditional composition, research
@@ -293,17 +340,25 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
   2026-09-23 CI checked only the first two and `EchoBridgeCNO.agda` had no pragma of its
   own. The EchoBridge modules take **funext as an explicit hypothesis**
   (not a global `postulate`); `OND.agda` uses zero postulates.
+* Standard library: agda-stdlib `v1.7.3` (commit `0817da6`), registered by
+  `scripts/provision-agda-stdlib.sh` (`just provision-agda-stdlib`) — the same
+  script the CI `agda` job runs; it fails if the tag no longer resolves to the
+  pinned commit. Set `AGDA_DIR` to keep it out of `~/.agda`.
+* Type-checking `CNO.agda` does not make its `terminates` / `energy-dissipated`
+  fields meaningful: see "Scope of the Agda CNO fields" above.
+* 2026-11-09 receipt (Agda 2.6.3): all four modules exit 0 under
+  `--safe --without-K` and under `--safe --without-K --cubical-compatible`.
 
-== Lean 4 — VERIFIED (this environment)
+== Lean 4 — ARCHIVED (historical receipt; not built or gated since 2026-10-10)
 
 * Toolchain `leanprover/lean4:v4.16.0` with Mathlib `@ v4.16.0`; `lake exe cache get`
   + `lake build` → **build completed successfully**. Covers the CNO libraries and the
-  new `OND` library (`proofs/lean4/OND.lean`, core-Lean only, zero `sorry`).
-* **Mathlib-free core is CI-gated (2026-09-22):** `proofs/lean4/check-core.sh` (job
+  new `OND` library (`archive/proofs/lean4/OND.lean`, core-Lean only, zero `sorry`).
+* **Mathlib-free core WAS CI-gated (2026-09-22 until the 2026-10-10 archive ruling; the `lean` job no longer exists):** `archive/proofs/lean4/check-core.sh` (job
   `lean` in `.github/workflows/proofs.yml`; toolchain from `lean-toolchain`, elan
   fetched as a checksum-verified tarball, zero third-party actions) compiles `CNO`,
   `OND`, `CNOCategory`, `CNOBridge`, `FilesystemCNO`, `LambdaCNO` with plain `lean`
-  and runs `proofs/lean4/AxiomAudit.lean`: 96 `#guard_msgs` pinning every axiom
+  and runs `archive/proofs/lean4/AxiomAudit.lean`: 96 `#guard_msgs` pinning every axiom
   signature, the three occupancy predicates in full, the #125 derivations as
   negative controls, and `#print axioms` for every theorem (no `sorryAx` anywhere).
   `just verify-lean-core` runs the same script locally.
@@ -312,7 +367,7 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
   `rename_inverse` without the occupancy preconditions of the Coq lemmas they mirror;
   with `mkdir_idempotent` and `mkdir_not_identity` that proved `False`. They now
   carry `noDirAt` / `noFileAt` / `noEntryAt`, mirrored verbatim from
-  `proofs/coq/filesystem/FilesystemCNO.v`, and the unconditional statement is refuted
+  `archive/proofs/coq/filesystem/FilesystemCNO.v`, and the unconditional statement is refuted
   in-file (`unconditional_mkdir_rmdir_inverse_is_false`). `LambdaCNO.lean` carried the
   unrestricted `eta_equivalence` axiom (false as stated, the same `LVar 5`
   counterexample the Coq side documents above); it is now the proved
@@ -329,28 +384,44 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
   identical to the pre-#174 commit and to the last green `main` run before #174).
   #167 stays open with finishing the port as its own acceptance criterion.
 
-== Z3 — VERIFIED (this environment)
+== Z3 — ACTIVE, bounded checks (`tested-only`)
 
-* `z3` 4.16.0 on `proofs/z3/ond/OND_checks.smt2`: the OND-3 timing-leak witness is
-  `sat`, `writer`-is-OND is `unsat` (no secret distinguishes it), and the OND-5
-  composite leak is `sat` with a concrete model — the "decidable for bounded
-  programs" demonstration.
+* *Historical (2026-07-07):* `z3` 4.16.0 on `proofs/z3/ond/OND_checks.smt2`: the
+  OND-3 timing-leak witness is `sat`, `writer`-is-OND is `unsat`, and the OND-5
+  composite leak is `sat` with a concrete model. *Correction (2026-11-09):* the
+  `writer`-is-OND block then asserted `(not (and (= 0 0) (= 1 1)))` — the writer's
+  observables written down as constants — which is `unsat` for any program, so
+  that `unsat` checked nothing about the writer.
+* *Current (2026-11-09, z3 4.8.12, 5 verdicts `sat unsat sat sat sat`):* the
+  OND-3 dir 2 block now models `writer_op` per `archive/proofs/coq/ond/OND.v`:
+  memory as `(Array Int Int)`, `inj s p`, `writer_step m = store m 0 7`,
+  `writer_time = 1`, and the `O_all` observable (output cell 2, time) *computed*
+  from them; asserting the observables differ for two secrets at the same public
+  input is `unsat` (writer is OND under `O_all`). A control block runs the same
+  query on a writer that copies the secret to the output cell (`sat`), and a
+  third block witnesses `writer_not_null` (`sat`). Mutating `writer_step` to leak
+  flips the main verdict to `sat`.
+* *Remaining scope limit:* the OND-3 dir 1 block (`time_leaky secret = secret`)
+  and the OND-5 block (`p_out = 0`, `comp_out = secret`) still state the
+  observables directly rather than computing them from step functions; they are
+  hand transcriptions of the OND.v results, not independent checks of the
+  composition.
 
-== Isabelle/HOL — VERIFIED (this environment)
+== Isabelle/HOL — ARCHIVED (historical receipt; not built or gated since 2026-10-10)
 
-* `Isabelle2025-2`, session `AbsoluteZero-CNO` (`proofs/isabelle/ROOT`): `CNO.thy`
+* `Isabelle2025-2`, session `AbsoluteZero-CNO` (`archive/proofs/isabelle/ROOT`): `CNO.thy`
   (repaired — the reserved-keyword `value` type was renamed and the failing `nop`/`step`
   lemmas fixed) and `OND.thy` (new, OND-1..5) build with no `sorry`/`oops`.
 
-== Mizar — VERIFIED (this environment)
+== Mizar — ARCHIVED (historical receipt; not built or gated since 2026-10-10)
 
-* Mizar `8.1.15`; `accom CNO && verifier CNO` on `proofs/mizar/CNO.miz` completes
+* Mizar `8.1.15`; `accom CNO && verifier CNO` on `archive/proofs/mizar/CNO.miz` completes
   with an **empty `CNO.err`** (zero errors). `MIZFILES` points at the bundled MML.
   The original article was machine-generated and unverifiable (277 errors); it was
   *rewritten* into a genuine article (StateSpace = pair of `Funcs(NAT,NAT)`;
   state-preserving / pure / reversible / terminating / thermo-reversible attributes;
   12 proved theorems incl. composition with a real inverse construction). Requires the
-  committed private vocabulary `proofs/mizar/dict/cno.voc` (lowercase filename, needed
+  committed private vocabulary `archive/proofs/mizar/dict/cno.voc` (lowercase filename, needed
   on Linux). Verifier build artifacts are git-ignored.
 
 == Idris 2 — VERIFIED (this environment), the ABI boundary
@@ -367,9 +438,13 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
 * Multi-prover, not cross-prover *equivalence* — each prover checks its own
   formalisation of the two pillars.
 * "Verified here" = a reproduced compiler/checker run in this environment, not a
-  reading of in-file comments. Reproduce everything with
-  `proofs/verify-all-provers.sh`.
-* Axiom census (machine-generated via `proofs/coq/census-assumptions.sh`):
+  reading of in-file comments. Reproduce the active stack with
+  `proofs/verify-active-provers.sh` (after `scripts/provision-agda-stdlib.sh`);
+  the former six-prover gate is archived as
+  `archive/proofs/verify-all-provers.six-prover.sh` and is not run.
+* The Coq census and tag-grammar bullets below describe the archived tree
+  (`archive/proofs/coq/`); their scripts are no longer run.
+* Axiom census (machine-generated via `archive/proofs/coq/census-assumptions.sh`):
   of 182 top-level theorems across the 14 theories, exactly **109 are closed under
   the global context** (zero axioms), and 73 rest on Coq stdlib classical axioms
   (`ClassicalDedekindReals.*`, `FunctionalExtensionality.*`, `Classical_Prop.classic`,
@@ -380,11 +455,11 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
   generated driver fail outright instead of censusing it; the table now shows
   `Malbolge.MalbolgeCore | 7 | 7 | 0`). A directory with no `-R` binding is a hard
   census failure, never a silent skip.
-* All top-level declarations are verified by `proofs/coq/check-axiom-tags.sh` to carry
+* All top-level declarations are verified by `archive/proofs/coq/check-axiom-tags.sh` to carry
   a unified tag grammar: `(* AXIOM: [METAL-BOUNDARY] ... *)` for physical constants
   and laws, or `(* AXIOM: [CLASS-A] ... *)` for provable-in-principle mathematics.
   The two former unsound declarations in `StatMechBasis.v` (`prob_nonneg` and
   `prob_normalized`, which claimed Kolmogorov properties over raw unconstrained
   functions `ProgramState -> R`) have been deleted; zero theorems depend on either.
 * The 17 named headline theorems remain 100% closed under the global context (zero axioms,
-  CI-gated by `check-assumptions.sh`).
+  formerly CI-gated by `archive/proofs/coq/check-assumptions.sh`; not run since the 2026-10-10 archive ruling).
