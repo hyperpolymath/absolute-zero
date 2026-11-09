@@ -68,7 +68,7 @@ dropped, and axiom dependence is tracked per row.
 
 | `proofs/z3/` — `ond/OND_checks.smt2` via `proofs/z3/verify.sh`
 | ACTIVE as bounded-check solver (CI `z3` job)
-| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat|unsat` annotation. Receipt reproduced in this sandbox 2026-11-01 (`Z3-CHECK OK`, sat/unsat/sat; the recorded version string "5.3.3" is unverified, see receipts below) — see receipts below
+| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat|unsat` annotation. Receipt reproduced in this sandbox 2026-11-01 (`z3` 4.16.0, `Z3-CHECK OK`, sat/unsat/sat) — see receipts below
 | Bounds: finite/bounded programs under a finite declared `O`; not a general proof
 
 | `src/abi/` + `absolute-zero-abi.ipkg` (Idris 2)
@@ -169,8 +169,7 @@ CNO-facing results inherit these limits.
 
 === Reproduction receipts (this environment, 2026-11-01)
 
-* *Z3 — REPRODUCED HERE.* `z3` 5.3.3 as recorded (2026-11-09: this version string
-is unverified — no Z3 5.x release is known, and the receipt below records 4.16.0) (64-bit, via the `z3-solver` PyPI wheel,
+* *Z3 — REPRODUCED HERE.* `z3` 4.16.0 (64-bit, via the `z3-solver` PyPI wheel,
 the only package host reachable from this sandbox) running
 `bash proofs/z3/verify.sh` → `Z3-CHECK OK`: 1 file
 (`proofs/z3/ond/OND_checks.smt2`), 3 `(check-sat)` verdicts `sat unsat sat`,
