@@ -58,10 +58,12 @@ OND obligations OND-1..5 are proved with zero axioms in the active Agda
 (`proofs/agda/OND.agda`); archived Coq and Lean developments and bounded Z3
 checks exist, but the Agda and Coq/Lean OND-5 statements are different
 propositions, and the anchoring of the independence theorem to `+is_CNO+`
-exists only in the archived Coq. The active Agda CNO definition is
-currently degenerate (it holds only for `Halt`-only programs), and its
-termination and thermodynamic-reversibility components hold by
-construction. See the 2026-11-09 design audit in
+exists only in the archived Coq. The active Agda CNO definition was
+degenerate until 2026-11-09 (Halt-only, with termination and
+reversibility holding by construction). It is now stated over a
+pc-driven machine: termination is a real property, identity is up to
+observable state (memory, registers, I/O), and nothing thermodynamic is
+claimed. See the 2026-11-09 design audit in
 link:PROOF-STATUS.adoc[PROOF-STATUS.adoc]. OND-6 (conditional
 composition, the research capstone) remains open by design.
 

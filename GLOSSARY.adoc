@@ -38,7 +38,7 @@ Landauer's principle::
 
 [[reversible-computing]]
 Reversible computing::
-  Computation that can be undone with zero energy cost (Bennett 1973). A required field of `IsCNO`.
+  Computation that can be undone with zero energy cost (Bennett 1973). Part of the intended CNO notion; the active Agda proves only observational reversibility (`cno-left-inverse`), not an energy bound.
   *Classification:* **standard** (Bennett 1973).
 
 == OND concepts

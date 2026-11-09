@@ -129,20 +129,19 @@ the same defect on 2026-05-18 by excluding the PC from `state_eq`; the
 active Agda did not.
 | `IsCNO` is a degenerate class in the active stack. `halt-is-cno`,
 `cno-composition` and every result quantified over `IsCNO` are `proven`
-but about that class only. *Open:* redefine `state-eq` without the PC.
+but about that class only. *Resolved 2026-11-09:* `IsCNO` now judges a run by `obs-eq` (memory, registers, I/O; no PC). `nop-is-cno` and `jump-exit-is-cno` show the class is not Halt-only; `load-not-cno` shows it is not everything. `state-eq` keeps the PC and is still the full equality.
 
 | `terminates`, `terminates-always`
 | `terminates p s = ∃ s′. eval p s ≡ s′`, inhabited by `(eval p s , refl)`
 for every program. `eval` is a total fold over the instruction list.
-| Holds by construction; *not* a termination result. The pillar's
-"terminates on every input" is not formalised in the active Agda.
+| Holds by construction; *not* a termination result. *Resolved 2026-11-09:* `eval` is replaced by a pc-driven machine: a big-step relation `_⊢_⇓_` and a fuel interpreter `run`, related by `run-sound` and `run-complete`. `Terminates p s` asks for a normal stop from pc 0, and `jump-self-diverges` shows `Jump 0` never stops. A Store or Add on a missing register faults and does not terminate.
 
 | `thermodynamically-reversible`, `energy-dissipated`
 | `energy-dissipated _ _ _ = zero`, so every program, reversible or not,
 satisfies it. `reversible` is defined but never used.
 | Holds by construction; *not* a Landauer/Bennett result. The archived Coq
 `StatMech`/`LandauerDerivation` development is the only thermodynamic
-formalisation, and it is archived.
+formalisation, and it is archived. *Resolved 2026-11-09:* `energy-dissipated`, `thermodynamically-reversible` and the unused `reversible` are removed. `cno-left-inverse` proves observational reversibility (running any CNO after a CNO restores memory, registers and I/O) as a consequence of the identity law, and claims nothing thermodynamic.
 
 | OND-5 "mirrored in Lean 4, Agda, Z3"
 | Agda states OND-5 under `O-out`; the archived Coq and Lean state it under
@@ -161,7 +160,7 @@ the archived Coq.
 take funext as a hypothesis; the `EchoRel` results do not. The echo is the
 fixed-point witness `(s , cno-identity)`.
 | `proven`, conditional on funext where stated; inherits the `IsCNO`
-degeneracy above.
+degeneracy above. *Resolved 2026-11-09:* restated over `cno-result` and `obs-eq`; the `≡` form is now on the observable projection `observe`, and `program-state-model` is a `CNOModel` over observable states.
 |===
 
 Downstream: `hyperpolymath/echo-types` imports `CNO` (`EchoCNOBridge`,
