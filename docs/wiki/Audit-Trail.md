@@ -24,8 +24,8 @@ Short summary; the authoritative ledger is [`AUDIT.adoc`](../../AUDIT.adoc).
 
 ## Axiom classification
 
-The 73 Coq Axioms + 42 Parameters in `proofs/coq/` are model-layer
-assumptions:
+The 73 Coq Axioms + 42 Parameters in `archive/proofs/coq/` (archived 2026-10-10;
+historical counts) are model-layer assumptions:
 
 * **Physics**: thermodynamic laws, Landauer bound, statistical mechanics
 * **Quantum**: Hilbert-space axioms, unitarity

@@ -116,7 +116,7 @@ Core proofs
 --
 Malbolge / Brainfuck / Whitespace CNO verification
 *Novel application*
-`+interpreters/+`, `+proofs/coq/malbolge/+`
+`+interpreters/+`, `+archive/proofs/coq/malbolge/+` (archived)
 --
 
 |===
@@ -227,26 +227,32 @@ foundation), the Z3 checks are `tested-only` (bounded), and OND-6 is `open`.
 
 [verse]
 --
-`+proofs/coq/+`
-Coq proofs: CNO framework, Malbolge, physics, category theory, lambda, quantum, filesystem, OND
+`+proofs/agda/+`
+Active Agda proofs: CNO, OND, EchoBridge (checked in CI, `--safe --without-K`)
 --
 
 [verse]
 --
-`+proofs/lean4/+`
-Lean 4 mirrors of CNO and OND modules
+`+proofs/z3/+`
+Active Z3 bounded checks (expect-annotated; `tested-only`)
 --
 
 [verse]
 --
-`+proofs/agda/+`, `+proofs/z3/+`, `+proofs/isabelle/+`, `+proofs/mizar/+`
-Additional prover artefacts (Agda checked in CI; others generated but not yet run)
+`+archive/proofs/coq/+`
+ARCHIVED 2026-10-10 (not built or gated): Coq proofs: CNO framework, Malbolge, physics, category theory, lambda, quantum, filesystem; OND module in `+archive/proofs/coq/ond/+`
 --
 
 [verse]
 --
-`+proofs/ond/+`
-OND Coq module (OND-1..5 proved, zero axioms)
+`+archive/proofs/lean4/+`
+ARCHIVED 2026-10-10 (not built or gated): Lean 4 mirrors of CNO and OND modules
+--
+
+[verse]
+--
+`+archive/proofs/isabelle/+`, `+archive/proofs/mizar/+`
+ARCHIVED 2026-10-10 (not built or gated): Isabelle/HOL and Mizar artefacts
 --
 
 [verse]
@@ -313,6 +319,6 @@ Prose documentation is licensed under CC-BY-SA-4.0; see
 
 [verse]
 --
-`+proofs/coq/+`
-Coq proofs: CNO framework, Malbolge, physics, category theory, lambda, quantum, filesystem, OND
+`+archive/proofs/coq/+`
+ARCHIVED 2026-10-10 (not built or gated): Coq proofs: CNO framework, Malbolge, physics, category theory, lambda, quantum, filesystem, OND
 --

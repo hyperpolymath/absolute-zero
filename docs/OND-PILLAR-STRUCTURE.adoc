@@ -14,13 +14,22 @@ artifacts CNO does not need: *declared observation models* and *residue lists*.
 .STATUS — 2026-07-07: OND modules AUTHORED (PR #100)
 ====
 The dedicated proof effort has run. The OND modules specified below now exist and
-are machine-checked: `proofs/coq/ond/OND.v` (OND-1..5, zero axioms, all *Closed
-under the global context*), plus `proofs/lean4/OND.lean`, `proofs/agda/OND.agda`,
-`proofs/isabelle/OND.thy`, and `proofs/z3/ond/OND_checks.smt2`. The first residue
+were machine-checked: `archive/proofs/coq/ond/OND.v` (OND-1..5, zero axioms, all *Closed
+under the global context*), plus `archive/proofs/lean4/OND.lean`, `proofs/agda/OND.agda`,
+`archive/proofs/isabelle/OND.thy`, and `proofs/z3/ond/OND_checks.smt2`. The first residue
 instance (`proofs/residue/ct_select.residue`) and observation model
 (`proofs/observation-models/O_all.model`) are populated. Note: the Coq module
 landed at `proofs/coq/ond/OND.v` (not the `observational/` path sketched below).
 Only OND-6 remains to author.
+
+*Archive update (2026-10-10).* The Coq, Lean 4, Isabelle/HOL and Mizar trees
+were archived under `archive/proofs/` and are no longer built or gated; the Coq
+OND module is now `archive/proofs/coq/ond/OND.v`. The active OND legs are
+`proofs/agda/OND.agda` and `proofs/z3/ond/OND_checks.smt2`. The layout tables
+below are the original design sketch: their `proofs/coq/…`, `proofs/lean4/…`,
+`proofs/isabelle/…` and `proofs/mizar/…` paths name the pre-archive layout, and
+some (`observational/`, `ond_verify.sh`, the `ONDIndependence`/`ONDComposition`
+splits, `OND.miz`) exist in neither `proofs/` nor `archive/proofs/`.
 ====
 
 == Co-equality principle
@@ -36,9 +45,10 @@ CNO analogue.
 
 == Per-prover module layout (mirrors CNO — AUTHORED)
 
-Each OND module sits beside its CNO counterpart. As of PR #100 these files exist
-and are verified (Coq/Lean/Agda/Z3/Isabelle); the Coq module is at
-`proofs/coq/ond/OND.v`.
+Each OND module sits beside its CNO counterpart. As of PR #100 these files existed
+and were verified (Coq/Lean/Agda/Z3/Isabelle); the Coq module landed at
+`proofs/coq/ond/OND.v`, now archived as `archive/proofs/coq/ond/OND.v`. The table
+below is the design sketch (see the archive update above).
 
 [cols="1,2,2,3",options="header"]
 |===

@@ -24,29 +24,30 @@ The `verification/` directory contains the top-level scripts.
 Or via `Justfile` recipes (more granular):
 
 ```bash
-just build-all        # everything
-just build-coq        # Coq only
-just build-lean       # Lean 4 only
+just build-all        # Agda + Idris 2 ABI (the active stack)
 just build-agda
-just build-isabelle
-just build-affinescript
-just verify           # build + check
+just build-idris
+just verify           # proofs/verify-active-provers.sh → ACTIVE-PROVERS-GREEN
 ```
+
+The Coq, Lean 4, Isabelle/HOL and Mizar trees were archived on 2026-10-10 under
+`archive/proofs/` and have no build recipes; the commands below for them are
+historical and run against the archived trees.
 
 ## Per-prover commands
 
-### Coq
+### Coq (archived)
 ```bash
-cd proofs/coq/common && coqc CNO.v
+cd archive/proofs/coq/common && coqc CNO.v
 cd ../physics && coqc -R ../common CNO StatMech.v
                  coqc -R ../common CNO LandauerDerivation.v
 cd ../quantum && coqc -R ../common CNO QuantumMechanicsExact.v
 cd ../malbolge && coqc -R ../common CNO MalbolgeCore.v
 ```
 
-### Lean 4
+### Lean 4 (archived)
 ```bash
-cd proofs/lean4 && lake build
+cd archive/proofs/lean4 && lake build
 ```
 
 ### Agda
@@ -97,5 +98,8 @@ See [`.machine_readable/descriptiles/STATE.a2ml`](../../.machine_readable/descri
 and [`PROOF-STATUS.adoc`](../../PROOF-STATUS.adoc) for live status. Summary: both
 pillars verified across **six provers + Idris** — Coq 14/14, Lean+Mathlib green,
 Agda (CNO+OND), Z3, Isabelle (`AbsoluteZero-CNO`), Mizar (`CNO.miz` empty `.err`),
-Idris ABI builds clean. One-shot: `proofs/verify-all-provers.sh` →
-`ALL-PROVERS-GREEN`.
+Idris ABI builds clean. One-shot then: `proofs/verify-all-provers.sh` (now archived as
+`archive/proofs/verify-all-provers.six-prover.sh`) → `ALL-PROVERS-GREEN`.
+
+Since the 2026-10-10 archive ruling only Agda, Z3 (bounded) and the Idris 2 ABI
+are active: run `proofs/verify-active-provers.sh` → `ACTIVE-PROVERS-GREEN`.

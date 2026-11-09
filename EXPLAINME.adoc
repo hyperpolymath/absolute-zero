@@ -9,7 +9,7 @@ This file backs every factual claim in link:README.adoc[README.adoc] with code p
 
 [IMPORTANT]
 ====
-*Archive notice (2026-10-10, reconciled 2026-11-01).* The active proof stack is Agda (`proofs/agda/`, `--safe --without-K`, zero postulates) + Z3 as a bounded-check solver + the Idris 2 ABI. Coq, Lean 4, Isabelle/HOL and Mizar now live under `archive/proofs/`; paths below of the form `proofs/coq/…` / `proofs/lean4/…` refer to the *archived* trees (`archive/proofs/coq/…` etc.), and counts such as "115 Qed / 61 Axioms" are *historical* figures of those archived trees. The canonical active-vs-archived proof-status table is link:PROOF-STATUS.adoc[PROOF-STATUS.adoc], which also records the estate proof grades (mathesis `estate-mathematical-architecture` §5) and the closed ledger vocabulary of `hyperpolymath/standards` (`proven` / `proven-with-postulates` / `tested-only` / `argued` / `open`): the active Agda proofs are `proven` at **Grade 3** (local strict-flag check, no independent-foundation translation), the Z3 bounded checks are `tested-only`, and OND-6 is `open`.
+*Archive notice (2026-10-10, reconciled 2026-11-01).* The active proof stack is Agda (`proofs/agda/`, `--safe --without-K`, zero postulates) + Z3 as a bounded-check solver + the Idris 2 ABI. Coq, Lean 4, Isabelle/HOL and Mizar now live under `archive/proofs/`; paths of the form `proofs/coq/…` / `proofs/lean4/…` in older prose and dated records refer to the *archived* trees (`archive/proofs/coq/…` etc.), and counts such as "115 Qed / 61 Axioms" are *historical* figures of those archived trees. The canonical active-vs-archived proof-status table is link:PROOF-STATUS.adoc[PROOF-STATUS.adoc], which also records the estate proof grades (mathesis `estate-mathematical-architecture` §5) and the closed ledger vocabulary of `hyperpolymath/standards` (`proven` / `proven-with-postulates` / `tested-only` / `argued` / `open`): the active Agda proofs are `proven` at **Grade 3** (local strict-flag check, no independent-foundation translation), the Z3 bounded checks are `tested-only`, and OND-6 is `open`.
 ====
 
 == Claim-to-implementation map
@@ -44,7 +44,7 @@ OND proofs are axiom-free *relative to the declared observation model `O`*. The 
 ____115 Qed / 0 Admitted / 61 Axioms across 13 files — every theorem is discharged (no Admitted), but the development rests on 61 Coq + 52 Lean axioms.____
 
 How this is implemented::
-`link:proofs/coq/[]` contains all CNO theories. CI runs `coq_makefile` and confirms Qed counts and axiom counts. The axioms are domain-specific assumptions (quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws) that are *assumed* but not derived within Coq.
+`link:archive/proofs/coq/[]` contains all CNO theories (ARCHIVED 2026-10-10, not built or gated). Until the archive ruling, CI ran `coq_makefile` and confirmed Qed counts and axiom counts; it no longer does. The axioms are domain-specific assumptions (quantum-gate unitarity, complex-analysis identities, Shannon-entropy non-negativity, filesystem inverse laws) that are *assumed* but not derived within Coq.
 
 Caveat::
 **This is not an axiom-free machine-checked proof.** "Machine-checked" here means the proof is valid *assuming the axioms hold*. If an axiom is false in the intended model, the theorem fails. The 61 Coq + 52 Lean axioms represent the proof debt. Discharging them (especially quantum unitarity and filesystem inverse laws) is the next major obligation.
@@ -55,10 +55,10 @@ Caveat::
 ____Verify CNO properties in six independent proof systems.____
 
 How this is implemented::
-Artefacts exist for Coq, Lean 4, Agda, Z3, Isabelle, and Mizar in `link:proofs/[]`. `link:proofs/verify-all-provers.sh[]` orchestrates verification. CI gates Coq, Lean 4, and Agda.
+Active artefacts (Agda, Z3) are in `link:proofs/[]`; `link:proofs/verify-active-provers.sh[]` runs the active gate (Agda + Z3 bounded + Idris 2 ABI), and CI (`proofs.yml`: `agda`, `z3`, `idris` jobs) gates the same three. The Coq, Lean 4, Isabelle/HOL and Mizar artefacts are ARCHIVED under `link:archive/proofs/[]`, as is the former six-prover gate (`link:archive/proofs/verify-all-provers.six-prover.sh[]`); they are not built or gated.
 
 Caveat::
-**Z3, Isabelle, and Mizar are generated but not yet run in CI.** The artefacts exist but are not evidence until machine-executed and green. The "six prover" claim describes the target architecture, not the current CI gate.
+**The six-prover claim is historical.** All six provers were reproduced on 2026-07-07 (see link:PROOF-STATUS.adoc[PROOF-STATUS.adoc]); since the 2026-10-10 archive ruling only Agda, Z3 (bounded) and the Idris 2 ABI are run. Archived artefacts are not current evidence.
 
 === Thermodynamic reversibility follows from Landauer's principle
 
@@ -66,7 +66,7 @@ Caveat::
 ____ThermodynamicallyReversible(p) — Zero energy____
 
 How this is implemented::
-`link:proofs/coq/physics/StatMech.v[]` and `link:proofs/lean4/StatMech.lean[]` formalise Landauer's principle and Bennett's reversible computing, proving CNOs dissipate zero energy because they erase no information.
+`link:archive/proofs/coq/physics/StatMech.v[]` and `link:archive/proofs/lean4/StatMech.lean[]` (both ARCHIVED 2026-10-10, not built or gated) formalise Landauer's principle and Bennett's reversible computing, proving CNOs dissipate zero energy because they erase no information.
 
 Caveat::
 The physics formalisation relies on axioms about the physical model (e.g., that the thermodynamic system satisfies the assumptions of Landauer's principle). This is standard for formalisations of physics, but the gap between the mathematical model and physical metal is real.
@@ -88,8 +88,8 @@ This is a standard result. The practical consequence is that the verified CNOs i
 |===
 | Technology / Pattern | Used here | Also used in
 
-| Coq CNO/OND formalisation
-| `proofs/coq/`
+| Coq CNO/OND formalisation (archived)
+| `archive/proofs/coq/`
 | link:https://github.com/hyperpolymath/echo-types[echo-types] (EchoBridgeCNO)
 
 | Multi-prover pattern

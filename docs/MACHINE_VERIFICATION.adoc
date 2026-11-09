@@ -71,11 +71,11 @@ Verifying Coq proofs...
 Run this to count incomplete proofs:
 
 ```bash
-# Count Coq admits
-find proofs/coq -name "*.v" -exec grep -c "Admitted" {} + | awk -F: '{sum += $2} END {print "Coq Admitted:", sum}'
+# Count Coq admits (archived tree)
+find archive/proofs/coq -name "*.v" -exec grep -c "Admitted" {} + | awk -F: '{sum += $2} END {print "Coq Admitted:", sum}'
 
-# Count Lean 4 sorries
-find proofs/lean4 -name "*.lean" -exec grep -c "sorry" {} + | awk -F: '{sum += $2} END {print "Lean sorry:", sum}'
+# Count Lean 4 sorries (archived tree)
+find archive/proofs/lean4 -name "*.lean" -exec grep -c "sorry" {} + | awk -F: '{sum += $2} END {print "Lean sorry:", sum}'
 ```
 
 ### Step 4: Address Failures
