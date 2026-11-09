@@ -58,7 +58,7 @@ How this is implemented::
 Active artefacts are Agda, Z3 and the Idris 2 ABI in `link:proofs/[]`, run by `link:proofs/verify-active-provers.sh[]` and CI. Coq, Lean 4, Isabelle and Mizar are archived under `archive/proofs/` and are not built or gated.
 
 Caveat::
-**Z3, Isabelle, and Mizar are generated but not yet run in CI.** The artefacts exist but are not evidence until machine-executed and green. The "six prover" claim describes the target architecture, not the current CI gate.
+**Isabelle and Mizar are archived and not run in CI.** Z3 runs in CI (the `z3` job in `.github/workflows/proofs.yml`) as bounded, `tested-only` checks. The "six prover" claim describes the target architecture, not the current CI gate.
 
 === Thermodynamic reversibility follows from Landauer's principle
 
