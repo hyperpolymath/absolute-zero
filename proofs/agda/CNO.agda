@@ -211,6 +211,15 @@ thermodynamically-reversible p =
 ----------------------------------------------------------------------------
 
 -- A Certified Null Operation
+--
+-- Audit note (2026-11-09, see PROOF-STATUS.adoc "Design audit"): as stated,
+-- this class is degenerate.  `state-eq` includes `state-pc`, and `step`
+-- moves the PC on every instruction except `Halt`, so `cno-identity` holds
+-- only for `Halt`-only programs.  `cno-terminates` and `cno-reversible` hold
+-- for every program by construction (`terminates-always`, and
+-- `energy-dissipated` is constantly zero).  Results over `IsCNO` are proved
+-- but are about that narrow class.  Redefining `state-eq` without the PC (as
+-- the archived Coq did on 2026-05-18) is an open obligation.
 record IsCNO (p : Program) : Set where
   field
     cno-terminates : ∀ s → terminates p s

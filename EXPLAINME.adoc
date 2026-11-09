@@ -9,7 +9,7 @@ This file backs every factual claim in link:README.adoc[README.adoc] with code p
 
 [IMPORTANT]
 ====
-*Archive notice (2026-10-10, reconciled 2026-11-01).* The active proof stack is Agda (`proofs/agda/`, `--safe --without-K`, zero postulates) + Z3 as a bounded-check solver + the Idris 2 ABI. Coq, Lean 4, Isabelle/HOL and Mizar now live under `archive/proofs/`; paths below of the form `proofs/coq/…` / `proofs/lean4/…` refer to the *archived* trees (`archive/proofs/coq/…` etc.), and counts such as "115 Qed / 61 Axioms" are *historical* figures of those archived trees. The canonical active-vs-archived proof-status table is link:PROOF-STATUS.adoc[PROOF-STATUS.adoc], which also records the estate proof grades (mathesis `estate-mathematical-architecture` §5) and the closed ledger vocabulary of `hyperpolymath/standards` (`proven` / `proven-with-postulates` / `tested-only` / `argued` / `open`): the active Agda proofs are `proven` at **Grade 3** (local strict-flag check, no independent-foundation translation), the Z3 bounded checks are `tested-only`, and OND-6 is `open`.
+*Archive notice (2026-10-10, reconciled 2026-11-01).* The active proof stack is Agda (`proofs/agda/`, `--safe --without-K`, zero postulates) + Z3 as a bounded-check solver + the Idris 2 ABI. Coq, Lean 4, Isabelle/HOL and Mizar now live under `archive/proofs/`; paths below of the form `proofs/coq/…` / `proofs/lean4/…` refer to the *archived* trees (`archive/proofs/coq/…` etc.), and counts such as "115 Qed / 61 Axioms" are *historical* figures of those archived trees. The canonical active-vs-archived proof-status table is link:PROOF-STATUS.adoc[PROOF-STATUS.adoc], which also records Proof Witness Grades (standards PROOF-POLICY §8) and the closed ledger vocabulary of `hyperpolymath/standards` (`proven` / `proven-with-postulates` / `tested-only` / `argued` / `open`): the active Agda proofs are `proven` and `ungraded` (no PWG-3 receipt recorded yet), the Z3 bounded checks are `tested-only`, and OND-6 is `open`. Its 2026-11-09 design audit records that the active Agda `IsCNO` is degenerate and that its termination and reversibility components hold by construction.
 ====
 
 == Claim-to-implementation map
@@ -55,7 +55,7 @@ Caveat::
 ____Verify CNO properties in six independent proof systems.____
 
 How this is implemented::
-Artefacts exist for Coq, Lean 4, Agda, Z3, Isabelle, and Mizar in `link:proofs/[]`. `link:proofs/verify-all-provers.sh[]` orchestrates verification. CI gates Coq, Lean 4, and Agda.
+Active artefacts are Agda, Z3 and the Idris 2 ABI in `link:proofs/[]`, run by `link:proofs/verify-active-provers.sh[]` and CI. Coq, Lean 4, Isabelle and Mizar are archived under `archive/proofs/` and are not built or gated.
 
 Caveat::
 **Z3, Isabelle, and Mizar are generated but not yet run in CI.** The artefacts exist but are not evidence until machine-executed and green. The "six prover" claim describes the target architecture, not the current CI gate.

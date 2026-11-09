@@ -54,9 +54,15 @@ Secret→observable channel
 
 |===
 
-Both pillars are machine-checked. OND obligations OND-1..5 are proved
-with zero axioms in Coq, mirrored in Lean 4, Agda, and Z3. The
-independence theorem is anchored to `+is_CNO+`. OND-6 (conditional
+OND obligations OND-1..5 are proved with zero axioms in the active Agda
+(`proofs/agda/OND.agda`); archived Coq and Lean developments and bounded Z3
+checks exist, but the Agda and Coq/Lean OND-5 statements are different
+propositions, and the anchoring of the independence theorem to `+is_CNO+`
+exists only in the archived Coq. The active Agda CNO definition is
+currently degenerate (it holds only for `Halt`-only programs), and its
+termination and thermodynamic-reversibility components hold by
+construction. See the 2026-11-09 design audit in
+link:PROOF-STATUS.adoc[PROOF-STATUS.adoc]. OND-6 (conditional
 composition, the research capstone) remains open by design.
 
 == What is standard and what is ours
@@ -188,10 +194,10 @@ The *canonical* proof-status table — separating active, archived, proved,
 axiomatic and generated artefacts, with OND-6 explicitly open — lives in
 link:PROOF-STATUS.adoc[PROOF-STATUS.adoc]. Figures quoted above for archived
 provers are historical counts of those archived trees, not active status.
-Estate proof grades (mathesis `estate-mathematical-architecture` §5) are
-recorded there too: the active Agda proofs are **Grade 3** (local,
-strict-flag, zero-postulate — not yet translated to an independent
-foundation), the Z3 checks are `tested-only` (bounded), and OND-6 is `open`.
+Proof Witness Grades (standards PROOF-POLICY §8) are recorded there too:
+the active Agda proofs are `proven` but `ungraded` until a PWG-3 receipt
+is recorded, the Z3 checks are `tested-only` (bounded), and OND-6 is
+`open`.
 
 == [CAUTION]
 
