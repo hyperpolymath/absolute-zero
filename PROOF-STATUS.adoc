@@ -45,14 +45,17 @@ ground truth** — see "Role of this repository" below.
 `hyperpolymath/standards` (`3-practice/PROOF-POLICY.adoc` §5 and
 `docs/README-EXPLAINME-STANDARD.adoc` §5): `proven`, `proven-with-postulates`,
 `tested-only`, `argued`, `open` — recorded exactly, never flattened into a
-percentage. Estate grades follow mathesis's `estate-mathematical-architecture`
-§5–6: **Grade 3** = type-checks locally in Agda under strict flags but not yet
-translated to an independent foundational system; **Grade 2i/2ii** =
-translation to one/two independent foundations (2ii requires a non-DTT
-second system, e.g. Isabelle/HOL); **Grade 1** = headless CI via verified
-checker APIs. Verification receipts are tied to commit hashes; superseded
-claims are marked historical, not silently dropped, and axiom dependence
-(`Print Assumptions` / `#print axioms`) is tracked per row.
+percentage. Grades are Proof Witness Grades (PWG) as defined in
+PROOF-POLICY §8 (owner ruling 2026-11-04), which supersedes the "Grade
+3/2i/2ii/1" ladder of mathesis's `estate-mathematical-architecture` brief
+that this file used until 2026-11-09. `PWG-3` needs an Agda receipt under the
+§2.1 invocation `agda --safe --without-K --cubical-compatible`, recording the
+Agda version, standard-library pin, flags in force, import cone and source
+commit; `PWG-2i`/`PWG-2ii` additionally need one/both Rocq and Lean legs whose
+§2.2 correspondence state is `RECONCILED`. A theorem below `PWG-3` is
+`ungraded`. A status token and a grade are separate fields and are never
+written in one cell. Superseded claims are marked historical, not silently
+dropped, and axiom dependence is tracked per row.
 
 [cols="2,1,2,3",options="header"]
 |===
@@ -60,12 +63,12 @@ claims are marked historical, not silently dropped, and axiom dependence
 
 | `proofs/agda/` — `CNO.agda`, `OND.agda`, `EchoBridgeScaffold.agda`, `EchoBridgeCNO.agda`
 | ACTIVE (CI `agda` job; `proofs/verify-active-provers.sh`)
-| `proven` — **Grade 3**: type-checked locally in Agda, zero postulates, every file `{-# OPTIONS --safe --without-K #-}`; EchoBridge takes funext as an *explicit hypothesis*, not a global postulate. Not translated to any independent foundation, so not Grade 2+
-| Domain formalisation of both pillars; discharges OND-1..5; contains no OND-6. Open obligation: recheck under the 2026-11-01 canonical profile `agda --safe --without-K --cubical-compatible` (standards PROOF-POLICY §2.1) — prior `--safe --without-K` receipts are not receipts for the combined profile
+| Status: `proven` for each stated Agda term — zero postulates, every file `{-# OPTIONS --safe --without-K #-}`; EchoBridge takes funext as an *explicit hypothesis*, not a global postulate. Grade: `ungraded` (no PWG-3 receipt recorded; see the 2026-11-09 audit below). *What the CNO terms state is narrower than the pillar description*: see "Design audit (2026-11-09)" below before citing any CNO result
+| Domain formalisation of both pillars; discharges OND-1..5; contains no OND-6. The canonical profile `agda --safe --without-K --cubical-compatible` (standards PROOF-POLICY §2.1) passes locally (2026-11-09) and is the CI invocation from 2026-11-09. Open obligation: a PWG-3 receipt for that profile
 
 | `proofs/z3/` — `ond/OND_checks.smt2` via `proofs/z3/verify.sh`
 | ACTIVE as bounded-check solver (CI `z3` job)
-| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat|unsat` annotation. Receipt reproduced in this sandbox 2026-11-01 (z3 5.3.3, `Z3-CHECK OK`, sat/unsat/sat) — see receipts below
+| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat|unsat` annotation. Receipt reproduced in this sandbox 2026-11-01 (`z3` 4.16.0, `Z3-CHECK OK`, sat/unsat/sat) — see receipts below
 | Bounds: finite/bounded programs under a finite declared `O`; not a general proof
 
 | `src/abi/` + `absolute-zero-abi.ipkg` (Idris 2)
@@ -104,9 +107,69 @@ claims are marked historical, not silently dropped, and axiom dependence
 | Declared observation models `+O+` and residue lists; every OND certificate is relative to its declared `+O+`
 |===
 
+=== Design audit (2026-11-09)
+
+A statement-level review of the active Agda (`proofs/agda/` at `cbe9ae9`)
+against the claims in this file, README, EXPLAINME and `docs/TWO-PILLARS.adoc`.
+The terms all type-check: on 2026-11-09 the four modules at `cbe9ae9` were rechecked cold
+with Agda 2.6.3 and agda-stdlib 2.3 (CI pairs Agda 2.6.3 with agda-stdlib 1.7.3) under
+`agda --safe --without-K --cubical-compatible`, and all passed. That is a local check, not a CI
+receipt. The findings concern what the terms *state*.
+
+[cols="2,3,2",options="header"]
+|===
+| Item | What the Agda actually states | Honest label
+
+| `IsCNO` (`CNO.agda`)
+| `state-eq` includes `state-pc`. `step` advances the PC on `Nop`, `Load`,
+`Store` and `Add` and sets it on `Jump`; `eval` never restores it. So
+`cno-identity : ∀ s → state-eq (eval p s) s` holds only for programs made
+of `Halt` instructions (and the empty program). The archived Coq fixed
+the same defect on 2026-05-18 by excluding the PC from `state_eq`; the
+active Agda did not.
+| `IsCNO` is a degenerate class in the active stack. `halt-is-cno`,
+`cno-composition` and every result quantified over `IsCNO` are `proven`
+but about that class only. *Resolved 2026-11-09:* `IsCNO` now judges a run by `obs-eq` (memory, registers, I/O; no PC). `nop-is-cno` and `jump-exit-is-cno` show the class is not Halt-only; `load-not-cno` shows it is not everything. `state-eq` keeps the PC and is still the full equality.
+
+| `terminates`, `terminates-always`
+| `terminates p s = ∃ s′. eval p s ≡ s′`, inhabited by `(eval p s , refl)`
+for every program. `eval` is a total fold over the instruction list.
+| Holds by construction; *not* a termination result. *Resolved 2026-11-09:* `eval` is replaced by a pc-driven machine: a big-step relation `_⊢_⇓_` and a fuel interpreter `run`, related by `run-sound` and `run-complete`. `Terminates p s` asks for a normal stop from pc 0, and `jump-self-diverges` shows `Jump 0` never stops. A Store or Add on a missing register faults and does not terminate.
+
+| `thermodynamically-reversible`, `energy-dissipated`
+| `energy-dissipated _ _ _ = zero`, so every program, reversible or not,
+satisfies it. `reversible` is defined but never used.
+| Holds by construction; *not* a Landauer/Bennett result. The archived Coq
+`StatMech`/`LandauerDerivation` development is the only thermodynamic
+formalisation, and it is archived. *Resolved 2026-11-09:* `energy-dissipated`, `thermodynamically-reversible` and the unused `reversible` are removed. `cno-left-inverse` proves observational reversibility (running any CNO after a CNO restores memory, registers and I/O) as a consequence of the identity law, and claims nothing thermodynamic.
+
+| OND-5 "mirrored in Lean 4, Agda, Z3"
+| Agda states OND-5 under `O-out`; the archived Coq and Lean state it under
+`O_all`. Both are true; they are different propositions.
+| Correspondence state `unassessed` (PROOF-POLICY §2.2). The rows are not
+mirrors of one theorem.
+
+| OND-3 "anchored to `is_CNO`"
+| `OND.agda` uses a local `is-null` and never imports `CNO`. The anchoring
+(`writer_program_not_core_CNO`, `skip_program_is_core_CNO`) exists only in
+the archived Coq.
+| The active Agda OND-3 is *not* anchored to `IsCNO`.
+
+| EchoBridge
+| The `≡`-form results (`echo-from-cno-program-≡`, `absolute-zero-echo-≡`)
+take funext as a hypothesis; the `EchoRel` results do not. The echo is the
+fixed-point witness `(s , cno-identity)`.
+| `proven`, conditional on funext where stated; inherits the `IsCNO`
+degeneracy above. *Resolved 2026-11-09:* restated over `cno-result` and `obs-eq`; the `≡` form is now on the observable projection `observe`, and `program-state-model` is a `CNOModel` over observable states.
+|===
+
+Downstream: `hyperpolymath/echo-types` imports `CNO` (`EchoCNOBridge`,
+`EchoCNOSemantics`, `EchoThermodynamicsArbitrary`, `EchoCNOPackaging`); its
+CNO-facing results inherit these limits.
+
 === Reproduction receipts (this environment, 2026-11-01)
 
-* *Z3 — REPRODUCED HERE.* `z3` 5.3.3 (64-bit, via the `z3-solver` PyPI wheel,
+* *Z3 — REPRODUCED HERE.* `z3` 4.16.0 (64-bit, via the `z3-solver` PyPI wheel,
 the only package host reachable from this sandbox) running
 `bash proofs/z3/verify.sh` → `Z3-CHECK OK`: 1 file
 (`proofs/z3/ond/OND_checks.smt2`), 3 `(check-sat)` verdicts `sat unsat sat`,
@@ -134,7 +197,7 @@ be cited as proof status for any other repository.
 *Cross-repo note (2026-11-01).* `epistemic-types` (at `5422cd5`) is an
 *independent* proof library with **no dependency on absolute-zero**. Any
 cross-repo claim must therefore name the exact theorem, its scope, and its
-assumptions (e.g. "OND-1..5, `proven`, Grade 3, Agda `--safe --without-K`,
+assumptions (e.g. "OND-1..5, `proven`, `ungraded`, Agda `--safe --without-K`,
 relative to a declared `O`") — never a bare count imported from this repo.
 Mathesis (the estate mathematical knowledge commons) may *catalogue* these
 receipts and grades, but per its own architecture the original repositories

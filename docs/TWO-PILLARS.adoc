@@ -61,6 +61,19 @@ Agda, Isabelle, Mizar), `is_CNO p` bundles four properties:
 4. *Thermodynamic reversibility* — zero energy dissipation by Landauer's
    principle (logical reversibility ⇒ no entropy increase, via Bennett).
 
+[WARNING]
+.Active Agda status (2026-11-09)
+====
+These four properties describe the intended notion. The active Agda
+(`proofs/agda/CNO.agda`, restated 2026-11-09) formalises (1) as a normal stop
+of a pc-driven machine, (2) up to memory, registers and I/O (not the program
+counter), and (3) as a consequence of (2). It formalises (4) only as
+observational reversibility (`cno-left-inverse`), with no energy model. Before
+that date (1) and (4) held by construction and `IsCNO` was Halt-only. See the
+design audit in
+link:../PROOF-STATUS.adoc[PROOF-STATUS.adoc].
+====
+
 The defining feature of CNO is that *everything it talks about is inside the
 model*. State is a modelled object; "the output state equals the input state"
 is a closed mathematical statement, provable without reference to any physical

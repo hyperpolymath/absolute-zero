@@ -12,7 +12,7 @@ Cross-reference glossary for link:README.adoc[README.adoc], link:EXPLAINME.adoc[
 [[cno]]
 CNO (Certified Null Effect)::
   A program that does nothing to the world: terminates, maps input state to identical output state, is pure, and is thermodynamically reversible. The conserved quantity is state.
-  *Classification:* **novel assembly** (standard concepts combined into this specific 4-field record).
+  *Classification:* **novel assembly** (standard concepts combined; the intended notion has four parts, while the active Agda `IsCNO` record has two fields, see <<is-cno>>).
 
 [[ond]]
 OND (Observational Null Disclosure)::
@@ -28,7 +28,7 @@ Coupling dial::
 
 [[is-cno]]
 IsCNO(p)::
-  The core predicate: `Terminates(p, σ) ∧ FinalState(p, σ) = σ ∧ NoSideEffects(p) ∧ ThermodynamicallyReversible(p)`.
+  The core predicate. Intended notion: `Terminates(p, σ) ∧ FinalState(p, σ) = σ ∧ NoSideEffects(p) ∧ ThermodynamicallyReversible(p)`. Active Agda (`proofs/agda/CNO.agda`): from every state the pc-driven machine stops normally (`cno-terminates`), and every normal stop is `obs-eq` to the start (`cno-identity`). Purity and observational reversibility are derived; no thermodynamic claim is made.
   *Classification:* **project-specific** (formalisation).
 
 [[landauer-principle]]
@@ -38,7 +38,7 @@ Landauer's principle::
 
 [[reversible-computing]]
 Reversible computing::
-  Computation that can be undone with zero energy cost (Bennett 1973). A required field of `IsCNO`.
+  Computation that can be undone with zero energy cost (Bennett 1973). Part of the intended CNO notion; the active Agda proves only observational reversibility (`cno-left-inverse`), not an energy bound.
   *Classification:* **standard** (Bennett 1973).
 
 == OND concepts

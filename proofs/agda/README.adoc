@@ -4,9 +4,9 @@
 
 This directory currently contains:
 
-* `CNO.agda` — main Agda CNO development (compiles locally).
+* `CNO.agda` — main Agda CNO development: a pc-driven machine (`_⊢_⇓_`, fuel interpreter `run`, adequacy both ways), `IsCNO` up to observable state, composition under a closedness condition, and witnesses for and against.
 * `EchoBridgeScaffold.agda` — compile-safe interface layer for bridging CNO identity witnesses to the echo/fiber shape used in `echo-types`.
-* `EchoBridgeCNO.agda` — concrete model instantiation from `CNO.Program` / `eval` into the scaffold interface.
+* `EchoBridgeCNO.agda` — concrete model instantiation from certified programs and `cno-result` into the scaffold interface.
 
 == Purpose of `EchoBridgeScaffold.agda`
 
@@ -21,17 +21,14 @@ It provides:
 
 == Purpose of `EchoBridgeCNO.agda`
 
-This module imports `CNO.agda` and instantiates `CNOModel` concretely with:
+This module imports `CNO.agda`. `CNO.cno-identity` is phrased as `obs-eq`
+(memory, registers and I/O, with function-valued memory; the program counter is
+not compared), so the bridge provides two layers:
 
-* `Op = Program`
-* `run = eval`
-* `IsCNO = IsCNO`
-
-Because `CNO.cno-identity` is phrased as `state-eq` (with function-valued memory),
-the bridge provides two layers:
-
-* primary: relation-based echoes via `EchoRel ... CNO.state-eq` (no extensionality needed);
-* secondary: propositional `Echo` corollaries via a function-extensionality parameter.
+* primary: relation-based echoes via `EchoRel (cno-result cno) CNO.obs-eq` (no extensionality needed);
+* secondary: propositional `Echo` on the observable projection `observe`, via a
+  function-extensionality parameter, and a `CNOModel` instance over observable
+  states with `Op = Σ Program IsCNO` and `run = run-obs`.
 
 == Integration plan
 
