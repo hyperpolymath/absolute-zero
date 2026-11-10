@@ -3,7 +3,7 @@
 # Copyright (c) Jonathan D.A. Jewell <j.d.a.jewell@open.ac.uk>
 #
 # Proof verification CI for the ACTIVE proof stack (owner ruling 2026-10-10):
-#   * Agda      — CNO + OND + EchoBridge (--safe --without-K)
+#   * Agda      — CNO + OND + EchoBridge (PROOF-POLICY 2.1 invocation + strict flags)
 #   * Z3        — CNO + OND bounded checks (expect-annotated)
 #   * Idris 2   — the ABI package (absolute-zero-abi.ipkg)
 # Each is an INDEPENDENT job, so one flaking never blocks the others.
@@ -62,14 +62,19 @@ jobs:
         # `standard-library` (what absolute-zero.agda-lib depends on), and writes
         # ~/.agda/libraries + ~/.agda/defaults.
         run: bash scripts/provision-agda-stdlib.sh
-      - name: Type-check CNO + OND + EchoBridge (4 modules, --safe --without-K)
+      - name: Type-check CNO + OND + EchoBridge (4 modules, PROOF-POLICY 2.1 + strict flags)
         working-directory: proofs/agda
+        # The canonical invocation (standards PROOF-POLICY 2.1) is
+        # `agda --safe --without-K --cubical-compatible`.  The other strict
+        # language flags (--exact-split --no-sized-types --no-guardedness)
+        # are declared in each module's OPTIONS pragma, not here, so they do
+        # not also apply to the standard library.
         run: |
           agda --version
-          agda --safe --without-K CNO.agda
-          agda --safe --without-K OND.agda
-          agda --safe --without-K EchoBridgeScaffold.agda
-          agda --safe --without-K EchoBridgeCNO.agda
+          agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch CNO.agda
+          agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch OND.agda
+          agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch EchoBridgeScaffold.agda
+          agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch EchoBridgeCNO.agda
           echo "✓ Agda: CNO + OND + EchoBridgeScaffold + EchoBridgeCNO type-check"
 
   z3:
