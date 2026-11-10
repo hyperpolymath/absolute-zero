@@ -23,7 +23,12 @@ flags a foundational dependency worth understanding.
 
 ## What lives where
 
-### `proofs/coq/` (the load-bearing system)
+Since the 2026-10-10 archive ruling the active stack is Agda (`proofs/agda/`),
+Z3 bounded checks (`proofs/z3/`) and the Idris 2 ABI. The Coq, Lean 4,
+Isabelle/HOL and Mizar trees below are archived under `archive/proofs/` and are
+no longer built or gated; their status lines are historical receipts.
+
+### `archive/proofs/coq/` (archived; formerly the load-bearing system)
 * `common/CNO.v` — core CNO definitions and properties
 * `physics/StatMech.v` — Landauer bound axiomatised
 * `physics/LandauerDerivation.v` — Landauer bound derived (the two
@@ -35,7 +40,7 @@ flags a foundational dependency worth understanding.
 * `malbolge/MalbolgeCore.v` — Malbolge VM semantics
 * `filesystem/FilesystemCNO.v` — filesystem CNOs
 
-Status (PR #100, 2026-07-06): **14/14 theories compile, 0 Admitted**, now
+Status (PR #100, 2026-07-06): **14/14 theories compiled, 0 Admitted**, now
 including `ond/OND.v` (the OND pillar, OND-1..5, zero axioms). CNO axioms cut
 98→small classified remainder: filesystem/category/QuantumMechanicsExact fully
 discharged; genuine physical postulates kept as tagged `METAL-BOUNDARY`; a few
@@ -43,10 +48,10 @@ class-A items openly labelled; three unsound axioms removed/corrected. See
 [`PROOF-STATUS.adoc`](../../PROOF-STATUS.adoc) and
 [`docs/PROOF-CLASSIFICATION.adoc`](../PROOF-CLASSIFICATION.adoc).
 
-### `proofs/lean4/`
+### `archive/proofs/lean4/` (archived)
 * `CNO.lean`, `StatMech.lean`, `CNOCategory.lean`, `LambdaCNO.lean`,
   `QuantumCNO.lean`, `FilesystemCNO.lean`
-* Built with `lake build`; mathlib + 6 lean_lib targets;
+* Was built with `lake build`; mathlib + 6 lean_lib targets;
   1631/1632 green (verified 2026-05-20).
 
 ### `proofs/z3/`
@@ -56,20 +61,21 @@ candidate CNO claims before committing to a constructive proof.
 ### `proofs/agda/`
 Type-level CNO certificates exploiting dependent types.
 
-### `proofs/isabelle/`, `proofs/mizar/`
+### `archive/proofs/isabelle/`, `archive/proofs/mizar/` (archived)
 Cross-validation. Catches Coq-specific tactic quirks; connects
 Mizar's standard maths library.
 
 ## Reproducible build
 
 ```bash
-just build-coq      # coqc -R common CNO physics/StatMech.v ...
-just build-lean     # cd proofs/lean4 && lake build
-just build-agda     # agda CNO.agda
-just build-isabelle # isabelle build
-just build-z3       # z3 *.smt2 (when present)
-just verify         # all of the above + ABI + Rust
+just build-agda     # agda --safe --without-K on the four Agda modules
+just build-idris    # idris2 --build absolute-zero-abi.ipkg
+just verify-z3      # bash proofs/z3/verify.sh (expect-annotated)
+just verify         # proofs/verify-active-provers.sh → ACTIVE-PROVERS-GREEN
 ```
+
+The former `build-coq`, `build-lean`, `build-isabelle` and `build-z3` recipes no
+longer exist in the Justfile.
 
 ## Discharged axioms (recent)
 

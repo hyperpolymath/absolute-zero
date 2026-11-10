@@ -8,9 +8,9 @@ Short summary; the authoritative version is [`ROADMAP.adoc`](../../ROADMAP.adoc)
 
 ## Now (post v1.0.0-alpha)
 
-* ✅ Both pillars machine-checked across six provers + Idris (PR #100) — `proofs/verify-all-provers.sh`
-* ✅ OND pillar authored (OND-1..5 proved, zero axioms); ✅ Idris ABI builds; ✅ Isabelle + Mizar verify
-* Wire proof verification into CI (`.github/workflows/proofs.yml` runs Coq + Z3; extend to more provers)
+* ✅ Both pillars machine-checked across six provers + Idris (PR #100) — via `proofs/verify-all-provers.sh`, now archived as `archive/proofs/verify-all-provers.six-prover.sh`; since 2026-10-10 the active gate is `proofs/verify-active-provers.sh` (Agda + Z3 bounded + Idris 2 ABI)
+* ✅ OND pillar authored (OND-1..5 proved, zero axioms); ✅ Idris ABI builds; ✅ Isabelle + Mizar verified (2026-07-07; both archived under `archive/proofs/` since 2026-10-10)
+* Wire proof verification into CI (`.github/workflows/proofs.yml` runs the `agda`, `z3` and `idris` jobs; the Coq and Lean 4 jobs were dropped when those trees were archived on 2026-10-10)
 * Discharge the class-A remainder (needs finite-dim/tensor QM + coinductive-β machinery) — optional
 * Prove **OND-6** (conditional composition) — the research capstone
 

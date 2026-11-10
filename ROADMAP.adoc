@@ -42,21 +42,25 @@ See `PROOF-STATUS.adoc` for the canonical active-vs-archived proof-status table.
 
 === What genuinely verifies
 
-* *Coq (reproduced):* **14 theories** compile from scratch under `coqc 8.18.0`
+The Coq, Lean 4, Isabelle/HOL and Mizar entries below are *historical receipts
+(2026-07-07)*: those trees were ARCHIVED on 2026-10-10 under `archive/proofs/` and
+are no longer built or gated. Agda, Z3 (bounded) and the Idris 2 ABI are active.
+
+* *Coq (reproduced 2026-07-07; ARCHIVED):* **14 theories** compiled from scratch under `coqc 8.18.0`
   (`coq_makefile -f _CoqProject`) — `common`, `category`, `quantum`, `lambda`,
   `filesystem`, `physics`, `malbolge`, and the new `ond`. Both pillars.
-* *OND pillar (reproduced):* `proofs/coq/ond/OND.v` proves **OND-1..5** with
+* *OND pillar (reproduced):* the archived `archive/proofs/coq/ond/OND.v` proved **OND-1..5** with
   **zero axioms** (every theorem `Closed under the global context`); mirrored in
   Lean 4, Agda, and Z3.
 * *Agda (reproduced):* `CNO.agda`, `OND.agda`, `EchoBridgeCNO.agda` type-check
   under `agda 2.6.3` (`--safe --without-K`); funext is an *explicit hypothesis*.
-* *Lean 4 (reproduced):* `lake build` green with Mathlib — CNO libraries + the
-  new `OND` library (`proofs/lean4/OND.lean`, 0 `sorry`).
+* *Lean 4 (reproduced 2026-07-07; ARCHIVED):* `lake build` was green with Mathlib — CNO libraries + the
+  new `OND` library (`archive/proofs/lean4/OND.lean`, 0 `sorry`).
 * *Z3 (reproduced):* CNO checks + OND bounded instances (`proofs/z3/ond/OND_checks.smt2`).
-* *Isabelle/HOL (reproduced):* session `AbsoluteZero-CNO` — `CNO.thy` (repaired)
-  + `OND.thy` build under Isabelle2025-2, 0 `sorry`.
-* *Mizar (reproduced):* `CNO.miz` rewritten into a genuine 12-theorem article;
-  `accom`+`verifier` → empty `CNO.err` (needs `proofs/mizar/dict/cno.voc`).
+* *Isabelle/HOL (reproduced 2026-07-07; ARCHIVED):* session `AbsoluteZero-CNO` — `CNO.thy` (repaired)
+  + `OND.thy` built under Isabelle2025-2, 0 `sorry`.
+* *Mizar (reproduced 2026-07-07; ARCHIVED):* `CNO.miz` rewritten into a genuine 12-theorem article;
+  `accom`+`verifier` → empty `CNO.err` (needs `archive/proofs/mizar/dict/cno.voc`).
 * *Idris 2 ABI (reproduced):* `absolute-zero-abi.ipkg` builds clean.
 * *Rust interpreters:* Brainfuck and Whitespace interpreters are real.
 
@@ -77,8 +81,10 @@ See `PROOF-STATUS.adoc` for the canonical active-vs-archived proof-status table.
   coinductive/step-indexed β non-termination argument).
 | OND-6 | Open by design | The conditional-composition theorem — research
   capstone; OND-1..5 landed, so the pillar is in honest, publishable shape.
-| CI proof verification | Missing | No workflow yet runs the provers; the local
-  gate `proofs/verify-all-provers.sh` is the reproducible source of truth.
+| CI proof verification | Active stack only | The CI `agda`, `z3` and `idris` jobs
+  (`proofs.yml`) check the active stack; `proofs/verify-active-provers.sh` is the local gate for the active
+  stack. The former six-prover gate is archived
+  (`archive/proofs/verify-all-provers.six-prover.sh`) and not run.
 | Paper | Draft stub | `papers/.latex/main.tex` is a lone draft.
 | Tests | Empty placeholder | `tests/` holds a README only.
 |===
@@ -137,7 +143,7 @@ coordinates as a pinned submodule. The theorem MAA actually cites is the
 *general reversibility biconditional*.
 
 * [x] *Reversibility <-> CNO bridge — landed in Coq (2026-07-16, zero axioms).*
-  `proofs/coq/common/CNO.v` proves the forward direction of the aletheia contract
+  `archive/proofs/coq/common/CNO.v` (archived 2026-10-10) proves the forward direction of the aletheia contract
   (`reversible_bridge_forward`: a two-sided inverse makes both composites
   `cno_equiv _ []`) and the backward direction up to `=st=`
   (`reversible_bridge_backward_upto`), via the core lemma

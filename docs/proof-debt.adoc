@@ -9,6 +9,11 @@ tagged `+METAL-BOUNDARY+` and (b) a small openly-labelled class-A set
 `+fidelity_bound+`). Three axioms turned out *unsound* and were
 removed/corrected (`+no_cloning+`, `+Cconj_Cexp+`, `+eta_equivalence+`).
 Current disposition: `+PROOF-STATUS.adoc+`.
+
+*Archive update (2026-10-10):* the Coq and Lean 4 trees this ledger cites were
+archived under `+archive/proofs/+` and are no longer built or gated; the file
+pointers below have been updated to the archived paths (line numbers are as
+recorded at triage time).
 ____
 
 *Schema*:
@@ -44,7 +49,7 @@ https://github.com/hyperpolymath/absolute-zero/issues/27[#27].
 === Phase 2a triage — Lean Lambda cluster (2026-05-27)
 
 Per-cluster Lean triage rolling out 2026-05-27 in cluster-sized PRs.
-First cluster: `+proofs/lean4/LambdaCNO.lean+` (3 axioms at triage time; 1 since 2026-09-22 — see the rows).
+First cluster: `+archive/proofs/lean4/LambdaCNO.lean+` (3 axioms at triage time; 1 since 2026-09-22 — see the rows).
 
 [width="99%",cols=">14%,26%,28%,32%",options="header",]
 |===
@@ -54,7 +59,7 @@ immediate from the semantic `+Closed+` definition.
 
 |237 |`+y_combinator_not_identity+` |§(c) AXIOM |Non-termination claim
 about Y combinator; requires step-indexed semantics or coinduction (same
-justification as Coq `+y_not_cno+`, `+proofs/coq/lambda/LambdaCNO.v:399+`).
+justification as Coq `+y_not_cno+`, `+archive/proofs/coq/lambda/LambdaCNO.v:399+`).
 
 |308 |`+eta_equivalence+` |THEOREM (restricted) |The unrestricted statement
 is *false* (counterexample `+f = LVar 5+`, exactly as Coq found at
@@ -69,7 +74,7 @@ comments. The §(d) entry below has an owner + deadline.
 
 === Phase 2c triage — Lean Filesystem cluster (2026-05-27, DISCHARGED 2026-09-26)
 
-Second Lean cluster: `+proofs/lean4/FilesystemCNO.lean+` (**21 → 0 axioms** — *DISCHARGED 2026-09-26*, issue #167).
+Second Lean cluster: `+archive/proofs/lean4/FilesystemCNO.lean+` (**21 → 0 axioms** — *DISCHARGED 2026-09-26*, issue #167).
 All 10 primitive operations (`mkdir`, `rmdir`, `create`, `unlink`, `readFile`,
 `writeFile`, `stat`, `chmod`, `chown`, `rename`), the 2 snapshot operations (`snapshot`, `restore`),
 and all 9 laws and properties (`mkdir_rmdir_inverse`, `create_unlink_inverse`,
@@ -81,7 +86,7 @@ the Coq concrete filesystem model. `AxiomAudit.lean` §D verifies that all
 
 === Phase 2d triage — Lean Quantum cluster (2026-05-27)
 
-Third Lean cluster: `+proofs/lean4/QuantumCNO.lean+` (14 axioms).
+Third Lean cluster: `+archive/proofs/lean4/QuantumCNO.lean+` (14 axioms).
 
 ==== Hilbert-space + gate primitives (§(c) AXIOM, 7)
 
@@ -147,7 +152,7 @@ leading comments.
 
 === Phase 2e triage — Lean StatMech cluster (2026-05-27)
 
-Fourth Lean cluster: `+proofs/lean4/StatMech.lean+` (14 axioms).
+Fourth Lean cluster: `+archive/proofs/lean4/StatMech.lean+` (14 axioms).
 
 ==== Physical constants (§(c) AXIOM — duplicate of Coq, 4)
 
@@ -229,7 +234,7 @@ longer in §(d).
 
 ==== Coq — provable, awaiting proof
 
-* `+proofs/coq/category/CNOCategory.v:323+` — `+hom_functor+`
+* `+archive/proofs/coq/category/CNOCategory.v:323+` — `+hom_functor+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: replace `+Axiom hom_functor : ... Functor C C+` with the
 proper Yoneda construction `+Functor C SetCategory+`. The file’s leading
@@ -242,93 +247,93 @@ comment (L312-322) records why this is currently axiomatised: (1)
 (Phase 1, #58).
 ** *Deadline*: INDEFINITE (blocked on `+SetCategory+` instance —
 universe-polymorphism scaffolding precondition).
-* `+proofs/coq/filesystem/FilesystemCNO.v:300+` — `+mkdir_not_identity+`
+* `+archive/proofs/coq/filesystem/FilesystemCNO.v:300+` — `+mkdir_not_identity+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: existence proof; exhibit one concrete `+fs+` lacking the
 path. Triaged DISCHARGE in #58.
 ** *Deadline*: INDEFINITE (small proof; awaits a discharge PR).
-* `+proofs/coq/filesystem/FilesystemCNO.v:316+` —
+* `+archive/proofs/coq/filesystem/FilesystemCNO.v:316+` —
 `+write_different_not_identity+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: existence proof; exhibit one concrete content mismatch.
 Triaged DISCHARGE in #58.
 ** *Deadline*: INDEFINITE.
-* `+proofs/coq/filesystem/FilesystemCNO.v:397+` — `+transaction_cno+`
+* `+archive/proofs/coq/filesystem/FilesystemCNO.v:397+` — `+transaction_cno+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: composite theorem; derivable from primitive `+_inverse+`
 axioms once a `+transaction+` definition is in place. Triaged DISCHARGE
 in #58.
 ** *Deadline*: INDEFINITE (blocked on `+transaction+` definition).
-* `+proofs/coq/filesystem/FilesystemCNO.v:421+` — `+mkdir_idempotent+`
+* `+archive/proofs/coq/filesystem/FilesystemCNO.v:421+` — `+mkdir_idempotent+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: follows from `+mkdir_rmdir_inverse+` family + stronger
 repeat-mkdir semantics. Triaged DISCHARGE in #58.
 ** *Deadline*: INDEFINITE.
-* `+proofs/coq/filesystem/FilesystemCNO.v:453+` —
+* `+archive/proofs/coq/filesystem/FilesystemCNO.v:453+` —
 `+snapshot_restore_identity+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: composite theorem; derivable from primitive `+_identity+` /
 `+_inverse+` axioms once a snapshot model lands. Triaged DISCHARGE in
 #58.
 ** *Deadline*: INDEFINITE.
-* `+proofs/coq/quantum/QuantumCNO.v:258+` — `+global_phase_unitary+`
+* `+archive/proofs/coq/quantum/QuantumCNO.v:258+` — `+global_phase_unitary+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: derivable from gate algebra: `+(e^{iθ} U)+` is unitary iff
 `+U+` is. Triaged DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE (needs `+is_unitary+` algebraic lemmas).
-* `+proofs/coq/quantum/QuantumCNO.v:283+` — `+X_gate_not_identity+`
+* `+archive/proofs/coq/quantum/QuantumCNO.v:283+` — `+X_gate_not_identity+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: existence proof; exhibit `\|0⟩` as witness once a concrete
 basis state is in the model. Triaged DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE (blocked on concrete basis-state model).
-* `+proofs/coq/quantum/QuantumCNO.v:296+` — `+H_gate_not_identity+`
+* `+archive/proofs/coq/quantum/QuantumCNO.v:296+` — `+H_gate_not_identity+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: existence proof; exhibit `\|0⟩` as witness. Triaged
 DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE (blocked on concrete basis-state model).
-* `+proofs/coq/quantum/QuantumCNO.v:487+` — `+unitary_inverse_property+`
+* `+archive/proofs/coq/quantum/QuantumCNO.v:487+` — `+unitary_inverse_property+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: follows from `+is_unitary+` definition (`+U†U = I+`). Triaged
 DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE.
-* `+proofs/coq/quantum/QuantumCNO.v:545+` —
+* `+archive/proofs/coq/quantum/QuantumCNO.v:545+` —
 `+unitary_zero_entropy_change+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: derivable from `+unitary_preserves_entropy+` + entropy
 definition. Triaged DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE.
-* `+proofs/coq/quantum/QuantumCNO.v:551+` —
+* `+archive/proofs/coq/quantum/QuantumCNO.v:551+` —
 `+reversible_quantum_zero_dissipation+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: derivable from `+quantum_landauer_bound+` + unitarity.
 Triaged DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE.
-* `+proofs/coq/quantum/QuantumCNO.v:584+` — `+fidelity_bound+`
+* `+archive/proofs/coq/quantum/QuantumCNO.v:584+` — `+fidelity_bound+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: provable from `+inner_product_pos_def+` + Cauchy-Schwarz.
 Triaged DISCHARGE in #58 (Phase 2d).
 ** *Deadline*: INDEFINITE.
-* `+proofs/coq/physics/StatMech.v:229+` —
+* `+archive/proofs/coq/physics/StatMech.v:229+` —
 `+reversible_zero_dissipation+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: derivable from `+landauer_principle+` + reversibility
 hypothesis. Triaged DISCHARGE in #58 (Phase 2e).
 ** *Deadline*: INDEFINITE.
-* `+proofs/coq/physics/LandauerDerivation.v:81+` —
+* `+archive/proofs/coq/physics/LandauerDerivation.v:81+` —
 `+shannon_entropy_additive+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: chain rule of entropy; provable from the definition of
 `+H(X,Y)+` given an independence hypothesis. Triaged DISCHARGE in #58
 (Phase 2e).
 ** *Deadline*: INDEFINITE (blocked on `+product_dist+` semantics).
-* `+proofs/coq/physics/LandauerDerivation.v:277+` —
+* `+archive/proofs/coq/physics/LandauerDerivation.v:277+` —
 `+cno_preserves_shannon_entropy+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: should follow from the CNO definition (state in = state out)
 + functional Shannon entropy. Triaged DISCHARGE in #58 (Phase 2e).
 ** *Deadline*: INDEFINITE (blocked on bijection-preserves-entropy
 machinery).
-* `+proofs/coq/physics/LandauerDerivation.v:326+` —
+* `+archive/proofs/coq/physics/LandauerDerivation.v:326+` —
 `+cno_zero_energy_dissipation_derived+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: name literally says `+_derived+`; the file admits this rather
@@ -339,23 +344,23 @@ than discharging it. Should follow from
 
 ==== Lean — provable, awaiting proof
 
-* `+proofs/lean4/LambdaCNO.lean:184+` — `+subst_closed_term+` — *DISCHARGED
+* `+archive/proofs/lean4/LambdaCNO.lean:184+` — `+subst_closed_term+` — *DISCHARGED
 2026-09-22* (fix PR for #125): now a `+theorem+`; it is immediate from the
 semantic definition of `+Closed+` (`+h n s (Nat.zero_le n)+`).
-* `+proofs/lean4/FilesystemCNO.lean+` — all 21 axioms (`mkdir_not_identity`,
+* `+archive/proofs/lean4/FilesystemCNO.lean+` — all 21 axioms (`mkdir_not_identity`,
 `snapshot_restore_identity`, `mkdir_idempotent`, operations and laws) — *DISCHARGED
 2026-09-26* (issue #167): concrete model ported from Coq `FilesystemCNO.v`.
-* `+proofs/lean4/QuantumCNO.lean:134+` — `+X_gate_not_identity+`
+* `+archive/proofs/lean4/QuantumCNO.lean:134+` — `+X_gate_not_identity+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: existence proof; exhibit `\|0⟩` as witness once a concrete
 basis state is in the model. Mirrors Coq site at `+QuantumCNO.v:283+`.
 ** *Deadline*: INDEFINITE.
-* `+proofs/lean4/QuantumCNO.lean:144+` — `+H_gate_not_identity+`
+* `+archive/proofs/lean4/QuantumCNO.lean:144+` — `+H_gate_not_identity+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: existence proof; exhibit `\|0⟩` as witness. Mirrors Coq site
 at `+QuantumCNO.v:296+`.
 ** *Deadline*: INDEFINITE.
-* `+proofs/lean4/QuantumCNO.lean:235+` — `+unitary_inverse_property+`
+* `+archive/proofs/lean4/QuantumCNO.lean:235+` — `+unitary_inverse_property+`
 ** *Owner*: @hyperpolymath
 ** *Plan*: follows from `+isUnitary+` definition (`+U†U = I+`). Mirrors
 Coq site at `+QuantumCNO.v:487+`.

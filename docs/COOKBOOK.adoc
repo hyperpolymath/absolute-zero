@@ -13,6 +13,18 @@ v1.0, 2025-11-22
 
 This cookbook provides practical, step-by-step instructions for working with the *Absolute Zero* project — a formal verification framework for Certified Null Operations (CNOs).
 
+[IMPORTANT]
+.Archive notice (2026-10-10)
+====
+The Coq, Lean 4, Isabelle/HOL and Mizar trees this cookbook was written around
+were archived on 2026-10-10 under `archive/proofs/` and are no longer built or
+gated. The active stack is Agda (`proofs/agda/`) + Z3 bounded checks
+(`proofs/z3/`) + the Idris 2 ABI; run `just verify`
+(`proofs/verify-active-provers.sh`). Paths below that name the archived provers
+point at `archive/proofs/…`; the workflows and status figures for those provers
+are historical. See `PROOF-STATUS.adoc` for the canonical status table.
+====
+
 === What This Project Does
 
 Absolute Zero formally proves that certain programs provably compute *nothing*:
@@ -30,11 +42,11 @@ Absolute Zero formally proves that certain programs provably compute *nothing*:
 
 |Coq 8.19
 |Core CNO theory, physics proofs
-|70% complete
+|ARCHIVED 2026-10-10 (historical: 70% complete)
 
 |Lean 4
 |Alternative verification, category theory
-|66% complete
+|ARCHIVED 2026-10-10 (historical: 66% complete)
 
 |Z3 4.13
 |SMT-based automated verification
@@ -46,7 +58,7 @@ Absolute Zero formally proves that certain programs provably compute *nothing*:
 
 |Isabelle/HOL
 |Higher-order logic
-|100% (foundational)
+|ARCHIVED 2026-10-10 (historical: 100% foundational)
 |===
 
 == Quick Start
@@ -158,13 +170,13 @@ If neither `just` nor Oil shell is available:
 [source,bash]
 ----
 # Build Coq proofs
-cd proofs/coq/common && coqc CNO.v
+cd archive/proofs/coq/common && coqc CNO.v
 cd ../physics && coqc -R ../common CNO StatMech.v
 cd ../physics && coqc -R ../common CNO LandauerDerivation.v
 cd ../quantum && coqc -R ../common CNO QuantumMechanicsExact.v
 
 # Build Lean 4 proofs
-cd proofs/lean4 && lake build
+cd archive/proofs/lean4 && lake build
 
 # Verify Z3 specifications
 z3 proofs/z3/cno_properties.smt2
@@ -180,7 +192,7 @@ npm install && npm run build
 ==== Project Structure
 [source,text]
 ----
-proofs/coq/
+archive/proofs/coq/
 ├── common/
 │   └── CNO.v              # Core CNO theory (Phase 1)
 ├── physics/
@@ -233,10 +245,10 @@ just verify-coq
 [source,bash]
 ----
 # How many theorems are incomplete?
-grep -r "Admitted\." proofs/coq/ | wc -l
+grep -r "Admitted\." archive/proofs/coq/ | wc -l
 
 # Where are they?
-grep -r "Admitted\." proofs/coq/
+grep -r "Admitted\." archive/proofs/coq/
 
 # Proof statistics
 just proof-status
@@ -247,7 +259,7 @@ just proof-status
 ==== Project Structure
 [source,text]
 ----
-proofs/lean4/
+archive/proofs/lean4/
 ├── lakefile.lean          # Build configuration
 ├── CNO.lean               # Core CNO theory
 ├── StatMech.lean          # Statistical mechanics
@@ -280,7 +292,7 @@ theorem my_new_theorem (p : CNO.Program) :
 
 [source,bash]
 ----
-cd proofs/lean4
+cd archive/proofs/lean4
 
 # Update dependencies
 lake update
@@ -329,7 +341,7 @@ z3 proofs/z3/cno_properties.smt2
 
 *Status*: All proofs complete, 0 `Admitted`
 
-Key theorems in `proofs/coq/common/CNO.v`:
+Key theorems in `archive/proofs/coq/common/CNO.v`:
 
 [cols="1,2"]
 |===
@@ -531,7 +543,7 @@ Valence Shell operations can be proven as CNOs:
 [source,coq]
 ----
 (* Precondition: no directory already at [path] — without it the law is false
-   (repeat mkdir is idempotent), see proofs/coq/filesystem/FilesystemCNO.v and
+   (repeat mkdir is idempotent), see archive/proofs/coq/filesystem/FilesystemCNO.v and
    absolute-zero#125. *)
 Theorem mkdir_rmdir_is_cno :
   forall (path : Path) (fs : Filesystem),
@@ -548,7 +560,7 @@ Theorem mkdir_rmdir_is_cno :
 *Solution*:
 [source,bash]
 ----
-cd proofs/coq/common && coqc CNO.v
+cd archive/proofs/coq/common && coqc CNO.v
 ----
 
 *Problem*: `Admitted` statements
@@ -562,7 +574,7 @@ cd proofs/coq/common && coqc CNO.v
 *Solution*:
 [source,bash]
 ----
-cd proofs/lean4
+cd archive/proofs/lean4
 lake update
 ----
 
@@ -671,10 +683,10 @@ See `FORMAL_ANALYSIS_PHASE1.md` for complete analysis.
 |`VERIFICATION_RESULTS.md`
 |Latest verification results
 
-|`proofs/coq/common/CNO.v`
+|`archive/proofs/coq/common/CNO.v`
 |Core Coq proofs (Phase 1)
 
-|`proofs/lean4/CNO.lean`
+|`archive/proofs/lean4/CNO.lean`
 |Core Lean 4 proofs
 
 |`proofs/z3/cno_properties.smt2`

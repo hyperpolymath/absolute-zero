@@ -17,8 +17,9 @@ proofs themselves are deferred to a dedicated effort.
 .STATUS UPDATE — 2026-07-06: OND-1..5 + OND-7 LANDED
 ====
 The dedicated effort has since run. *OND-1, OND-2, OND-3, OND-4, and OND-5 are
-now proved and machine-checked* — Coq (`proofs/coq/ond/OND.v`), Lean 4
-(`proofs/lean4/OND.lean`), and Agda (`proofs/agda/OND.agda`), with the bounded
+now proved and machine-checked* — Coq (`archive/proofs/coq/ond/OND.v`), Lean 4
+(`archive/proofs/lean4/OND.lean`) — both archived 2026-10-10 and no longer
+built or gated — and Agda (`proofs/agda/OND.agda`), with the bounded
 instances confirmed in Z3 (`proofs/z3/ond/OND_checks.smt2`). Every OND theorem
 in Coq reports `Closed under the global context` — *zero axioms, zero admits*.
 The independence theorem (OND-3) is additionally anchored to the *real* core

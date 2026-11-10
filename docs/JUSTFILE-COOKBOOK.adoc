@@ -13,7 +13,7 @@ v1.0, 2025-11-22
 
 This cookbook documents all `just` recipes in the Absolute Zero project. Every recipe is explained with examples, flags, and common usage patterns.
 
-WARNING: `just --list` is authoritative. The Appendix recipe list and dependency graph were regenerated from it on 2026-10-01. Nine per-recipe sections below describe recipes the Justfile no longer defines: `build-z3`, `check-tools`, `clean-all`, `docs-adoc`, `docs-all`, `docs-proof-stats`, `install-help`, `loc` and `quick-check`. Treat them as historical until this cookbook is rewritten.
+WARNING: `just --list` is authoritative. The Appendix recipe list and dependency graph were regenerated from it on 2026-10-01. Nine per-recipe sections below describe recipes the Justfile no longer defines: `build-z3`, `check-tools`, `clean-all`, `docs-adoc`, `docs-all`, `docs-proof-stats`, `install-help`, `loc` and `quick-check`. Treat them as historical until this cookbook is rewritten. The `build-coq`, `build-lean` and `verify-coq` sections are historical too: the Coq, Lean 4, Isabelle/HOL and Mizar trees were archived on 2026-10-10 under `archive/proofs/` and are no longer built or gated. Paths in those sections point at the archived trees (sample outputs are left as originally written). The active gate is `just verify` (`proofs/verify-active-provers.sh`: Agda + Z3 bounded + Idris 2 ABI).
 
 === Quick Reference
 
@@ -30,9 +30,9 @@ just ci                 # Run full CI pipeline
 
 === build-all
 
-Build all proof systems and interpreters.
+Build the active provers and the Idris ABI.
 
-*Dependencies*: build-coq, build-lean, build-agda, build-isabelle, build-mizar, build-idris
+*Dependencies*: build-agda, build-idris
 
 [source,bash]
 ----
@@ -40,12 +40,11 @@ just build-all
 ----
 
 *What it does*:
-1. Compiles Coq proofs
-2. Compiles Lean 4 proofs
-3. Compiles Agda proofs
-4. Builds Isabelle/HOL proofs
-5. Checks Mizar proofs
-6. Builds the Idris2 ABI
+1. Compiles the Agda proofs (`build-agda`)
+2. Builds the Idris2 ABI (`build-idris`)
+
+Coq, Lean 4, Isabelle/HOL and Mizar were part of this recipe until the
+2026-10-10 archive ruling; they are archived under `archive/proofs/` and not built.
 
 *Exit codes*:
 - `0`: All builds successful
@@ -61,11 +60,11 @@ just build-coq
 ----
 
 *Build order*:
-1. `proofs/coq/common/CNO.v` (core definitions)
-2. `proofs/coq/physics/StatMech.v` (requires CNO)
-3. `proofs/coq/physics/LandauerDerivation.v` (requires CNO)
-4. `proofs/coq/quantum/QuantumMechanicsExact.v` (requires CNO)
-5. `proofs/coq/malbolge/MalbolgeCore.v` (requires CNO)
+1. `archive/proofs/coq/common/CNO.v` (core definitions)
+2. `archive/proofs/coq/physics/StatMech.v` (requires CNO)
+3. `archive/proofs/coq/physics/LandauerDerivation.v` (requires CNO)
+4. `archive/proofs/coq/quantum/QuantumMechanicsExact.v` (requires CNO)
+5. `archive/proofs/coq/malbolge/MalbolgeCore.v` (requires CNO)
 
 *Flags used*:
 - `-R ../common CNO`: Maps `common` directory to `CNO` namespace
@@ -95,7 +94,7 @@ just build-lean
 ----
 
 *What it does*:
-1. Changes to `proofs/lean4/`
+1. Changes to `archive/proofs/lean4/`
 2. Runs `lake build`
 3. Compiles all `.lean` files
 4. Downloads Mathlib dependencies if needed
@@ -103,7 +102,7 @@ just build-lean
 *First-time setup*:
 [source,bash]
 ----
-cd proofs/lean4
+cd archive/proofs/lean4
 lake update  # Update dependencies
 lake build   # Build everything
 ----
@@ -398,11 +397,11 @@ just clean-coq
 *Files removed*:
 [source,bash]
 ----
-find proofs/coq -name "*.vo" -delete
-find proofs/coq -name "*.vok" -delete
-find proofs/coq -name "*.vos" -delete
-find proofs/coq -name "*.glob" -delete
-find proofs/coq -name ".*.aux" -delete
+find archive/proofs/coq -name "*.vo" -delete
+find archive/proofs/coq -name "*.vok" -delete
+find archive/proofs/coq -name "*.vos" -delete
+find archive/proofs/coq -name "*.glob" -delete
+find archive/proofs/coq -name ".*.aux" -delete
 ----
 
 === clean-lean
@@ -417,7 +416,7 @@ just clean-lean
 *What it does*:
 [source,bash]
 ----
-cd proofs/lean4 && lake clean
+cd archive/proofs/lean4 && lake clean
 ----
 
 *Removes*:
@@ -720,7 +719,7 @@ import "justfile"
 
 # Override build-coq with custom flags
 build-coq-custom:
-    coqc -verbose -R proofs/coq/common CNO proofs/coq/common/CNO.v
+    coqc -verbose -R archive/proofs/coq/common CNO archive/proofs/coq/common/CNO.v
 ----
 
 Then:

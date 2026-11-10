@@ -3,9 +3,11 @@
 # Verification Results: Phase 1 Completion and Cross-Solver Proofs
 
 > **SUPERSEDED / HISTORICAL (2025-11-22 session).** This is a point-in-time
-> session log. Current reproduced status: both pillars machine-checked across
-> six provers + Idris (PR #100, 2026-07-06) — see `PROOF-STATUS.adoc` and run
-> `proofs/verify-all-provers.sh` (`ALL-PROVERS-GREEN`). Counts below are historical.
+> session log. Both pillars were machine-checked across six provers + Idris
+> (PR #100, 2026-07-06); since the 2026-10-10 archive ruling the active stack is
+> Agda + Z3 (bounded) + the Idris 2 ABI — run `proofs/verify-active-provers.sh`
+> (`ACTIVE-PROVERS-GREEN`). The Coq and Lean files cited below are archived under
+> `archive/proofs/`. See `PROOF-STATUS.adoc`. Counts below are historical.
 
 **Date**: 2025-11-22
 **Session**: Proof Completion and Automated Verification

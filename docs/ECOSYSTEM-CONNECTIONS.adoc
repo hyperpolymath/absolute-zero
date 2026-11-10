@@ -19,8 +19,8 @@ sibling projects in the hyperpolymath estate.
 *Connection:*
 JanusKey relies on the mathematical guarantee that filesystem actions carry sufficient
 inversion data to guarantee exact state restoration. Absolute Zero's
-`FilesystemCNO` (`proofs/coq/filesystem/FilesystemCNO.v` and `proofs/lean4/FilesystemCNO.lean`)
-provides the formal verification kernel for JanusKey:
+`FilesystemCNO` (`archive/proofs/coq/filesystem/FilesystemCNO.v` and `archive/proofs/lean4/FilesystemCNO.lean`,
+both archived 2026-10-10 and no longer built or gated) provided the formal verification kernel for JanusKey:
 
 * `mkdir_rmdir_inverse` and `create_unlink_inverse` verify atomic create/destroy inverse pairs under occupancy preconditions (`noDirAt`, `noFileAt`).
 * `read_write_identity` and `chmod_identity` verify that idempotent updates cause zero net state delta.
@@ -41,7 +41,7 @@ provides the formal verification kernel for JanusKey:
 *Domain:* Type-theoretic verification engine and categorical foundations for database query validation.
 
 *Connection:*
-* `proofs/coq/category/CNOCategory.v` and `proofs/lean4/CNOCategory.lean` prove that CNOs correspond to identity morphisms in the category of state transitions.
+* `archive/proofs/coq/category/CNOCategory.v` and `archive/proofs/lean4/CNOCategory.lean` (archived 2026-10-10, no longer built or gated) proved that CNOs correspond to identity morphisms in the category of state transitions.
 * Functors preserving CNOs guarantee that query transformations do not introduce side effects or alter transactional consistency invariants.
 
 == 4. Robodog Defensive Systems Lab (`hyperpolymath/robodog-defensive-systems-lab`)

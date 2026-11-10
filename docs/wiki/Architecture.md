@@ -62,15 +62,15 @@ absolute-zero calls into it via the `echidna-llm-mcp` BoJ cartridge —
 ## Data flow on `just verify`
 
 ```
-verification/setup-and-verify.sh
-  ├── proofs/coq         → coqc -R common CNO ...
-  ├── proofs/lean4       → lake build
-  ├── proofs/agda        → agda CNO.agda
-  ├── proofs/isabelle    → isabelle build
-  ├── proofs/z3          → z3 *.smt2
-  ├── src/abi            → idris2 --build absolute-zero-abi.ipkg
-  └── cargo build --release
+proofs/verify-active-provers.sh
+  ├── proofs/agda        → agda --safe --without-K (CNO, OND, EchoBridgeScaffold, EchoBridgeCNO)
+  ├── proofs/z3          → proofs/z3/verify.sh (expect-annotated bounded checks)
+  └── src/abi            → idris2 --build absolute-zero-abi.ipkg
 ```
+
+The Coq, Lean 4, Isabelle/HOL and Mizar trees were archived on 2026-10-10
+under `archive/proofs/` (`coq/`, `lean4/`, `isabelle/`, `mizar/`) and are not run.
+The former six-prover gate is `archive/proofs/verify-all-provers.six-prover.sh`.
 
 ## Why this taxonomy
 

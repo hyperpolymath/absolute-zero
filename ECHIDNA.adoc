@@ -15,6 +15,16 @@ This document describes integrating the **hyperpolymath ECHIDNA neurosymbolic th
 
 **Status**: ✅ **TRUSTED** - Production-ready with comprehensive trust framework
 
+[IMPORTANT]
+.Archive notice (2026-10-10)
+====
+This plan was written around the Coq and Lean 4 trees, which were archived on
+2026-10-10 under `archive/proofs/` (with Isabelle/HOL and Mizar) and are no
+longer built or gated. Input paths below point at `archive/proofs/…`. The active
+stack is Agda (`proofs/agda/`) + Z3 bounded checks (`proofs/z3/`) + the Idris 2
+ABI, run by `proofs/verify-active-provers.sh`; see `PROOF-STATUS.adoc`.
+====
+
 ---
 
 == Trust Assessment
@@ -95,7 +105,7 @@ This document describes integrating the **hyperpolymath ECHIDNA neurosymbolic th
 
 == Architecture Integration
 
-=== Current Absolute Zero Stack
+=== Absolute Zero Stack (as of writing; historical since 2026-10-10)
 
 ```
 ┌─────────────────────────────────────────┐
@@ -229,7 +239,7 @@ pack install idris2-echidna
 
 # Test validator
 pack exec idris2-echidna -- validate \
-  --proof ~/Documents/hyperpolymath-repos/absolute-zero/proofs/coq/common/CNO.v \
+  --proof ~/Documents/hyperpolymath-repos/absolute-zero/archive/proofs/coq/common/CNO.v \
   --prover Coq
 ```
 
@@ -248,17 +258,17 @@ cd ~/Documents/hyperpolymath-repos/absolute-zero
 mkdir -p tools/echidna/cno-corpus
 
 # Coq proofs (Phase 1-4 complete)
-find proofs/coq -name "*.v" -exec cat {} \; > tools/echidna/cno-corpus/coq_proofs.v
+find archive/proofs/coq -name "*.v" -exec cat {} \; > tools/echidna/cno-corpus/coq_proofs.v
 
 # Lean 4 proofs
-find proofs/lean4 -name "*.lean" -exec cat {} \; > tools/echidna/cno-corpus/lean_proofs.lean
+find archive/proofs/lean4 -name "*.lean" -exec cat {} \; > tools/echidna/cno-corpus/lean_proofs.lean
 
 # Z3 SMT specifications
 cp proofs/z3/cno_properties.smt2 tools/echidna/cno-corpus/
 
 # Count theorems
-echo "Coq theorems:" $(grep -c "Theorem\|Lemma" proofs/coq/common/CNO.v)
-echo "Lean theorems:" $(grep -c "theorem\|lemma" proofs/lean4/CNO.lean)
+echo "Coq theorems:" $(grep -c "Theorem\|Lemma" archive/proofs/coq/common/CNO.v)
+echo "Lean theorems:" $(grep -c "theorem\|lemma" archive/proofs/lean4/CNO.lean)
 echo "Z3 assertions:" $(grep -c "assert.*theorem" proofs/z3/cno_properties.smt2)
 ```
 
@@ -340,7 +350,7 @@ echidna-repl:
 echidna-complete:
     @echo "Attempting to complete 21 Admitted proofs..."
     cd tools/echidna/neurosym && ./target/release/echidna complete \
-      --proof-dir ../../proofs/coq \
+      --proof-dir ../../archive/proofs/coq \
       --output-dir ../../proofs/coq-completed \
       --prover Coq \
       --max-tactics 50
@@ -359,7 +369,7 @@ Target: 21 Admitted → 0
 cd ~/Documents/hyperpolymath-repos/absolute-zero
 
 # List all Admitted proofs
-grep -rn "Admitted" proofs/coq/ | tee admitted_list.txt
+grep -rn "Admitted" archive/proofs/coq/ | tee admitted_list.txt
 
 # Use ECHIDNA to suggest completions
 just echidna-start
@@ -371,7 +381,7 @@ cat proofs/coq-completed/*.v
 # Manually verify and integrate
 for file in proofs/coq-completed/*.v; do
   echo "Reviewing: $file"
-  diff proofs/coq/$(basename $file) $file
+  diff archive/proofs/coq/$(basename $file) $file
   # If valid, replace
 done
 ```
@@ -379,7 +389,7 @@ done
 **Example ECHIDNA session:**
 
 ```coq
-echidna> load proofs/coq/physics/StatMech.v
+echidna> load archive/proofs/coq/physics/StatMech.v
 echidna> focus bennett_logical_implies_thermodynamic
 echidna> suggest
 
@@ -418,7 +428,7 @@ cd ~/Documents/hyperpolymath-repos/absolute-zero
 just echidna-start
 
 # Multi-prover verification
-for thm in $(grep "Theorem\|Lemma" proofs/coq/common/CNO.v | awk '{print $2}'); do
+for thm in $(grep "Theorem\|Lemma" archive/proofs/coq/common/CNO.v | awk '{print $2}'); do
   echo "Verifying $thm..."
 
   # Translate to multiple formats
@@ -508,7 +518,7 @@ echidna_neurosym:
     # Verify all proofs with multi-prover consensus
     - cd ../../..
     - ./tools/echidna/neurosym/target/release/echidna verify-all \
-        --proof-dir proofs/coq \
+        --proof-dir archive/proofs/coq \
         --provers "Coq,Lean4,Z3" \
         --consensus 2 \
         --output echidna-report.json
@@ -574,7 +584,7 @@ chmod +x .git/hooks/pre-commit
 # Interactive REPL session
 just echidna-repl
 
-echidna> load proofs/coq/physics/StatMech.v
+echidna> load archive/proofs/coq/physics/StatMech.v
 echidna> focus cno_logically_reversible
 echidna> suggest
 echidna> apply suggestion 1
@@ -604,14 +614,14 @@ cat verification_report.json | jq '.consensus'
 ```bash
 # Translate Coq proof to Lean 4
 ./tools/echidna/neurosym/target/release/echidna translate \
-  --input proofs/coq/common/CNO.v \
+  --input archive/proofs/coq/common/CNO.v \
   --from Coq \
   --to Lean4 \
   --output proofs/lean4/CNO_translated.lean
 
 # Verify translation is equivalent
 ./tools/echidna/neurosym/target/release/echidna diff \
-  --proof1 proofs/coq/common/CNO.v \
+  --proof1 archive/proofs/coq/common/CNO.v \
   --proof2 proofs/lean4/CNO_translated.lean
 ```
 

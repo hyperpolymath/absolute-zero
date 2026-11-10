@@ -38,10 +38,10 @@ of 23+ languages.
 
 ## Status (live)
 
-* **Phase**: two-pillar completion / hardening (~88%). Both pillars machine-checked across **six provers + Idris** (PR #100) — run `proofs/verify-all-provers.sh` → `ALL-PROVERS-GREEN`.
-* **Coq**: 14/14 theories compile (CNO + OND), 0 Admitted; CNO axioms cut 98→small classified remainder; **OND** (`ond/OND.v`) OND-1..5 proved with zero axioms.
-* **Lean 4**: `lake build` green (Mathlib) incl. the new `OND` lib; 0 `sorry`.
-* **Agda / Z3 / Isabelle / Mizar**: CNO + OND verified (Agda `OND.agda`; Z3 `ond/OND_checks.smt2`; Isabelle `AbsoluteZero-CNO` session; Mizar `CNO.miz` → empty `.err`).
+* **Phase**: two-pillar completion / hardening (~88%). Both pillars were machine-checked across **six provers + Idris** (PR #100, 2026-07-06). Since the 2026-10-10 archive ruling the active stack is **Agda + Z3 (bounded) + Idris 2 ABI** — run `proofs/verify-active-provers.sh` → `ACTIVE-PROVERS-GREEN`. Coq, Lean 4, Isabelle/HOL and Mizar are archived under `archive/proofs/` (not built or gated); the six-prover gate is `archive/proofs/verify-all-provers.six-prover.sh`.
+* **Coq (archived, `archive/proofs/coq/`)**: 14/14 theories compiled (CNO + OND), 0 Admitted; CNO axioms cut 98→small classified remainder; **OND** (`ond/OND.v`) OND-1..5 proved with zero axioms.
+* **Lean 4 (archived, `archive/proofs/lean4/`)**: `lake build` was green (Mathlib) incl. the new `OND` lib; 0 `sorry`.
+* **Agda / Z3** (active): Agda type-checks CNO + OND (`CNO.agda`, `OND.agda`); Z3 runs the OND bounded checks (`ond/OND_checks.smt2`). **Isabelle / Mizar** (archived): Isabelle `AbsoluteZero-CNO` session and Mizar `CNO.miz` → empty `.err` were verified on 2026-07-07.
 * **Idris2 ABI**: `absolute-zero-abi.ipkg` builds clean under 0.8.0.
 * For the authoritative live state, read [`.machine_readable/descriptiles/STATE.a2ml`](../../.machine_readable/descriptiles/STATE.a2ml)
 
@@ -49,8 +49,8 @@ of 23+ languages.
 provers + the Idris ABI: the OND (disclosure) pillar was authored from scratch
 (OND-1..5 proved, zero axioms; OND-6 open by design), CNO axioms were cut from 98
 to a small classified remainder, three latent-unsound axioms were found and fixed,
-and Isabelle/Mizar/Idris were brought to green. Reproduce with
-`proofs/verify-all-provers.sh`.
+and Isabelle/Mizar/Idris were brought to green. Reproduced then with
+`proofs/verify-all-provers.sh` (now archived as `archive/proofs/verify-all-provers.six-prover.sh`).
 
 ## Project layout (RSR-aligned)
 
