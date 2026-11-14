@@ -20,8 +20,8 @@
 (repo-deed
   :schema-version "1.0.0"
   :canonical-name "absolute-zero"
-  :beholding-chora #u5"estate/chora"
-  :repo-uuid #u5"github.com/hyperpolymath/absolute-zero"
+  :beholding-chora #uuid"0889b37b-defb-831f-973c-e119500db00e"
+  :repo-uuid #uuid"1ee6db20-7303-8af9-8540-30a475970fdc"
 
   ; The canon pin: which release of hyperpolymath/standards canon.lock this repo
   ; implements. Exactly one pin (deed_canon refuses zero or two). Values copied
