@@ -231,9 +231,10 @@ Census: 19 rows; 18 `PWG-3`, 0 `PWG-2i`, 0 `PWG-2ii`, 0 `PWG-1`, 1 `ungraded`
 |===
 
 OND-1 is the definition `is-OND` and is not a row. The test modules
-`CNOTests.agda` and `EchoBridgeCNOTests.agda` are not in the receipt: the CI
-`agda` job does not check them. They pass locally under the same invocation
-(Agda 2.6.3, stdlib v1.7.3, 2026-11-17).
+`CNOTests.agda` and `EchoBridgeCNOTests.agda` are not roots of the receipt.
+The CI `agda` job and `proofs/verify-active-provers.sh` check them from
+2026-11-17 on, under the same invocation; the receipt's run predates that.
+They passed locally then (Agda 2.6.3, stdlib v1.7.3).
 
 A later commit that changes a file in the receipt's manifests is not
 described by it. Such a change needs a new receipt.

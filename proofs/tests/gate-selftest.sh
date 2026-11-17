@@ -27,9 +27,9 @@ done
 cat > "$STUB/agda" <<'AGDA'
 #!/bin/sh
 printf 'agda|%s|%s\n' "$PWD" "$*" >> "$TRACE"
-[ "$#" -eq 3 ] && [ "$1" = --safe ] && [ "$2" = --without-K ] || exit 90
-[ -f "$3" ] || exit 91
-[ "$3" != "$AGDA_FAIL" ] || exit 7
+[ "$#" -eq 9 ] && [ "$1 $2 $3 $4 $5 $6 $7 $8" = "--safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch" ] || exit 90
+[ -f "$9" ] || exit 91
+[ "$9" != "$AGDA_FAIL" ] || exit 7
 AGDA
 cat > "$STUB/idris2" <<'IDRIS'
 #!/bin/sh
@@ -60,7 +60,7 @@ RETIRED
 done
 chmod +x "$STUB/"{agda,idris2,z3,coqc,coq_makefile,make,lake,lean,isabelle,accom,verifier}
 
-MODULES=(CNO OND EchoBridgeScaffold EchoBridgeCNO)
+MODULES=(CNO OND EchoBridgeScaffold EchoBridgeCNO CNOTests EchoBridgeCNOTests)
 cases=0
 fails=0
 
@@ -87,7 +87,7 @@ reset_fixture() {
 expect_agda() {
   local module
   for module in "$@"; do
-    EXPECTED+="agda|$FIXTURE/proofs/agda|--safe --without-K $module.agda"$'\n'
+    EXPECTED+="agda|$FIXTURE/proofs/agda|--safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch $module.agda"$'\n'
   done
 }
 expect_z3() {
