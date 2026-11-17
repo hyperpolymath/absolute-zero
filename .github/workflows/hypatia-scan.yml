@@ -32,4 +32,7 @@ jobs:
       pull-requests: write
       security-events: write
     uses: metadatastician/standards/.github/workflows/hypatia-scan-reusable.yml@ba640e9a57f22608710ffecdca282074eac55a0b
-    secrets: inherit
+    # Explicit secrets map, not `secrets: inherit` (Hypatia WH008, Sonar
+    # S7635): the callee (standards@ba640e9) declares only this one.
+    secrets:
+      HYPATIA_SCAN_PAT: ${{ secrets.HYPATIA_SCAN_PAT }}
