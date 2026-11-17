@@ -197,8 +197,8 @@ axiomatic and generated artefacts, with OND-6 explicitly open — lives in
 link:PROOF-STATUS.adoc[PROOF-STATUS.adoc]. Figures quoted above for archived
 provers are historical counts of those archived trees, not active status.
 Proof Witness Grades (standards PROOF-POLICY §8) are recorded there too:
-the active Agda proofs are `proven` but `ungraded` until a PWG-3 receipt
-is recorded, the Z3 checks are `tested-only` (bounded), and OND-6 is
+18 headline Agda rows are `proven` and `PWG-3` (Agda checked, no Rocq
+or Lean leg; receipt `verification/receipts/absolute-zero-proofs_praxis.deed`), the Z3 checks are `tested-only` (bounded), and OND-6 is
 `open`.
 
 == [CAUTION]
