@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   rust-ci:
-    uses: metadatastician/standards/.github/workflows/rust-ci-reusable.yml@94572e612a7bf11f8e6343d19adadf17ef2a3de3
+    uses: metadatastician/standards/.github/workflows/rust-ci-reusable.yml@ba640e9a57f22608710ffecdca282074eac55a0b
     with:
       enable_audit: true
       enable_coverage: true

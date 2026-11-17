@@ -15,5 +15,5 @@ permissions:
 
 jobs:
   mirror:
-    uses: metadatastician/standards/.github/workflows/mirror-reusable.yml@94572e612a7bf11f8e6343d19adadf17ef2a3de3
+    uses: metadatastician/standards/.github/workflows/mirror-reusable.yml@75bd5994470661a099df562d6d5ad2fe744dbd66
     secrets: inherit

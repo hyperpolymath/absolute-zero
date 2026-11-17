@@ -37,4 +37,4 @@ jobs:
       contents: read
       security-events: write
       id-token: write
-    uses: metadatastician/standards/.github/workflows/scorecard-reusable.yml@94572e612a7bf11f8e6343d19adadf17ef2a3de3
+    uses: metadatastician/standards/.github/workflows/scorecard-reusable.yml@ba640e9a57f22608710ffecdca282074eac55a0b
