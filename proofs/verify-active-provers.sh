@@ -20,9 +20,9 @@ say() { printf '\n\033[1m== %s ==\033[0m\n' "$1"; }
 # ---- Agda (CNO + OND + EchoBridge) ----------------------------------------
 say "Agda — CNO + OND + EchoBridge"
 if command -v agda >/dev/null; then
-  ( cd "$HERE/agda" && for m in CNO OND EchoBridgeScaffold EchoBridgeCNO; do
+  ( cd "$HERE/agda" && for m in CNO OND EchoBridgeScaffold EchoBridgeCNO CNOTests EchoBridgeCNOTests; do
       [ -f "$m.agda" ] || { echo "$m.agda MISSING"; exit 1; }
-      echo "checking $m"; agda --safe --without-K "$m.agda" || exit 1
+      echo "checking $m"; agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch "$m.agda" || exit 1
     done ) || { echo "AGDA FAILED"; fail=1; }
 else echo "agda missing"; fail=1; fi
 
