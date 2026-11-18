@@ -63,12 +63,12 @@ dropped, and axiom dependence is tracked per row.
 
 | `proofs/agda/` — `CNO.agda`, `OND.agda`, `EchoBridgeScaffold.agda`, `EchoBridgeCNO.agda`
 | ACTIVE (CI `agda` job; `proofs/verify-active-provers.sh`)
-| Status: `proven` for each stated Agda term — zero postulates, every file `{-# OPTIONS --safe --without-K #-}`; EchoBridge takes funext as an *explicit hypothesis*, not a global postulate. Grade: `ungraded` (no PWG-3 receipt recorded; see the 2026-11-09 audit below). *What the CNO terms state is narrower than the pillar description*: see "Design audit (2026-11-09)" below before citing any CNO result
-| Domain formalisation of both pillars; discharges OND-1..5; contains no OND-6. The canonical profile `agda --safe --without-K --cubical-compatible` (standards PROOF-POLICY §2.1) passes locally (2026-11-09) and is the CI invocation from 2026-11-09. Open obligation: a PWG-3 receipt for that profile
+| Status: `proven` for each stated Agda term — zero postulates, every file `{-# OPTIONS --safe --without-K #-}`; EchoBridge takes funext as an *explicit hypothesis*, not a global postulate. Grade: `PWG-3` for the 18 headline rows of "Ledger (PWG receipt rows)" below (receipt `verification/receipts/absolute-zero-proofs_praxis.deed`, source `8a3162a`); OND-6 is `ungraded`. *What the CNO terms state is narrower than the pillar description*: see "Design audit (2026-11-09)" below before citing any CNO result
+| Domain formalisation of both pillars; discharges OND-1..5; contains no OND-6. The canonical profile `agda --safe --without-K --cubical-compatible` (standards PROOF-POLICY §2.1) passes locally (2026-11-09) and is the CI invocation from 2026-11-09. Its PWG-3 receipt is recorded (2026-11-17); no Rocq or Lean leg exists
 
 | `proofs/z3/` — `ond/OND_checks.smt2` via `proofs/z3/verify.sh`
 | ACTIVE as bounded-check solver (CI `z3` job)
-| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat|unsat` annotation. Receipt reproduced in this sandbox 2026-11-01 (`z3` 4.16.0, `Z3-CHECK OK`, sat/unsat/sat). The 2026-11-09 OND-3 rewrite expects 5 verdicts, sat/unsat/sat/sat/sat, observed with `z3` 4.8.12 — see receipts below
+| `tested-only` — bounded SMT checks, no proof grade; every `(check-sat)` carries a `; expect sat\|unsat` annotation. Receipt reproduced in this sandbox 2026-11-01 (`z3` 4.16.0, `Z3-CHECK OK`, sat/unsat/sat). The 2026-11-09 OND-3 rewrite expects 5 verdicts, sat/unsat/sat/sat/sat, observed with `z3` 4.8.12 — see receipts below
 | Bounds: finite/bounded programs under a finite declared `O`; not a general proof
 
 | `src/abi/` + `absolute-zero-abi.ipkg` (Idris 2)
@@ -106,6 +106,138 @@ dropped, and axiom dependence is tracked per row.
 | `argued` — declarative/generate proof inputs and honesty registers, not proofs
 | Declared observation models `+O+` and residue lists; every OND certificate is relative to its declared `+O+`
 |===
+
+=== Ledger (PWG receipt rows, 2026-11-17)
+
+The receipt is
+link:verification/receipts/absolute-zero-proofs_praxis.deed[`verification/receipts/absolute-zero-proofs_praxis.deed`]
+(standards PROOF-POLICY §8.5.1). It describes source commit `8a3162a` and the
+`agda` job of `proofs.yml` run
+https://github.com/hyperpolymath/absolute-zero/actions/runs/43612221557/job/132499519568[43612221557]
+on that commit: Agda 2.6.3, agda-stdlib `v1.7.3` (`0817da6`), each of the four
+roots checked with
+`agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch`.
+The import cone is 128 modules: the four roots, 115 stdlib modules and nine
+modules supplied with Agda. A comment-aware postulate scan of the cone finds
+only the four `Agda.Primitive` level postulates, which the receipt lists as its
+trusted base. standards `deed_lint.js --proof-receipt-json` and
+`scripts/check-proof-receipt.sh` both pass on the receipt.
+
+No Rocq or Lean development states the active pc-driven model, so every row
+below is `PWG-3`: Agda source checked, no recheck leg. The archived Coq and Lean
+trees state the earlier definitions and are not a leg for these rows.
+
+Census: 19 rows; 18 `PWG-3`, 0 `PWG-2i`, 0 `PWG-2ii`, 0 `PWG-1`, 1 `ungraded`
+(OND-6, `open`).
+
+[cols="1,2,4,1",options="header"]
+|===
+| Row | Agda term | Statement and scope | Grade
+
+| CNO-1
+| `run-sound`, `run-complete` (`CNO.agda`)
+| The fuel interpreter `run` and the big-step relation `_⊢_⇓_` agree: a fuel run that returns `just s'` is a derivation, and every derivation is a fuel run for some fuel.
+| `PWG-3`
+
+| CNO-2
+| `⇓-det`
+| The machine is deterministic: two derivations from one program and state stop at the same state.
+| `PWG-3`
+
+| CNO-3
+| `cno-from-runs`, `cno-terminates-thm`, `cno-result-run`, `cno-preserves-state`
+| `IsCNO p` holds exactly when, from every state started at pc 0, the machine stops at a state `obs-eq` to the start (memory, registers and I/O; not the pc).
+| `PWG-3`
+
+| CNO-4
+| `cno-pure-thm`
+| A run of a CNO changes neither I/O nor memory.
+| `PWG-3`
+
+| CNO-5
+| `cno-left-inverse`
+| Running one CNO after another restores memory, registers and I/O. Observational only; nothing thermodynamic.
+| `PWG-3`
+
+| CNO-6
+| `cno-composition`
+| If `p₁` is closed (every jump targets one of its instructions or its end) and `p₁`, `p₂` are CNOs, `seq-comp p₁ p₂` is a CNO.
+| `PWG-3`
+
+| CNO-7
+| `closedness-needed`
+| Counterexample: two CNOs, the first not closed, whose composite is not a CNO. The closedness hypothesis of CNO-6 cannot be dropped.
+| `PWG-3`
+
+| CNO-8
+| `nop-is-cno`, `jump-exit-is-cno`, `nop-nop-is-cno`, `absolute-zero-is-cno`
+| `Nop`, `Jump 1` and `Nop ; Nop` are CNOs, so the class is not Halt-only. `absolute-zero` is the empty program; EB-2 uses its certificate.
+| `PWG-3`
+
+| CNO-9
+| `load-not-cno`
+| A `Load` that changes a register is not a CNO, so the class is not everything.
+| `PWG-3`
+
+| CNO-10
+| `jump-self-diverges`
+| `Jump 0` never stops from pc 0, so termination is a real condition.
+| `PWG-3`
+
+| OND-2
+| `OND2-skip-is-OND` (`OND.agda`)
+| `skip` is OND under every observation model.
+| `PWG-3`
+
+| OND-3
+| `OND3-cno-ond-independent`
+| Nullity and OND are independent: a null operation that leaks through timing, and a non-null operation that is OND under `O-all`. Uses `OND.agda`'s local `is-null`, not `CNO.IsCNO`.
+| `PWG-3`
+
+| OND-4
+| `OND4-ct-select-is-OND-all`
+| `ct-select`, which copies the public cell to the output in time 1, is OND under `O-all`. The Agda instance is this one operation; the residue register `proofs/residue/ct_select.residue` cites the archived Coq theorem, not this term.
+| `PWG-3`
+
+| OND-5
+| `OND5-non-composition`
+| Two operations OND under `O-out` whose sequential composite is not. Stated under `O-out`; the archived Coq and Lean state it under `O_all`.
+| `PWG-3`
+
+| EB-1
+| `echo-from-cno` (`EchoBridgeScaffold.agda`)
+| For any `CNOModel`, a CNO operation gives an echo of every state.
+| `PWG-3`
+
+| EB-2
+| `echo-from-cno-program-rel`, `absolute-zero-echo-rel` (`EchoBridgeCNO.agda`)
+| A CNO program gives a relational echo (`EchoRel`, up to `obs-eq`) of every state. No extensionality.
+| `PWG-3`
+
+| EB-3
+| `echo-from-cno-program-≡`, `absolute-zero-echo-≡`
+| The same echo with `≡` on the observable projection `observe`. Takes function extensionality as an explicit argument.
+| `PWG-3`
+
+| EB-4
+| `program-state-model`, `echo-from-certified-program`
+| Certified programs form a `CNOModel` over observable states, so each gives an echo. Takes function extensionality as an explicit argument.
+| `PWG-3`
+
+| OND-6
+| none
+| Conditional composition (research capstone). `open`: no statement yet (`docs/OND-ROADMAP.adoc`).
+| `ungraded`
+|===
+
+OND-1 is the definition `is-OND` and is not a row. The test modules
+`CNOTests.agda` and `EchoBridgeCNOTests.agda` are not roots of the receipt.
+The CI `agda` job and `proofs/verify-active-provers.sh` check them from
+2026-11-17 on, under the same invocation; the receipt's run predates that.
+They passed locally then (Agda 2.6.3, stdlib v1.7.3).
+
+A later commit that changes a file in the receipt's manifests is not
+described by it. Such a change needs a new receipt.
 
 === Design audit (2026-11-09)
 
@@ -220,7 +352,7 @@ be cited as proof status for any other repository.
 *Cross-repo note (2026-11-01).* `epistemic-types` (at `5422cd5`) is an
 *independent* proof library with **no dependency on absolute-zero**. Any
 cross-repo claim must therefore name the exact theorem, its scope, and its
-assumptions (e.g. "OND-1..5, `proven`, `ungraded`, Agda `--safe --without-K`,
+assumptions (e.g. "OND-2..5, `proven`, `PWG-3`, Agda `--safe --without-K --cubical-compatible`,
 relative to a declared `O`") — never a bare count imported from this repo.
 Mathesis (the estate mathematical knowledge commons) may *catalogue* these
 receipts and grades, but per its own architecture the original repositories
@@ -383,6 +515,12 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
   `scripts/provision-agda-stdlib.sh` (`just provision-agda-stdlib`) — the same
   script the CI `agda` job runs; it fails if the tag no longer resolves to the
   pinned commit. Set `AGDA_DIR` to keep it out of `~/.agda`.
+* Flags in force (2026-11-17): every file declares `--safe --without-K
+  --cubical-compatible --exact-split --no-sized-types --no-guardedness`, and CI
+  adds `--cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch`.
+  The PWG-3 receipt for this profile is
+  `verification/receipts/absolute-zero-proofs_praxis.deed`; see "Ledger (PWG
+  receipt rows)" above.
 
 == Lean 4 — ARCHIVED (historical receipt; not built or gated since 2026-10-10)
 

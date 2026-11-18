@@ -62,7 +62,7 @@ jobs:
         # `standard-library` (what absolute-zero.agda-lib depends on), and writes
         # ~/.agda/libraries + ~/.agda/defaults.
         run: bash scripts/provision-agda-stdlib.sh
-      - name: Type-check CNO + OND + EchoBridge (4 modules, PROOF-POLICY 2.1 + strict flags)
+      - name: Type-check CNO + OND + EchoBridge + tests (6 modules, PROOF-POLICY 2.1 + strict flags)
         working-directory: proofs/agda
         # The canonical invocation (standards PROOF-POLICY 2.1) is
         # `agda --safe --without-K --cubical-compatible`.  The other strict
@@ -75,7 +75,10 @@ jobs:
           agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch OND.agda
           agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch EchoBridgeScaffold.agda
           agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch EchoBridgeCNO.agda
-          echo "✓ Agda: CNO + OND + EchoBridgeScaffold + EchoBridgeCNO type-check"
+          # Test modules: concrete runs, positive and negative controls.
+          agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch CNOTests.agda
+          agda --safe --without-K --cubical-compatible --double-check -W error -W noUnsupportedIndexedMatch EchoBridgeCNOTests.agda
+          echo "✓ Agda: CNO + OND + EchoBridgeScaffold + EchoBridgeCNO + 2 test modules type-check"
 
   z3:
     name: Z3 — CNO + OND bounded checks
