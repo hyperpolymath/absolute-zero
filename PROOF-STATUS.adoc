@@ -78,17 +78,17 @@ dropped, and axiom dependence is tracked per row.
 
 | `archive/proofs/coq/` — 14 theories
 | ARCHIVED 2026-10-10 — not built, not gated
-| `proven-with-postulates` — *historical, superseded*: headline "115 Qed / 0 Admitted / 61 Axioms"; census 109/182 top-level theorems closed under the global context, 73 resting on stdlib classical axioms and/or tagged parameters; 17 headline theorems zero-axiom. At best a Grade 2i *candidate* (Coq is DTT-family like Agda); receipts predate the archive ruling and are not CI evidence
+| `proven-with-postulates` — *historical, superseded*: headline "115 Qed / 0 Admitted / 61 Axioms"; census 109/182 top-level theorems closed under the global context, 73 resting on stdlib classical axioms and/or tagged parameters; 17 headline theorems zero-axiom. At best a PWG-2i *candidate* (Coq is DTT-family like Agda); receipts predate the archive ruling and are not CI evidence
 | Counts describe this archived tree only; class-A / METAL-BOUNDARY tag grammar as recorded in the tree
 
 | `archive/proofs/lean4/`
 | ARCHIVED 2026-10-10 — not built, not gated
-| `proven-with-postulates` — *historical*: 52 Lean axioms incl. the strengthened `FilesystemCNO` preconditions and the class-A `y_combinator_not_identity`. Lean is DTT-family, so this leg adds no foundational diversity toward Grade 2ii
+| `proven-with-postulates` — *historical*: 52 Lean axioms incl. the strengthened `FilesystemCNO` preconditions and the class-A `y_combinator_not_identity`. Lean is DTT-family, so this leg adds no foundational diversity toward PWG-2ii
 | Historical counts describe this tree only
 
 | `archive/proofs/isabelle/`, `archive/proofs/mizar/`
 | ARCHIVED 2026-10-10 — not built, not gated
-| *Historical receipts*: proved in their day (Isabelle: no `sorry`/`oops`; Mizar: empty `CNO.err`). Isabelle/HOL is the non-DTT (HOL/LCF) leg that could have supported Grade 2ii diversity — but it is archived and unexecuted, so it confers no current grade
+| *Historical receipts*: proved in their day (Isabelle: no `sorry`/`oops`; Mizar: empty `CNO.err`). Isabelle/HOL is the non-DTT (HOL/LCF) leg that could have supported PWG-2ii diversity — but it is archived and unexecuted, so it confers no current grade
 | Not evidence in the active gate
 
 | `archive/proofs/verify-all-provers.six-prover.sh` + `archive/proofs/tests/gate-selftest.six-prover.sh`
@@ -634,5 +634,5 @@ capstone) remains open by design — see `docs/OND-ROADMAP.adoc`.
   The two former unsound declarations in `StatMechBasis.v` (`prob_nonneg` and
   `prob_normalized`, which claimed Kolmogorov properties over raw unconstrained
   functions `ProgramState -> R`) have been deleted; zero theorems depend on either.
-* The 17 named headline theorems remain 100% closed under the global context (zero axioms,
+* The 17 named headline theorems remain closed (17 of 17) under the global context (zero axioms,
   formerly CI-gated by `archive/proofs/coq/check-assumptions.sh`; not run since the 2026-10-10 archive ruling).
